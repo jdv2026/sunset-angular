@@ -1,0 +1,83 @@
+<div @fadeInUp class="flex flex-col justify-center w-full p-6 sm:p-10">
+	<div class="flex items-center gap-2 mb-6">
+		<button mat-icon-button (click)="onCancel()" [disabled]="loading">
+			<mat-icon>arrow_back</mat-icon>
+		</button>
+		<div>
+			<h2 class="text-2xl font-bold leading-tight">
+				{{ isRecoveryMode ? 'Account Recovery' : 'Two-Factor Authentication' }}
+			</h2>
+			<p class="text-secondary text-sm">
+				{{ isRecoveryMode ? 'Enter one of your saved recovery codes' : 'Enter the 6-digit code from your authenticator app' }}
+			</p>
+		</div>
+	</div>
+
+	<!-- OTP Form -->
+	<form *ngIf="!isRecoveryMode" [formGroup]="twoFaForm" class="space-y-4" (ngSubmit)="onSubmit()">
+		<mat-form-field appearance="outline" class="w-full">
+			<mat-label>Authentication Code</mat-label>
+			<input
+				matInput
+				type="text"
+				inputmode="numeric"
+				maxlength="6"
+				formControlName="otp"
+				placeholder="000000"
+				autocomplete="one-time-code" />
+			<mat-icon matSuffix>security</mat-icon>
+			<mat-error *ngIf="twoFaControls.otp.touched && twoFaControls.otp.invalid">
+				<span *ngIf="twoFaControls.otp.errors?.['required']">Code is required</span>
+				<span *ngIf="twoFaControls.otp.errors?.['minlength'] || twoFaControls.otp.errors?.['maxlength']">Code must be exactly 6 digits</span>
+				<span *ngIf="twoFaControls.otp.errors?.['pattern']">Code must contain digits only</span>
+			</mat-error>
+		</mat-form-field>
+
+		<p class="text-red-500 text-sm" *ngIf="errorMessage">{{ errorMessage }}</p>
+
+		<button
+			mat-flat-button
+			type="submit"
+			color="primary"
+			class="w-full h-12 text-base"
+			[disabled]="loading || twoFaForm.invalid">
+			{{ loading ? 'Verifying...' : 'Verify' }}
+		</button>
+	</form>
+
+	<!-- Recovery Form -->
+	<form *ngIf="isRecoveryMode" [formGroup]="recoveryForm" class="space-y-4" (ngSubmit)="onRecoverySubmit()">
+		<mat-form-field appearance="outline" class="w-full">
+			<mat-label>Recovery Code</mat-label>
+			<input
+				matInput
+				type="text"
+				formControlName="recovery_code"
+				autocomplete="off" />
+			<mat-icon matSuffix>key</mat-icon>
+			<mat-error *ngIf="recoveryControls.recovery_code.touched && recoveryControls.recovery_code.invalid">
+				Recovery code is required
+			</mat-error>
+		</mat-form-field>
+
+		<p class="text-red-500 text-sm" *ngIf="errorMessage">{{ errorMessage }}</p>
+
+		<button
+			mat-flat-button
+			type="submit"
+			color="primary"
+			class="w-full h-12 text-base"
+			[disabled]="loading || recoveryForm.invalid">
+			{{ loading ? 'Recovering...' : 'Recover Account' }}
+		</button>
+	</form>
+
+	<!-- Toggle -->
+	<button
+		mat-button
+		class="w-full mt-3 text-sm"
+		[disabled]="loading"
+		(click)="toggleRecoveryMode()">
+		{{ isRecoveryMode ? 'Back to authenticator' : 'Lost access to your authenticator?' }}
+	</button>
+</div>

@@ -1,0 +1,157 @@
+<vex-main-loading *ngIf="loading"></vex-main-loading>
+
+<div @fadeInUp class="login-card card mx-2 sm:mx-4 rounded-2xl shadow-xl overflow-hidden flex flex-col md:flex-row w-full max-w-4xl">
+
+	<!-- Left Panel: compact top strip on mobile, full sidebar on desktop -->
+	<div class="left-panel flex flex-row md:flex-col justify-between items-center md:items-stretch w-full md:w-1/2 px-5 py-4 md:p-10">
+
+		<!-- Brand (always visible) + hero text (desktop only) -->
+		<div>
+			<div class="flex items-center gap-2 md:gap-3 md:mb-10">
+				<div class="brand-icon rounded-xl w-8 h-8 md:w-10 md:h-10 flex items-center justify-center">
+					<mat-icon>grid_view</mat-icon>
+				</div>
+				<span class="text-base md:text-xl font-bold brand-title">Personal Hub</span>
+			</div>
+			<h1 class="hidden md:block text-3xl font-bold leading-tight mb-3 hero-text">
+				Your life,<br/>organized.
+			</h1>
+			<p class="hidden md:block hero-sub text-sm leading-relaxed">
+				A personal command center for finances, scheduling, and daily routines — all in one place.
+			</p>
+		</div>
+
+		<!-- Mobile: compact icon pills -->
+		<div class="flex gap-2 md:hidden">
+			<div class="module-pill flex items-center gap-1 rounded-full px-3 py-1">
+				<mat-icon class="module-icon-budget pill-icon">account_balance_wallet</mat-icon>
+				<span class="text-xs module-title hidden sm:inline">Budget</span>
+			</div>
+			<div class="module-pill flex items-center gap-1 rounded-full px-3 py-1">
+				<mat-icon class="module-icon-schedule pill-icon">calendar_month</mat-icon>
+				<span class="text-xs module-title hidden sm:inline">Schedule</span>
+			</div>
+			<div class="module-pill flex items-center gap-1 rounded-full px-3 py-1">
+				<mat-icon class="module-icon-analytics pill-icon">bar_chart</mat-icon>
+				<span class="text-xs module-title hidden sm:inline">Analytics</span>
+			</div>
+		</div>
+
+		<!-- Desktop: full module cards -->
+		<div class="hidden md:block space-y-3">
+			<div class="module-card flex items-center gap-3 rounded-xl px-4 py-3">
+				<mat-icon class="module-icon-budget">account_balance_wallet</mat-icon>
+				<div>
+					<p class="module-title text-sm font-semibold">Budget Tracker</p>
+					<p class="module-sub text-xs">Track income, expenses &amp; savings goals</p>
+				</div>
+			</div>
+			<div class="module-card flex items-center gap-3 rounded-xl px-4 py-3">
+				<mat-icon class="module-icon-schedule">calendar_month</mat-icon>
+				<div>
+					<p class="module-title text-sm font-semibold">Scheduler</p>
+					<p class="module-sub text-xs">Plan your week and manage appointments</p>
+				</div>
+			</div>
+			<div class="module-card flex items-center gap-3 rounded-xl px-4 py-3">
+				<mat-icon class="module-icon-analytics">bar_chart</mat-icon>
+				<div>
+					<p class="module-title text-sm font-semibold">Analytics</p>
+					<p class="module-sub text-xs">Visualize your habits and progress</p>
+				</div>
+			</div>
+		</div>
+
+		<p class="footer-note text-xs hidden md:block">Your personal data, secured and private.</p>
+	</div>
+
+	<!-- Right Panel -->
+	<div class="flex flex-col justify-center w-full md:w-1/2">
+
+		<!-- QR Setup View (first-time 2FA) -->
+		<app-qr-setup
+			*ngIf="showQrSetup"
+			[qrCodeUrl]="qrCodeUrl"
+			[secret]="qrSecret"
+			(setupComplete)="onQrSetupComplete($event)"
+			(cancelled)="onQrSetupCancelled()">
+		</app-qr-setup>
+
+		<!-- Recovery Codes View -->
+		<app-recovery-codes
+			*ngIf="showRecoveryCodes && recoveryCodesRes"
+			[res]="recoveryCodesRes!"
+			(acknowledged)="onRecoveryCodesAcknowledged($event)">
+		</app-recovery-codes>
+
+		<!-- 2FA View -->
+		<app-two-fa
+			*ngIf="show2fa"
+			(verified)="on2faVerified($event)"
+			(recovered)="on2faRecovered()"
+			(cancelled)="on2faCancelled()">
+		</app-two-fa>
+
+		<!-- Login Form -->
+		<div *ngIf="!show2fa && !showQrSetup && !showRecoveryCodes" class="p-6 sm:p-10">
+			<h2 class="text-2xl font-bold mb-1">Welcome back</h2>
+			<p class="text-secondary text-sm" [class.mb-4]="recoverySuccessMessage" [class.mb-8]="!recoverySuccessMessage">Sign in to access your dashboard</p>
+
+			<div *ngIf="recoverySuccessMessage" class="flex items-start gap-2 text-sm bg-amber-50 border border-amber-200 text-amber-800 rounded-lg px-3 py-2 mb-6">
+				<mat-icon class="text-sm mt-0.5 text-amber-600">info</mat-icon>
+				{{ recoverySuccessMessage }}
+			</div>
+
+			<form [formGroup]="loginForm" class="space-y-4">
+				<mat-form-field appearance="outline" class="w-full">
+					<mat-label>Username</mat-label>
+					<input matInput type="text" formControlName="username" />
+					<mat-error *ngIf="loginControls.username.touched && loginControls.username.invalid">
+						<span *ngIf="loginControls.username.errors?.['required']">Username is required</span>
+						<span *ngIf="loginControls.username.errors?.['minlength']">At least 3 characters</span>
+						<span *ngIf="loginControls.username.errors?.['maxlength']">At most 50 characters</span>
+					</mat-error>
+				</mat-form-field>
+
+				<mat-form-field appearance="outline" class="w-full">
+					<mat-label>Password</mat-label>
+					<input matInput type="password" formControlName="password" />
+					<mat-error *ngIf="loginControls.password.touched && loginControls.password.invalid">
+						<span *ngIf="loginControls.password.errors?.['required']">Password is required</span>
+						<span *ngIf="loginControls.password.errors?.['minlength']">At least 8 characters</span>
+						<span *ngIf="loginControls.password.errors?.['maxlength']">At most 50 characters</span>
+					</mat-error>
+				</mat-form-field>
+
+				<p class="text-red-500 text-sm" *ngIf="errorMessage">{{ errorMessage }}</p>
+
+				<button
+					mat-flat-button
+					(click)="onSubmit()"
+					color="primary"
+					class="w-full h-12 text-base"
+					[disabled]="loading || loginForm.invalid">
+					{{ loading ? 'Signing in...' : 'Sign In' }}
+				</button>
+			</form>
+
+			<div class="flex items-center my-6">
+				<div class="flex-1 h-px bg-border"></div>
+				<span class="px-3 text-xs text-secondary">OR</span>
+				<div class="flex-1 h-px bg-border"></div>
+			</div>
+
+			<button
+				mat-stroked-button
+				class="w-full h-12">
+				Continue as Guest
+			</button>
+
+			<p class="text-xs text-secondary mt-3 text-center">
+				Guest access provides a read-only preview of all modules.
+			</p>
+		</div>
+
+	</div>
+
+</div>

@@ -1,0 +1,54 @@
+<div @fadeInUp class="flex flex-col justify-center w-full p-6 sm:p-10">
+
+	<div class="flex items-center gap-2 mb-6">
+		<button mat-icon-button (click)="onCancel()" [disabled]="loading">
+			<mat-icon>arrow_back</mat-icon>
+		</button>
+		<div>
+			<h2 class="text-2xl font-bold leading-tight">Set Up Two-Factor Authentication</h2>
+			<p class="text-secondary text-sm">Scan the QR code with your authenticator app</p>
+		</div>
+	</div>
+
+	<!-- QR Code -->
+	<div class="flex justify-center mb-6">
+		<div class="p-3 bg-white rounded-xl shadow-inner border border-border">
+			<img [src]="qrCodeUrl" alt="2FA QR Code" class="w-44 h-44" />
+		</div>
+	</div>
+
+	<p class="text-secondary text-xs text-center mb-6">
+		Use Google Authenticator, Authy, or any TOTP app to scan the code above, then enter the 6-digit code below to confirm.
+	</p>
+
+	<form [formGroup]="qrSetupForm" class="space-y-4" (ngSubmit)="onSubmit()">
+		<mat-form-field appearance="outline" class="w-full">
+			<mat-label>Confirmation Code</mat-label>
+			<input
+				matInput
+				type="text"
+				inputmode="numeric"
+				maxlength="6"
+				formControlName="otp"
+				placeholder="000000"
+				autocomplete="one-time-code" />
+			<mat-icon matSuffix>qr_code_scanner</mat-icon>
+			<mat-error *ngIf="qrSetupControls.otp.touched && qrSetupControls.otp.invalid">
+				<span *ngIf="qrSetupControls.otp.errors?.['required']">Code is required</span>
+				<span *ngIf="qrSetupControls.otp.errors?.['minlength'] || qrSetupControls.otp.errors?.['maxlength']">Code must be exactly 6 digits</span>
+				<span *ngIf="qrSetupControls.otp.errors?.['pattern']">Code must contain digits only</span>
+			</mat-error>
+		</mat-form-field>
+
+		<p class="text-red-500 text-sm" *ngIf="errorMessage">{{ errorMessage }}</p>
+
+		<button
+			mat-flat-button
+			type="submit"
+			color="primary"
+			class="w-full h-12 text-base"
+			[disabled]="loading || qrSetupForm.invalid">
+			{{ loading ? 'Activating...' : 'Activate 2FA' }}
+		</button>
+	</form>
+</div>

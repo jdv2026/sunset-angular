@@ -1,0 +1,63 @@
+@import "~simplebar/dist/simplebar.css";
+@import "~highlight.js/styles/androidstudio.css";
+// Vex Core
+@import "./@vex/styles/core";
+
+/*
+  You can override any CSS Variable or style here
+  Example:
+
+  :root {
+   --vex-sidenav-background: #333333;
+  }
+
+  All possible variables can be found in @vex/styles/core or by simply inspecting the element you want to change
+  in Chrome/Firefox DevTools
+*/
+
+/**
+  Uncomment the below code and adjust the values to fit your colors, the application will automatically adjust
+ */
+html {
+  // --vex-color-primary: blue;
+  // --vex-color-primary-contrast: white;
+
+  // --vex-color-accent: yellow;
+  // --vex-color-accent-contrast: black;
+
+  // --vex-color-warn: yellow;
+  // --vex-color-warn-contrast: black;
+}
+
+.bred {
+  	color: red;
+	background-color: red;
+	border-color: red;
+}
+
+.bg-pattern {
+	background: linear-gradient(
+		70deg,
+		var(--vex-background-background) 22px,
+		var(--vex-background-hover) 22px,
+		var(--vex-background-hover) 24px,
+		transparent 24px,
+		transparent 67px,
+		var(--vex-background-hover) 67px,
+		var(--vex-background-hover) 69px,
+		transparent 69px
+	),
+	linear-gradient(
+		115deg,
+		var(--vex-background-background) 22px,
+		var(--vex-background-hover) 22px,
+		var(--vex-background-hover) 24px,
+		transparent 24px,
+		transparent 67px,
+		var(--vex-background-hover) 67px,
+		var(--vex-background-hover) 69px,
+		transparent 69px
+	) 0 64px;
+	background-color: var(--vex-background-background);
+	background-size: 64px 128px;
+}

@@ -1,0 +1,70 @@
+.login-card {
+	min-height: 480px;
+
+	@media (max-width: 599px) {
+		min-height: unset;
+	}
+}
+
+.left-panel {
+	background: linear-gradient(145deg, #4338ca 0%, #3730a3 60%, #312e81 100%);
+
+	.brand-icon {
+		background: rgba(255, 255, 255, 0.15);
+		color: white;
+	}
+
+	.brand-title {
+		color: white;
+	}
+
+	.hero-text {
+		color: white;
+	}
+
+	.hero-sub {
+		color: rgba(255, 255, 255, 0.65);
+	}
+
+	// Icon colors shared by both pills and cards
+	.module-icon-budget  { color: #fbbf24; }
+	.module-icon-schedule { color: #6ee7b7; }
+	.module-icon-analytics { color: #93c5fd; }
+
+	.module-pill {
+		background: rgba(255, 255, 255, 0.12);
+
+		.pill-icon {
+			font-size: 18px;
+			width: 18px;
+			height: 18px;
+			line-height: 18px;
+		}
+
+		.module-title {
+			color: white;
+		}
+	}
+
+	.module-card {
+		background: rgba(255, 255, 255, 0.1);
+		backdrop-filter: blur(4px);
+		transition: background 0.2s ease;
+
+		&:hover {
+			background: rgba(255, 255, 255, 0.17);
+		}
+
+		.module-title {
+			color: white;
+		}
+
+		.module-sub {
+			color: rgba(255, 255, 255, 0.55);
+		}
+	}
+
+	.footer-note {
+		color: rgba(255, 255, 255, 0.35);
+	}
+}

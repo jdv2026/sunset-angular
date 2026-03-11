@@ -1,0 +1,47 @@
+<div @fadeInUp class="flex flex-col justify-center w-full p-6 sm:p-10">
+
+	<div class="flex items-center gap-2 mb-2">
+		<mat-icon class="text-primary">shield</mat-icon>
+		<h2 class="text-2xl font-bold leading-tight">Save Your Recovery Codes</h2>
+	</div>
+	<p class="text-secondary text-sm mb-6">
+		Store these codes in a safe place. Each code can only be used once to access your account if you lose your authenticator.
+	</p>
+
+	<div class="grid grid-cols-2 gap-2 mb-6">
+		<div
+			*ngFor="let code of codes"
+			class="recovery-code font-mono text-sm text-center py-2 px-3 rounded-lg border border-border bg-surface tracking-widest select-all">
+			{{ code }}
+		</div>
+	</div>
+
+	<ng-container *ngIf="codes.length > 0">
+		<p class="text-xs text-secondary mb-4 flex items-center gap-1">
+			<mat-icon class="text-sm">info</mat-icon>
+			These codes will not be shown again. Copy or print them now.
+		</p>
+
+		<button
+			mat-stroked-button
+			class="w-full h-10 mb-3"
+			(click)="onCopy()">
+			<mat-icon>{{ copied ? 'check' : 'content_copy' }}</mat-icon>
+			{{ copied ? 'Copied!' : 'Copy All Codes' }}
+		</button>
+	</ng-container>
+
+	<p class="text-xs text-secondary mb-3 flex items-start gap-1">
+		<mat-icon class="text-sm mt-0.5">warning</mat-icon>
+		You will be asked to sign in again with your new 2FA authenticator after continuing.
+	</p>
+
+	<button
+		mat-flat-button
+		color="primary"
+		class="w-full h-12 text-base"
+		(click)="onContinue()">
+		I've Saved My Codes — Continue
+	</button>
+
+</div>

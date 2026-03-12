@@ -83,6 +83,14 @@
                   "maximumError": "5mb"
                 }
               ]
+            },
+            "development": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.development.ts"
+                }
+              ]
             }
           }
         },
@@ -94,6 +102,9 @@
           "configurations": {
             "production": {
               "buildTarget": "vex:build:production"
+            },
+            "development": {
+              "buildTarget": "vex:build:development"
             }
           }
         },

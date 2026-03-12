@@ -10,7 +10,8 @@ import { StorageService } from './Storage.service';
   	providedIn: 'root',
 })
 export abstract class BaseApiService {
-	protected readonly baseUrl = environment.baseUrl;
+	private useURL = '';
+	protected readonly authServiceUrl = environment.authServiceUrl;
 
 	constructor(
 		protected http: HttpClient,
@@ -22,6 +23,11 @@ export abstract class BaseApiService {
 	* Core HTTP helpers
 	* ------------------------- */
 
+	protected authServicePost<T>(params: ApiRequest): Promise<T> {
+		this.useURL = this.authServiceUrl;
+		return this.post(params);
+	}
+
 	protected get<T>(url: string, params?: Record<string, any>): Observable<T> {
 		return this.http.get<T>(
 			this.buildUrl(url),
@@ -32,7 +38,7 @@ export abstract class BaseApiService {
 		);
 	}
 
-	protected async post<T>(params: ApiRequest): Promise<T> {
+	private async post<T>(params: ApiRequest): Promise<T> {
 		const observable = this.http.post<T>(
 			this.buildUrl(params.url),
 			params.payload,
@@ -83,7 +89,7 @@ export abstract class BaseApiService {
 	* ------------------------- */
 
 	private buildUrl(url: string): string {
-		return `${this.baseUrl}${url}`;
+		return `${this.useURL}${url}`;
 	}
 
 	private buildHeaders(): HttpHeaders {

@@ -49,12 +49,12 @@ export class PrivateService extends BaseApiService {
 
 	fetchUserData(): Promise<ApiResponse<MetaDataResponse>> {
 		this.appService.postRequestParameter.url = 'web/user';
-		return this.post(this.appService.postRequestParameter);
+		return this.authServicePost(this.appService.postRequestParameter);
 	}
 
 	fetchNavigationList(): Promise<ApiResponse<MetaDataResponse>> {
 		this.appService.postRequestParameter.url = 'web/nav';
-		return this.post(this.appService.postRequestParameter);
+		return this.authServicePost(this.appService.postRequestParameter);
 	}
 
 }

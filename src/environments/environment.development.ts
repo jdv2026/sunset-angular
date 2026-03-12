@@ -1,9 +1,8 @@
 import { LogLevel } from "src/app/contracts/LogLevel";
 
 export const environment = {
-    isProduction: true,
-    logLevel: LogLevel.INFO,
-    authServiceUrl: 'https://auth.jdvistal.tech/api/',
+    isProduction: false,
+    logLevel: LogLevel.DEBUG,
+    authServiceUrl: 'http://localhost:9999/api/',
 	token: 'pr-be-token',
 };
-  

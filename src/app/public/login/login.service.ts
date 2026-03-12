@@ -27,25 +27,25 @@ export class LoginService extends BaseApiService {
 	adminLogin(requestPayload: LoginForm): Promise<ApiResponse<preLoginResponse>> {
 		this.appService.postRequestParameter.url = 'web/user/login';
 		this.appService.postRequestParameter.payload = requestPayload;
-		return this.post(this.appService.postRequestParameter);
+		return this.authServicePost(this.appService.postRequestParameter);
 	}
 
 	verify2faCode(payload: QrSetupForm): Promise<ApiResponse<{ token: string }>> {
 		this.appService.postRequestParameter.url = 'web/2fa/verify';
 		this.appService.postRequestParameter.payload = payload;
-		return this.post(this.appService.postRequestParameter);
+		return this.authServicePost(this.appService.postRequestParameter);
 	}
 
 	verifyFirstTime2faCode(payload: QrSetupForm): Promise<ApiResponse> {
 		this.appService.postRequestParameter.url = 'web/firsttime/2fa/verify';
 		this.appService.postRequestParameter.payload = payload;
-		return this.post(this.appService.postRequestParameter);
+		return this.authServicePost(this.appService.postRequestParameter);
 	}
 
 	recoverLogin(payload: RecoveryForm): Promise<ApiResponse> {
 		this.appService.postRequestParameter.url = 'web/2fa/recovery';
 		this.appService.postRequestParameter.payload = payload;
-		return this.post(this.appService.postRequestParameter);
+		return this.authServicePost(this.appService.postRequestParameter);
 	}
 
 }

@@ -91,11 +91,11 @@ export class AppService extends BaseApiService {
 
 	handleAppInitialization(): Promise<ApiResponse<MetaDataResponse>> {
 		this.postRequestParameter.url = 'web/meta/data';
-		return this.post(this.postRequestParameter);
+		return this.authServicePost(this.postRequestParameter);
 	}
 
 	globalApiCall(params: ApiRequest): Promise<ApiResponse<MetaDataResponse>> {
-		return this.post(params);
+		return this.authServicePost(params);
 	}
 
 }

@@ -27,7 +27,7 @@ export class ToolbarNotificationsDropdownService extends BaseApiService {
 	fetchNotification(): Promise<ApiResponse> {
 		this.appService.postRequestParameter.url = 'web/get/notifications';
 		this.appService.postRequestParameter.payload = this.storageService.getToken();
-		return this.post(this.appService.postRequestParameter);
+		return this.authServicePost(this.appService.postRequestParameter);
 	}
 
 	markAllNotificationAsRead(notification: Notification): Promise<ApiResponse> {
@@ -36,7 +36,7 @@ export class ToolbarNotificationsDropdownService extends BaseApiService {
 			token: this.storageService.getToken(),
 			id: notification.id
 		};
-		return this.post(this.appService.postRequestParameter);
+		return this.authServicePost(this.appService.postRequestParameter);
 	}
 
 	markAllAsRead(): Promise<ApiResponse> {
@@ -44,7 +44,7 @@ export class ToolbarNotificationsDropdownService extends BaseApiService {
 		this.appService.postRequestParameter.payload = {
 			token: this.storageService.getToken()
 		};
-		return this.post(this.appService.postRequestParameter);
+		return this.authServicePost(this.appService.postRequestParameter);
 	}
 	
 }

@@ -24,7 +24,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/pr-fe-1:latest
+          tags: ${{ secrets.DOCKER_USERNAME }}/sunset-angular:latest
 
       - name: Deploy to server via SSH
         uses: appleboy/ssh-action@v1
@@ -33,11 +33,11 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
-            docker pull ${{ secrets.DOCKER_USERNAME }}/pr-fe-1:latest
+            docker pull ${{ secrets.DOCKER_USERNAME }}/sunset-angular:latest
             docker stop sunset-angular || true
             docker rm sunset-angular || true
             docker run -d \
               --name sunset-angular \
               --restart unless-stopped \
               -p 127.0.0.1:4000:80 \
-              ${{ secrets.DOCKER_USERNAME }}/pr-fe-1:latest
+              ${{ secrets.DOCKER_USERNAME }}/sunset-angular:latest

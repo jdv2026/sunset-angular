@@ -39,5 +39,5 @@ jobs:
             docker run -d \
               --name pr-fe-1 \
               --restart unless-stopped \
-              -p 80:80 \
+              -p 4000:80 \
               ${{ secrets.DOCKER_USERNAME }}/pr-fe-1:latest

@@ -1,0 +1,101 @@
+<div class="p-6">
+
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-6">
+        <div>
+            <h1 class="text-2xl font-semibold">Bills</h1>
+            <p class="text-sm text-gray-500 mt-1">Manage your recurring bills and subscriptions</p>
+        </div>
+        <button mat-raised-button color="primary" (click)="openAdd()">
+            <mat-icon class="mr-1">add</mat-icon>
+            Add Bill
+        </button>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="grid grid-cols-4 gap-4 mb-6">
+        <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
+            <p class="text-sm text-gray-500">Monthly Total</p>
+            <p class="text-2xl font-semibold text-gray-800 mt-1">{{ totalMonthly | currency }}</p>
+        </div>
+        <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
+            <p class="text-sm text-gray-500">Paid</p>
+            <p class="text-2xl font-semibold text-green-600 mt-1">{{ totalPaid | currency }}</p>
+        </div>
+        <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
+            <p class="text-sm text-gray-500">Upcoming</p>
+            <p class="text-2xl font-semibold text-blue-500 mt-1">{{ upcomingCount }}</p>
+        </div>
+        <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
+            <p class="text-sm text-gray-500">Overdue</p>
+            <p class="text-2xl font-semibold mt-1" [class.text-red-500]="overdueCount > 0" [class.text-gray-800]="overdueCount === 0">
+                {{ overdueCount }}
+            </p>
+        </div>
+    </div>
+
+    <!-- Bills List -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+        <div *ngFor="let bill of sortedBills; let last = last"
+            class="bill-row flex items-center gap-4 px-5 py-4"
+            [class.border-b]="!last"
+            [class.border-gray-100]="!last">
+
+            <!-- Icon -->
+            <div class="icon-wrap" [style.background-color]="bill.color + '1a'" [style.color]="bill.color">
+                <mat-icon>{{ bill.icon }}</mat-icon>
+            </div>
+
+            <!-- Name & Category -->
+            <div class="flex-1 min-w-0">
+                <p class="font-medium text-gray-800 truncate">{{ bill.name }}</p>
+                <p class="text-xs text-gray-400">{{ bill.category }} &middot; {{ bill.frequency | titlecase }}</p>
+            </div>
+
+            <!-- Due Date Label -->
+            <div class="text-right min-w-[100px]">
+                <span class="status-badge" [ngClass]="bill.status">{{ getDueDateLabel(bill) }}</span>
+            </div>
+
+            <!-- Amount -->
+            <div class="text-right min-w-[90px]">
+                <p class="font-semibold text-gray-800">{{ bill.amount | currency }}</p>
+            </div>
+
+            <!-- Mark Paid Button -->
+            <div class="min-w-[90px] flex justify-end">
+                <button *ngIf="bill.status !== 'paid'" mat-stroked-button class="mark-paid-btn"
+                    (click)="markPaid(bill)">
+                    Mark Paid
+                </button>
+                <mat-icon *ngIf="bill.status === 'paid'" class="text-green-500">check_circle</mat-icon>
+            </div>
+
+            <!-- Actions -->
+            <div>
+                <button mat-icon-button [matMenuTriggerFor]="menu">
+                    <mat-icon>more_vert</mat-icon>
+                </button>
+                <mat-menu #menu="matMenu">
+                    <button mat-menu-item (click)="openEdit(bill)">
+                        <mat-icon>edit</mat-icon>
+                        <span>Edit</span>
+                    </button>
+                    <button mat-menu-item (click)="delete(bill.id)">
+                        <mat-icon>delete</mat-icon>
+                        <span>Delete</span>
+                    </button>
+                </mat-menu>
+            </div>
+
+        </div>
+
+        <!-- Empty State -->
+        <div *ngIf="bills.length === 0" class="flex flex-col items-center justify-center py-16 text-gray-400">
+            <mat-icon style="font-size: 48px; width: 48px; height: 48px;" class="mb-3">receipt_long</mat-icon>
+            <p class="text-base font-medium">No bills yet</p>
+            <p class="text-sm mt-1">Add a bill to start tracking your recurring payments</p>
+        </div>
+    </div>
+
+</div>

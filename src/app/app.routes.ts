@@ -27,7 +27,34 @@ export const appRoutes: VexRoutes = [
 		component: PrivateComponent,
 		canActivate: [authGuard],
 		children: [
-		
+			{
+				path: 'home',
+				loadComponent: () => import('./private/home/home.component').then(m => m.HomeComponent)
+			},
+			{
+				path: 'budget/overview',
+				loadComponent: () => import('./private/budget/overview/overview.component').then(m => m.OverviewComponent)
+			},
+			{
+				path: 'budget/transactions',
+				loadComponent: () => import('./private/budget/transactions/transactions.component').then(m => m.TransactionsComponent)
+			},
+			{
+				path: 'budget/categories',
+				loadComponent: () => import('./private/budget/categories/categories.component').then(m => m.CategoriesComponent)
+			},
+			{
+				path: 'budget/reports',
+				loadComponent: () => import('./private/budget/reports/reports.component').then(m => m.ReportsComponent)
+			},
+			{
+				path: 'budget/goals',
+				loadComponent: () => import('./private/budget/goals/goals.component').then(m => m.GoalsComponent)
+			},
+			{
+				path: 'budget/bills',
+				loadComponent: () => import('./private/budget/bills/bills.component').then(m => m.BillsComponent)
+			}
 		]
 	}
 ];

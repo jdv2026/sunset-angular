@@ -57,7 +57,7 @@ export class ErrorPageComponent implements OnInit {
 
 	goHome() {
 		this.errorPageService.setError(false);
-		this.router.navigate(['/dashboard/analytics']).catch(() => this.location.back());
+		this.router.navigate(['/dashboard/home']).catch(() => this.location.back());
 	}
 
 	goBack() {

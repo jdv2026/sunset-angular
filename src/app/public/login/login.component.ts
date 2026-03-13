@@ -159,7 +159,7 @@ export class LoginComponent {
 	private onLoginSuccess(res: ApiResponse<authCredentials>): void {
 		this.storageService.setToken(res.payload.token);
 		this.appService.setUser(res.payload.user);
-		this.router.navigate(['/dashboard/analytics']);
+		this.router.navigate(['/dashboard/home']);
 	}
 
 	private onFailedLogin(err: unknown): void {

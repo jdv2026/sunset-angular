@@ -107,8 +107,6 @@ export class PrivateComponent implements OnInit {
 			const res: ApiResponse = await this.privateService.fetchUserData();
 			this.logService.debug('user', res);
 			this.appService.setUser(res.payload.user);
-			this.appService.setSetting(res.payload.settings);
-			this.initializeConfig();
 			this.initializeNavigation();
 			this.isLoading = false;
 		}
@@ -144,32 +142,6 @@ export class PrivateComponent implements OnInit {
 		catch (err: unknown) {
 			this.logService.error('nav', err);
 		}
-	}
-
-	private initializeConfig() {
-		this.settings = this.appService.currentSetting;
-		
-		const orientation = this.settings?.orientation == 'left' ? 'ltr' : 'rtl';
-		const toolBar = this.settings?.toolBar ? 'Fixed' : 'Static';
-
-		vexConfigs.apollo.style.themeClassName = this.settings?.className;
-		vexConfigs.apollo.direction = orientation;
-		vexConfigs.apollo.toolbar.fixed = toolBar == 'Fixed' ? true : false;
-		vexConfigs.apollo.footer.fixed = this.settings?.footerFixed ? true : false;
-
-		this.configService.updateConfig({
-			style: {
-				themeClassName: this.settings?.className,
-				colorScheme: this.settings?.isDarkMode ? VexColorScheme.DARK : VexColorScheme.LIGHT
-			},
-			direction: orientation,
-			toolbar: {
-				fixed: toolBar == 'Fixed' ? true : false
-			},
-			footer: {
-				fixed: this.settings?.footer ? true : false
-			}
-		});
 	}
 
 }

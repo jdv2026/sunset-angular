@@ -1,0 +1,66 @@
+<div class="p-6">
+
+    <!-- Header -->
+    <div class="mb-6">
+        <h1 class="text-2xl font-semibold">Reports</h1>
+        <p class="text-sm text-gray-500 mt-1">Financial summary and spending insights</p>
+    </div>
+
+    <!-- View Mode Toggle -->
+    <div class="mb-6">
+        <mat-button-toggle-group [(ngModel)]="viewMode" (ngModelChange)="onViewModeChange()">
+            <mat-button-toggle value="daily">Daily</mat-button-toggle>
+            <mat-button-toggle value="monthly">Monthly</mat-button-toggle>
+            <mat-button-toggle value="yearly">Yearly</mat-button-toggle>
+        </mat-button-toggle-group>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="grid grid-cols-4 gap-4 mb-6">
+        <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
+            <p class="text-sm text-gray-500">Total Income</p>
+            <p class="text-2xl font-semibold text-green-600 mt-1">{{ totalIncome | currency }}</p>
+        </div>
+        <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
+            <p class="text-sm text-gray-500">Total Expenses</p>
+            <p class="text-2xl font-semibold text-red-500 mt-1">{{ totalExpenses | currency }}</p>
+        </div>
+        <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
+            <p class="text-sm text-gray-500">Net Balance</p>
+            <p class="text-2xl font-semibold mt-1"
+                [class.text-green-600]="balance >= 0"
+                [class.text-red-500]="balance < 0">
+                {{ balance | currency }}
+            </p>
+        </div>
+        <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
+            <p class="text-sm text-gray-500">Savings Rate</p>
+            <p class="text-2xl font-semibold mt-1"
+                [class.text-green-600]="savingsRate >= 20"
+                [class.text-yellow-500]="savingsRate > 0 && savingsRate < 20"
+                [class.text-red-500]="savingsRate <= 0">
+                {{ savingsRate }}%
+            </p>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="grid grid-cols-2 gap-4">
+
+        <!-- Income vs Expenses Bar Chart -->
+        <div class="bg-white rounded-lg p-5 shadow-sm border border-gray-100">
+            <p class="font-semibold text-gray-800 mb-1">Income vs Expenses</p>
+            <p class="text-xs text-gray-400 mb-4">{{ barChartSubtitle }}</p>
+            <vex-chart [options]="barChartOptions" [series]="barChartSeries"></vex-chart>
+        </div>
+
+        <!-- Category Donut Chart -->
+        <div class="bg-white rounded-lg p-5 shadow-sm border border-gray-100">
+            <p class="font-semibold text-gray-800 mb-1">Expenses by Category</p>
+            <p class="text-xs text-gray-400 mb-4">Breakdown of spending</p>
+            <vex-chart [options]="donutChartOptions" [series]="donutChartSeries"></vex-chart>
+        </div>
+
+    </div>
+
+</div>

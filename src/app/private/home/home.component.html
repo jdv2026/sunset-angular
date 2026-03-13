@@ -1,0 +1,95 @@
+<div class="p-6">
+
+    <!-- Greeting Banner -->
+    <div class="greeting-banner rounded-xl p-6 mb-6 flex items-center justify-between">
+        <div>
+            <p class="text-sm text-blue-100 mb-1">{{ dateLabel }}</p>
+            <h1 class="text-2xl font-semibold text-white">{{ greeting }}, {{ firstName }}!</h1>
+            <p class="text-blue-100 text-sm mt-1">Here's what's happening with your finances today.</p>
+        </div>
+        <div class="banner-icon">
+            <mat-icon>account_balance_wallet</mat-icon>
+        </div>
+    </div>
+
+    <!-- Quick Access -->
+    <div class="mb-6">
+        <p class="text-sm font-medium text-gray-500 mb-3 uppercase tracking-wide">Quick Access</p>
+        <div class="grid grid-cols-6 gap-3">
+            <a *ngFor="let link of quickLinks"
+                [routerLink]="link.route"
+                class="quick-card bg-white rounded-xl p-4 shadow-sm border border-gray-100 flex flex-col items-center gap-2 text-center no-underline">
+                <div class="quick-icon" [style.background-color]="link.color + '1a'" [style.color]="link.color">
+                    <mat-icon>{{ link.icon }}</mat-icon>
+                </div>
+                <p class="text-sm font-medium text-gray-800">{{ link.label }}</p>
+                <p class="text-xs text-gray-400 leading-tight">{{ link.description }}</p>
+            </a>
+        </div>
+    </div>
+
+    <!-- Bottom Grid -->
+    <div class="grid grid-cols-3 gap-4">
+
+        <!-- Today's Snapshot -->
+        <div class="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
+            <p class="font-semibold text-gray-800 mb-4">Today's Snapshot</p>
+            <div class="flex flex-col gap-4">
+                <div class="snapshot-row">
+                    <div class="flex items-center gap-3">
+                        <span class="snapshot-dot bg-green-500"></span>
+                        <div>
+                            <p class="text-xs text-gray-400">Income</p>
+                            <p class="text-lg font-semibold text-green-600">$1,750.00</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="snapshot-row">
+                    <div class="flex items-center gap-3">
+                        <span class="snapshot-dot bg-red-500"></span>
+                        <div>
+                            <p class="text-xs text-gray-400">Expenses</p>
+                            <p class="text-lg font-semibold text-red-500">$108.50</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="divider"></div>
+                <div class="flex items-center gap-3">
+                    <span class="snapshot-dot bg-blue-500"></span>
+                    <div>
+                        <p class="text-xs text-gray-400">Net Today</p>
+                        <p class="text-lg font-semibold text-blue-600">$1,641.50</p>
+                    </div>
+                </div>
+                <a routerLink="/dashboard/budget/overview" mat-button color="primary" class="mt-1 w-full">
+                    View Full Overview
+                </a>
+            </div>
+        </div>
+
+        <!-- Recent Activity (2/3) -->
+        <div class="col-span-2 bg-white rounded-xl p-5 shadow-sm border border-gray-100">
+            <div class="flex items-center justify-between mb-4">
+                <p class="font-semibold text-gray-800">Recent Activity</p>
+                <a routerLink="/dashboard/budget/transactions" class="text-xs text-blue-500 hover:underline">View Transactions</a>
+            </div>
+            <div class="flex flex-col gap-0">
+                <div *ngFor="let item of recentActivity; let last = last"
+                    class="activity-row flex items-center gap-4 py-3"
+                    [class.border-b]="!last"
+                    [class.border-gray-100]="!last">
+                    <div class="activity-icon" [style.background-color]="item.color + '1a'" [style.color]="item.color">
+                        <mat-icon style="font-size: 18px; width: 18px; height: 18px;">{{ item.icon }}</mat-icon>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-medium text-gray-800">{{ item.title }}</p>
+                        <p class="text-xs text-gray-400">{{ item.subtitle }}</p>
+                    </div>
+                    <p *ngIf="item.time" class="text-xs text-gray-400">{{ item.time }}</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>

@@ -11,6 +11,6 @@ export const unAuthGuard: CanActivateFn = (route, state) => {
 	if (!storage) {
 		return true;
 	}
-	router.navigate(['/dashboard/analytics']);
+	router.navigate(['/dashboard/home']);
 	return false;
 };

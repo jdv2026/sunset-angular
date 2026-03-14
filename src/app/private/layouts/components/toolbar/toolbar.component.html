@@ -28,8 +28,14 @@
 
 	<div class="-mx-1 flex items-center">
 
-		<div class="px-1">
+		<div class="px-1" *ngIf="!guestMode">
 			<vex-toolbar-notifications></vex-toolbar-notifications>
+		</div>
+
+		<div class="px-1" *ngIf="guestMode">
+			<a routerLink="/" mat-flat-button color="primary" class="h-9 text-sm">
+				Sign In
+			</a>
 		</div>
 
 		<mat-menu

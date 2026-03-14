@@ -4,6 +4,7 @@ import {
   ElementRef,
   HostBinding,
   inject,
+  Input,
   OnInit
 } from '@angular/core';
 import { VexLayoutService } from '@vex/services/vex-layout.service';
@@ -46,6 +47,8 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 	]
 })
 export class ToolbarComponent implements OnInit {
+	@Input() guestMode = false;
+
 	@HostBinding('class.shadow-b')
 	showShadow: boolean = false;
 

@@ -4,6 +4,7 @@ import { PrivateComponent } from './private/private.component';
 import { authGuard } from './core/auth.guard';
 import { ErrorPageComponent } from './utilities/error-page/error-page.component';
 import { errorGuard } from './core/error.guard';
+import { GuestComponent } from './public/guest/guest.component';
 
 export const appRoutes: VexRoutes = [
 	{
@@ -19,6 +20,45 @@ export const appRoutes: VexRoutes = [
 			{
 				path: '',
 				loadComponent: () => import('./public/login/login.component').then(m => m.LoginComponent),
+			},
+		]
+	},
+	{
+		path: 'guest',
+		component: GuestComponent,
+		children: [
+			{
+				path: 'home',
+				loadComponent: () => import('./public/guest/home/home.component').then(m => m.HomeComponent),
+			},
+			{
+				path: 'budget/overview',
+				loadComponent: () => import('./public/guest/budget/overview/overview.component').then(m => m.OverviewComponent),
+			},
+			{
+				path: 'budget/transactions',
+				loadComponent: () => import('./public/guest/budget/transactions/transactions.component').then(m => m.TransactionsComponent),
+			},
+			{
+				path: 'budget/categories',
+				loadComponent: () => import('./public/guest/budget/categories/categories.component').then(m => m.CategoriesComponent),
+			},
+			{
+				path: 'budget/reports',
+				loadComponent: () => import('./public/guest/budget/reports/reports.component').then(m => m.ReportsComponent),
+			},
+			{
+				path: 'budget/goals',
+				loadComponent: () => import('./public/guest/budget/goals/goals.component').then(m => m.GoalsComponent),
+			},
+			{
+				path: 'budget/bills',
+				loadComponent: () => import('./public/guest/budget/bills/bills.component').then(m => m.BillsComponent),
+			},
+			{
+				path: '',
+				redirectTo: 'home',
+				pathMatch: 'full',
 			},
 		]
 	},

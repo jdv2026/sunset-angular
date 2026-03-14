@@ -162,6 +162,10 @@ export class LoginComponent {
 		this.router.navigate(['/dashboard/home']);
 	}
 
+	continueAsGuest(): void {
+		this.router.navigate(['/guest/home']);
+	}
+
 	private onFailedLogin(err: unknown): void {
 		this.errorMessage = (err as any).error.message ?? 'Login failed';
 		this.loading = false;

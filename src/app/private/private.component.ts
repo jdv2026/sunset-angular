@@ -75,7 +75,6 @@ export class PrivateComponent implements OnInit {
 	public sidenavOpen$: Observable<boolean> = this.layoutService.sidenavOpen$;
 	public configPanelOpen$: Observable<boolean> = this.layoutService.configPanelOpen$;
 	public quickpanelOpen$: Observable<boolean> = this.layoutService.quickpanelOpen$;
-	private settings: settingModify | null = null;
 
 	constructor(
 		private readonly layoutService: VexLayoutService,

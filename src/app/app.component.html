@@ -1,4 +1,10 @@
-<span *ngIf="version$ | async as v" class="fixed bottom-3 right-4 text-xs text-secondary z-[9999]">v{{ v }}</span>
+<span
+	*ngIf="version$ | async as v"
+	[matTooltip]="'v' + v"
+	matTooltipPosition="above"
+	class="fixed bottom-3 right-4 text-xs text-secondary z-[9999] cursor-default select-none">
+	Version
+</span>
 
 <ng-container *ngIf="error; else notError">
 	<vex-vague-error-page></vex-vague-error-page>

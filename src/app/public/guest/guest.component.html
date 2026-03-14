@@ -1,0 +1,28 @@
+<vex-base-layout *ngIf="config$ | async as config">
+	<ng-container *ngIf="isLoading">
+		<vex-main-loading></vex-main-loading>
+	</ng-container>
+	<mat-sidenav-container *ngIf="!isLoading" class="vex-layout-sidenav-container">
+		<mat-sidenav
+			(closedStart)="onSidenavClosed()"
+			[disableClose]="!!(sidenavDisableClose$ | async)"
+			[fixedInViewport]="!!(sidenavFixedInViewport$ | async)"
+			[mode]="(sidenavMode$ | async) ?? 'side'"
+			[opened]="!!(sidenavOpen$ | async)">
+			<vex-sidenav [collapsed]="!!(sidenavCollapsed$ | async)"></vex-sidenav>
+		</mat-sidenav>
+		<mat-sidenav-content class="vex-layout-sidenav-content">
+			<vex-toolbar [class.dark]="config.layout === 'vertical'" class="vex-toolbar" [guestMode]="true"></vex-toolbar>
+			<main class="vex-layout-content">
+				<vex-secondary-toolbar *ngIf="crumbs$ | async as crumbs" [current]="crumbs.current">
+					<vex-breadcrumbs [crumbs]="crumbs.crumbs"></vex-breadcrumbs>
+				</vex-secondary-toolbar>
+				<div class="container">
+					<router-outlet></router-outlet>
+				</div>
+			</main>
+			<vex-footer *ngIf="config.footer.visible" class="vex-footer"></vex-footer>
+		</mat-sidenav-content>
+	</mat-sidenav-container>
+</vex-base-layout>
+  

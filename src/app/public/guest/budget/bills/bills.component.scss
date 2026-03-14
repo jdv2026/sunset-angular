@@ -1,0 +1,47 @@
+.icon-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    flex-shrink: 0;
+}
+
+.bill-row {
+    transition: background-color 0.15s;
+
+    &:hover {
+        background-color: #f9fafb;
+    }
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+
+    &.paid {
+        background-color: #dcfce7;
+        color: #16a34a;
+    }
+
+    &.upcoming {
+        background-color: #dbeafe;
+        color: #2563eb;
+    }
+
+    &.overdue {
+        background-color: #fee2e2;
+        color: #dc2626;
+    }
+}
+
+.mark-paid-btn {
+    font-size: 12px;
+    line-height: 28px;
+    padding: 0 12px;
+    height: 28px;
+}

@@ -6,6 +6,7 @@ import { LoggerService } from './services/Logger.service';
 import { Observable } from 'rxjs';
 import { MainLoadingComponent } from './utilities/main-loading/main-loading.component';
 import { CommonModule } from '@angular/common';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { VagueErrorPageComponent } from './utilities/vague-error-page/vague-error-page.component';
 import { MetaDataResponse } from './private/private.contracts';
 
@@ -17,6 +18,7 @@ import { MetaDataResponse } from './private/private.contracts';
 		RouterOutlet,
 		MainLoadingComponent,
 		CommonModule,
+		MatTooltipModule,
 		VagueErrorPageComponent
 	],
 })

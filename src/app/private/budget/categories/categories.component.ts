@@ -4,9 +4,16 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { CategoryDialogComponent } from './category-dialog/category-dialog.component';
 import { Category, CategoryDialogData } from './categories.contracts';
 import { PrivateService } from '../../private.service';
+import { CategoriesService } from './categories.service';
+import { LoadingComponent } from 'src/app/utilities/loading/loading.component';
+import { SuccessModalComponent } from 'src/app/utilities/success-modal/success-modal.component';
+import { ConfirmationDialogComponent } from 'src/app/utilities/confirmation-dialog/confirmation-dialog.component';
+import { ApiResponse } from 'src/app/contracts/ApiResponse';
+import { ErrorHandlerService } from 'src/app/services/ErrorHandler.service';
 
 @Component({
 	selector: 'vex-categories',
@@ -17,62 +24,119 @@ import { PrivateService } from '../../private.service';
 		MatIconModule,
 		MatDialogModule,
 		MatMenuModule,
+		MatTooltipModule,
 	],
 	templateUrl: './categories.component.html',
 	styleUrl: './categories.component.scss'
 })
 export class CategoriesComponent implements OnInit {
 
-	categories: Category[] = [
-		{ id: 1, name: 'Food', icon: 'restaurant', color: '#f97316', budget: 500, spent: 147.90 },
-		{ id: 2, name: 'Transport', icon: 'directions_car', color: '#3b82f6', budget: 200, spent: 45.00 },
-		{ id: 3, name: 'Utilities', icon: 'bolt', color: '#8b5cf6', budget: 300, spent: 120.00 },
-		{ id: 4, name: 'Entertainment', icon: 'movie', color: '#ec4899', budget: 150, spent: 15.99 },
-		{ id: 5, name: 'Health', icon: 'favorite', color: '#10b981', budget: 250, spent: 0 },
-		{ id: 6, name: 'Income', icon: 'payments', color: '#22c55e', budget: 0, spent: 0 },
-	];
+	categories: Category[] = [];
+	expandedIds = new Set<number>();
 
 	constructor(
 		private readonly dialog: MatDialog,
 		private readonly privateService: PrivateService,
+		private readonly categoriesService: CategoriesService,
+		private readonly errorHandler: ErrorHandlerService,
 	) {}
 
 	ngOnInit(): void {
 		this.setBreadcrumb();
+		this.initActiveCategories();
 	}
 
-	getProgress(category: Category): number {
-		if (category.budget === 0) return 0;
-		return Math.min((category.spent / category.budget) * 100, 100);
-	}
-
-	getProgressColor(category: Category): string {
-		const pct = this.getProgress(category);
-		if (pct >= 90) return '#ef4444';
-		if (pct >= 70) return '#f59e0b';
-		return category.color;
+	toggleDescription(id: number): void {
+		this.expandedIds.has(id) ? this.expandedIds.delete(id) : this.expandedIds.add(id);
 	}
 
 	openAdd(): void {
 		const ref = this.dialog.open(CategoryDialogComponent, { width: '480px' });
-		ref.afterClosed().subscribe((result: Omit<Category, 'id' | 'spent'> | undefined) => {
+		ref.afterClosed().subscribe(async (result: Omit<Category, 'id'> | undefined) => {
 			if (!result) return;
-			this.categories.push({ ...result, id: this.categories.length + 1, spent: 0 });
+			const loadingRef = this.dialog.open(LoadingComponent, {
+				disableClose: true,
+				panelClass: 'loading-dialog',
+				backdropClass: 'loading-backdrop',
+				data: { title: 'Saving', message: 'Please wait...' },
+				width: '400px',
+			});
+			try {
+				await this.categoriesService.storeCategoriesIcon({ payload: result } as any);
+				loadingRef.close();
+				this.dialog.open(SuccessModalComponent, {
+					data: { items: [{ header: 'Category Created', message: `"${result.name}" has been added successfully.` }] },
+					width: '400px',
+				});
+				this.initActiveCategories();
+			} catch (err: unknown) {
+				loadingRef.close();
+				this.errorHandler.open('Failed to Create', err);
+			}
 		});
 	}
 
 	openEdit(category: Category): void {
 		const data: CategoryDialogData = { category };
 		const ref = this.dialog.open(CategoryDialogComponent, { width: '480px', data });
-		ref.afterClosed().subscribe((result: Omit<Category, 'id' | 'spent'> | undefined) => {
+		ref.afterClosed().subscribe(async (result: Omit<Category, 'id'> | undefined) => {
 			if (!result) return;
-			const idx = this.categories.findIndex(c => c.id === category.id);
-			if (idx !== -1) this.categories[idx] = { ...this.categories[idx], ...result };
+			const loadingRef = this.dialog.open(LoadingComponent, {
+				disableClose: true,
+				panelClass: 'loading-dialog',
+				backdropClass: 'loading-backdrop',
+				data: { title: 'Saving', message: 'Please wait...' },
+				width: '400px',
+			});
+			try {
+				await this.categoriesService.updateActiveCategory(category.id, result);
+				loadingRef.close();
+				this.dialog.open(SuccessModalComponent, {
+					data: { items: [{ header: 'Category Updated', message: `"${result.name}" has been updated successfully.` }] },
+					width: '400px',
+				});
+				this.initActiveCategories();
+			} catch (err: unknown) {
+				loadingRef.close();
+				this.errorHandler.open('Failed to Update', err);
+			}
 		});
 	}
 
-	delete(id: number): void {
-		this.categories = this.categories.filter(c => c.id !== id);
+	delete(category: Category): void {
+		const confirmRef = this.dialog.open(ConfirmationDialogComponent, {
+			width: '400px',
+			data: {
+				warning: true,
+				items: [{
+					header: 'Delete Category',
+					message: `Are you sure you want to delete "${category.name}"?`,
+					description: 'This will permanently delete all data related to this category, including its transactions and history.',
+				}],
+			},
+		});
+		confirmRef.afterClosed().subscribe(async (confirmed: boolean) => {
+			if (!confirmed) return;
+			const loadingRef = this.dialog.open(LoadingComponent, {
+				disableClose: true,
+				panelClass: 'loading-dialog',
+				backdropClass: 'loading-backdrop',
+				data: { title: 'Deleting', message: 'Please wait...' },
+				width: '400px',
+			});
+			try {
+				await this.categoriesService.deleteActiveCategory(category.id);
+				loadingRef.close();
+				this.dialog.open(SuccessModalComponent, {
+					data: { items: [{ header: 'Category Deleted', message: `"${category.name}" has been deleted successfully.` }] },
+					width: '400px',
+				});
+				this.categories = this.categories.filter(c => c.id !== category.id);
+			} catch (err: unknown) {
+				loadingRef.close();
+				this.errorHandler.open('Failed to Delete', err);
+			}
+		});
 	}
 
 	private setBreadcrumb(): void {
@@ -80,6 +144,23 @@ export class CategoriesComponent implements OnInit {
 			current: 'Categories',
 			crumbs: ['Budget', 'Categories'],
 		});
+	}
+
+	private async initActiveCategories(): Promise<void> {
+		try {
+			const res: ApiResponse = await this.categoriesService.fetchActiveCategories();
+			this.categories = res.payload.map((item: any) => ({
+				id: item.id,
+				name: item.name,
+				description: item.description,
+				icon: item.icon,
+				color: item.color,
+			}));
+
+		}
+		catch (err: unknown) {
+			this.errorHandler.open('Failed to Load', err);
+		}
 	}
 	
 }

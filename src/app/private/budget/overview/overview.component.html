@@ -130,8 +130,8 @@
             <div class="flex flex-col gap-4">
                 <div *ngFor="let goal of activeGoals">
                     <div class="flex items-center gap-3 mb-2">
-                        <div class="goal-icon" [style.background-color]="goal.color + '1a'" [style.color]="goal.color">
-                            <mat-icon style="font-size:18px;width:18px;height:18px;">{{ goal.icon }}</mat-icon>
+                        <div class="goal-icon" style="background-color:#22c55e1a;color:#22c55e">
+                            <mat-icon style="font-size:18px;width:18px;height:18px;">savings</mat-icon>
                         </div>
                         <div class="flex-1 min-w-0">
                             <div class="flex items-center justify-between">
@@ -142,7 +142,7 @@
                         </div>
                     </div>
                     <div class="progress-track">
-                        <div class="progress-fill" [style.width.%]="getGoalProgress(goal)" [style.background-color]="goal.color"></div>
+                        <div class="progress-fill" [style.width.%]="getGoalProgress(goal)" style="background-color:#22c55e"></div>
                     </div>
                 </div>
             </div>

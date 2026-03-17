@@ -1,13 +1,16 @@
 export interface Goal {
 	id: number;
 	name: string;
-	icon: string;
-	color: string;
 	target: number;
 	saved: number;
 	deadline: string;
+	description?: string;
+	category_id?: number;
 }
 
+import { Category } from '../categories/categories.contracts';
+
 export interface GoalDialogData {
-	goal: Goal;
+	goal?: Goal;
+	categories: Category[];
 }

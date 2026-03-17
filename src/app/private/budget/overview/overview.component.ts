@@ -6,6 +6,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { VexChartComponent, ApexOptions } from '@vex/components/vex-chart/vex-chart.component';
 import { Transaction } from '../transactions/transactions.contracts';
 import { Category, CATEGORY_COLOR_MAP } from '../categories/categories.contracts';
+
+type CategoryOverview = Pick<Category, 'id' | 'name' | 'icon' | 'color'> & { budget: number; spent: number };
 import { Goal } from '../goals/goals.contracts';
 import { Bill } from '../bills/bills.contracts';
 import { PrivateService } from '../../private.service';
@@ -37,7 +39,7 @@ export class OverviewComponent implements OnInit {
 		{ id: 7, date: '2026-03-13', description: 'Gas Station', category: 'Transport', type: 'expense', amount: 55.00, status: 'completed' },
 	];
 
-	readonly categories: Category[] = [
+	readonly categories: CategoryOverview[] = [
 		{ id: 1, name: 'Food', icon: 'restaurant', color: '#f97316', budget: 500, spent: 147.90 },
 		{ id: 2, name: 'Transport', icon: 'directions_car', color: '#3b82f6', budget: 200, spent: 55.00 },
 		{ id: 3, name: 'Utilities', icon: 'bolt', color: '#8b5cf6', budget: 300, spent: 120.00 },
@@ -46,9 +48,9 @@ export class OverviewComponent implements OnInit {
 	];
 
 	readonly goals: Goal[] = [
-		{ id: 1, name: 'Emergency Fund', icon: 'savings', color: '#22c55e', target: 10000, saved: 3500, deadline: '2026-12-31' },
-		{ id: 2, name: 'Vacation', icon: 'flight', color: '#3b82f6', target: 2500, saved: 800, deadline: '2026-07-01' },
-		{ id: 3, name: 'New Laptop', icon: 'laptop', color: '#8b5cf6', target: 1200, saved: 600, deadline: '2026-05-01' },
+		{ id: 1, name: 'Emergency Fund', target: 10000, saved: 3500, deadline: '2026-12-31' },
+		{ id: 2, name: 'Vacation', target: 2500, saved: 800, deadline: '2026-07-01' },
+		{ id: 3, name: 'New Laptop', target: 1200, saved: 600, deadline: '2026-05-01' },
 	];
 
 	readonly bills: Bill[] = [
@@ -89,19 +91,19 @@ export class OverviewComponent implements OnInit {
 	}
 
 	// Top categories by spent
-	get topCategories(): Category[] {
+	get topCategories(): CategoryOverview[] {
 		return [...this.categories]
 			.filter(c => c.spent > 0)
 			.sort((a, b) => b.spent - a.spent)
 			.slice(0, 4);
 	}
 
-	getCategoryProgress(cat: Category): number {
+	getCategoryProgress(cat: CategoryOverview): number {
 		if (cat.budget === 0) return 0;
 		return Math.min((cat.spent / cat.budget) * 100, 100);
 	}
 
-	getCategoryProgressColor(cat: Category): string {
+	getCategoryProgressColor(cat: CategoryOverview): string {
 		const pct = this.getCategoryProgress(cat);
 		if (pct >= 90) return '#ef4444';
 		if (pct >= 70) return '#f59e0b';

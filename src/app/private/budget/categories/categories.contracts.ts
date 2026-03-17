@@ -13,8 +13,7 @@ export interface Category {
 	name: string;
 	icon: string;
 	color: string;
-	budget: number;
-	spent: number;
+	description: string;
 }
 
 export interface CategoryDialogData {

@@ -156,8 +156,8 @@
             </div>
             <div class="flex flex-col gap-3">
                 <div *ngFor="let bill of upcomingBills" class="flex items-center gap-3">
-                    <div class="bill-icon" [style.background-color]="bill.color + '1a'" [style.color]="bill.color">
-                        <mat-icon style="font-size:18px;width:18px;height:18px;">{{ bill.icon }}</mat-icon>
+                    <div class="bill-icon" style="background-color:#64748b1a;color:#64748b">
+                        <mat-icon style="font-size:18px;width:18px;height:18px;">receipt_long</mat-icon>
                     </div>
                     <div class="flex-1 min-w-0">
                         <p class="text-sm font-medium text-gray-800 truncate">{{ bill.name }}</p>

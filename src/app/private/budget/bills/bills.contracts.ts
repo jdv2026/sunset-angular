@@ -1,18 +1,20 @@
+import { Category } from '../categories/categories.contracts';
+
 export type BillFrequency = 'weekly' | 'monthly' | 'yearly';
 export type BillStatus = 'paid' | 'upcoming' | 'overdue';
 
 export interface Bill {
 	id: number;
 	name: string;
-	icon: string;
-	color: string;
 	amount: number;
-	dueDate: string;
+	due_date: string;
 	frequency: BillFrequency;
 	status: BillStatus;
-	category: string;
+	description?: string;
+	category_id?: number;
 }
 
 export interface BillDialogData {
-	bill: Bill;
+	bill?: Bill;
+	categories: Category[];
 }

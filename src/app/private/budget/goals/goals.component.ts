@@ -4,6 +4,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { GoalDialogComponent } from './goal-dialog/goal-dialog.component';
 import { Goal, GoalDialogData } from './goals.contracts';
 import { PrivateService } from '../../private.service';
@@ -24,6 +25,7 @@ import { ErrorHandlerService } from 'src/app/services/ErrorHandler.service';
 		MatIconModule,
 		MatDialogModule,
 		MatMenuModule,
+		MatTooltipModule,
 		ConfirmationDialogComponent,
 	],
 	templateUrl: './goals.component.html',
@@ -61,6 +63,12 @@ export class GoalsComponent implements OnInit {
 		return Math.min((goal.saved / goal.target) * 100, 100);
 	}
 
+	expandedDescriptions = new Set<number>();
+
+	toggleDescription(id: number): void {
+		this.expandedDescriptions.has(id) ? this.expandedDescriptions.delete(id) : this.expandedDescriptions.add(id);
+	}
+
 	getCategoryFor(goal: Goal): Category | undefined {
 		return this.categories.find(c => c.id === goal.category_id);
 	}
@@ -90,7 +98,7 @@ export class GoalsComponent implements OnInit {
 
 	openAdd(): void {
 		const data: GoalDialogData = { categories: this.categories };
-		const ref = this.dialog.open(GoalDialogComponent, { width: '480px', data });
+		const ref = this.dialog.open(GoalDialogComponent, { width: '90vw', maxWidth: '480px', data });
 		ref.afterClosed().subscribe(async (result: Omit<Goal, 'id'> | undefined) => {
 			if (!result) return;
 			const loadingRef = this.dialog.open(LoadingComponent, {
@@ -118,7 +126,7 @@ export class GoalsComponent implements OnInit {
 
 	openEdit(goal: Goal): void {
 		const data: GoalDialogData = { goal, categories: this.categories };
-		const ref = this.dialog.open(GoalDialogComponent, { width: '480px', data });
+		const ref = this.dialog.open(GoalDialogComponent, { width: '90vw', maxWidth: '480px', data });
 		ref.afterClosed().subscribe(async (result: Omit<Goal, 'id'> | undefined) => {
 			if (!result) return;
 			const loadingRef = this.dialog.open(LoadingComponent, {

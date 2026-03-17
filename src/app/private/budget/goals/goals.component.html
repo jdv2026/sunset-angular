@@ -1,7 +1,7 @@
 <div class="p-6">
 
     <!-- Header -->
-    <div class="flex items-center justify-between mb-6">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
         <div>
             <h1 class="text-2xl font-semibold">Goals</h1>
             <p class="text-sm text-gray-500 mt-1">Track your savings goals and milestones</p>
@@ -13,7 +13,7 @@
     </div>
 
     <!-- Summary Row -->
-    <div class="grid grid-cols-3 gap-4 mb-6">
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
         <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
             <p class="text-sm text-gray-500">Total Goals</p>
             <p class="text-2xl font-semibold text-gray-800 mt-1">{{ goals.length }}</p>
@@ -29,7 +29,7 @@
     </div>
 
     <!-- Goal Cards -->
-    <div class="grid grid-cols-2 gap-4">
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
         <div *ngFor="let goal of goals" class="goal-card bg-white rounded-lg p-5 shadow-sm border border-gray-100">
 
             <!-- Card Header -->
@@ -37,11 +37,25 @@
                 <div class="flex items-center gap-3">
                     <div class="icon-wrap"
                         [style.background-color]="(getCategoryFor(goal)?.color ?? '#22c55e') + '1a'"
-                        [style.color]="getCategoryFor(goal)?.color ?? '#22c55e'">
+                        [style.color]="getCategoryFor(goal)?.color ?? '#22c55e'"
+                        [matTooltip]="getCategoryFor(goal)?.name || ''"
+                        [matTooltipDisabled]="!getCategoryFor(goal)?.name">
                         <mat-icon>{{ getCategoryFor(goal)?.icon ?? 'savings' }}</mat-icon>
                     </div>
                     <div>
                         <p class="font-semibold text-gray-800">{{ goal.name }}</p>
+                        <button *ngIf="goal.description" type="button"
+                            class="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600 mt-0.5"
+                            (click)="toggleDescription(goal.id)">
+                            <mat-icon style="font-size: 14px; width: 14px; height: 14px;">
+                                {{ expandedDescriptions.has(goal.id) ? 'expand_less' : 'expand_more' }}
+                            </mat-icon>
+                            {{ expandedDescriptions.has(goal.id) ? 'Hide' : 'Details' }}
+                        </button>
+                        <p *ngIf="goal.description && expandedDescriptions.has(goal.id)"
+                            class="text-xs text-gray-500 mt-1 max-w-[180px]">
+                            {{ goal.description }}
+                        </p>
                     </div>
                 </div>
                 <button mat-icon-button [matMenuTriggerFor]="menu" class="action-btn">

@@ -54,11 +54,11 @@ export class OverviewComponent implements OnInit {
 	];
 
 	readonly bills: Bill[] = [
-		{ id: 1, name: 'Rent', icon: 'home', color: '#3b82f6', amount: 1200.00, dueDate: '2026-03-01', frequency: 'monthly', status: 'paid', category: 'Housing' },
-		{ id: 5, name: 'Gym Membership', icon: 'fitness_center', color: '#10b981', amount: 50.00, dueDate: '2026-03-15', frequency: 'monthly', status: 'upcoming', category: 'Health' },
-		{ id: 6, name: 'Car Insurance', icon: 'directions_car', color: '#f97316', amount: 200.00, dueDate: '2026-03-10', frequency: 'monthly', status: 'overdue', category: 'Insurance' },
-		{ id: 7, name: 'Spotify', icon: 'subscriptions', color: '#22c55e', amount: 9.99, dueDate: '2026-03-25', frequency: 'monthly', status: 'upcoming', category: 'Entertainment' },
-		{ id: 8, name: 'Cloud Storage', icon: 'cloud', color: '#8b5cf6', amount: 2.99, dueDate: '2026-03-28', frequency: 'monthly', status: 'upcoming', category: 'Subscriptions' },
+		{ id: 1, name: 'Rent', amount: 1200.00, due_date: '2026-03-01', frequency: 'monthly', status: 'paid' },
+		{ id: 5, name: 'Gym Membership', amount: 50.00, due_date: '2026-03-15', frequency: 'monthly', status: 'upcoming' },
+		{ id: 6, name: 'Car Insurance', amount: 200.00, due_date: '2026-03-10', frequency: 'monthly', status: 'overdue' },
+		{ id: 7, name: 'Spotify', amount: 9.99, due_date: '2026-03-25', frequency: 'monthly', status: 'upcoming' },
+		{ id: 8, name: 'Cloud Storage', amount: 2.99, due_date: '2026-03-28', frequency: 'monthly', status: 'upcoming' },
 	];
 
 	// Summary
@@ -114,14 +114,14 @@ export class OverviewComponent implements OnInit {
 	get upcomingBills(): Bill[] {
 		return [...this.bills]
 			.filter(b => b.status !== 'paid')
-			.sort((a, b) => a.dueDate.localeCompare(b.dueDate))
+			.sort((a, b) => a.due_date.localeCompare(b.due_date))
 			.slice(0, 4);
 	}
 
 	getDueDateLabel(bill: Bill): string {
 		const today = new Date();
 		today.setHours(0, 0, 0, 0);
-		const due = new Date(bill.dueDate);
+		const due = new Date(bill.due_date);
 		const days = Math.ceil((due.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
 		if (days < 0) return `${Math.abs(days)}d overdue`;
 		if (days === 0) return 'Due today';

@@ -32,7 +32,7 @@ import { ErrorHandlerService } from 'src/app/services/ErrorHandler.service';
 export class CategoriesComponent implements OnInit {
 
 	categories: Category[] = [];
-	expandedIds = new Set<number>();
+	expandedMap: { [id: number]: boolean } = {};
 
 	constructor(
 		private readonly dialog: MatDialog,
@@ -46,12 +46,12 @@ export class CategoriesComponent implements OnInit {
 		this.initActiveCategories();
 	}
 
-	toggleDescription(id: number): void {
-		this.expandedIds.has(id) ? this.expandedIds.delete(id) : this.expandedIds.add(id);
+	toggleDescription(index: number): void {
+		this.expandedMap = { ...this.expandedMap, [index]: !this.expandedMap[index] };
 	}
 
 	openAdd(): void {
-		const ref = this.dialog.open(CategoryDialogComponent, { width: '480px' });
+		const ref = this.dialog.open(CategoryDialogComponent, { width: '90vw', maxWidth: '480px' });
 		ref.afterClosed().subscribe(async (result: Omit<Category, 'id'> | undefined) => {
 			if (!result) return;
 			const loadingRef = this.dialog.open(LoadingComponent, {
@@ -78,7 +78,7 @@ export class CategoriesComponent implements OnInit {
 
 	openEdit(category: Category): void {
 		const data: CategoryDialogData = { category };
-		const ref = this.dialog.open(CategoryDialogComponent, { width: '480px', data });
+		const ref = this.dialog.open(CategoryDialogComponent, { width: '90vw', maxWidth: '480px', data });
 		ref.afterClosed().subscribe(async (result: Omit<Category, 'id'> | undefined) => {
 			if (!result) return;
 			const loadingRef = this.dialog.open(LoadingComponent, {

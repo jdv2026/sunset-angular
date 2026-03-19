@@ -8,12 +8,39 @@
     flex-shrink: 0;
 }
 
-.bill-row {
-    transition: background-color 0.15s;
+.bill-card {
+    transition: box-shadow 0.2s;
 
     &:hover {
-        background-color: #f9fafb;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     }
+
+    &--paid {
+        opacity: 0.5;
+        filter: grayscale(0.6);
+
+        &:hover {
+            box-shadow: none;
+        }
+    }
+}
+
+.action-btn {
+    margin-top: -6px;
+    margin-right: -8px;
+}
+
+.progress-track {
+    height: 8px;
+    border-radius: 4px;
+    background-color: #f3f4f6;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.4s ease;
 }
 
 .status-badge {
@@ -22,6 +49,7 @@
     border-radius: 12px;
     font-size: 12px;
     font-weight: 500;
+    white-space: nowrap;
 
     &.paid {
         background-color: #dcfce7;
@@ -37,11 +65,4 @@
         background-color: #fee2e2;
         color: #dc2626;
     }
-}
-
-.mark-paid-btn {
-    font-size: 12px;
-    line-height: 28px;
-    padding: 0 12px;
-    height: 28px;
 }

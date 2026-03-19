@@ -32,7 +32,18 @@
         <mat-form-field appearance="outline">
             <mat-label>Description</mat-label>
             <input matInput formControlName="description" placeholder="e.g. Daily meals and groceries" />
-            <mat-error *ngIf="form.get('description')?.hasError('maxlength')">Max 20 characters</mat-error>
+            <mat-error *ngIf="form.get('description')?.hasError('maxlength')">Max 500 characters</mat-error>
+        </mat-form-field>
+
+        <!-- Type -->
+        <mat-form-field appearance="outline">
+            <mat-label>Type</mat-label>
+            <mat-select formControlName="type">
+                <mat-option [value]="CategoryType.Expense">Expense</mat-option>
+                <mat-option [value]="CategoryType.Income">Income</mat-option>
+                <mat-option [value]="CategoryType.Goals">Goals</mat-option>
+            </mat-select>
+            <mat-error *ngIf="form.get('type')?.hasError('required')">Type is required</mat-error>
         </mat-form-field>
 
         <!-- Color Picker -->
@@ -73,5 +84,5 @@
 
 <mat-dialog-actions align="end">
     <button mat-button (click)="cancel()">Cancel</button>
-    <button mat-raised-button color="primary" (click)="submit()">{{ isEdit ? 'Save' : 'Add' }}</button>
+    <button mat-raised-button color="primary" (click)="submit()" [disabled]="form.invalid">{{ isEdit ? 'Save' : 'Add' }}</button>
 </mat-dialog-actions>

@@ -5,10 +5,10 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { GoalDialogComponent } from './goal-dialog/goal-dialog.component';
-import { Goal, GoalDialogData } from './goals.contracts';
+import { WalletDialogComponent } from './wallet-dialog/wallet-dialog.component';
+import { Wallet, WalletDialogData } from './wallets.contracts';
 import { PrivateService } from '../../private.service';
-import { GoalsService } from './goals.service';
+import { WalletsService } from './wallets.service';
 import { CategoriesService } from '../categories/categories.service';
 import { Category } from '../categories/categories.contracts';
 import { LoadingComponent } from 'src/app/utilities/loading/loading.component';
@@ -17,7 +17,7 @@ import { ConfirmationDialogComponent } from 'src/app/utilities/confirmation-dial
 import { ErrorHandlerService } from 'src/app/services/ErrorHandler.service';
 
 @Component({
-	selector: 'vex-goals',
+	selector: 'vex-wallets',
 	standalone: true,
 	imports: [
 		CommonModule,
@@ -28,78 +28,49 @@ import { ErrorHandlerService } from 'src/app/services/ErrorHandler.service';
 		MatTooltipModule,
 		ConfirmationDialogComponent,
 	],
-	templateUrl: './goals.component.html',
-	styleUrl: './goals.component.scss',
+	templateUrl: './wallets.component.html',
+	styleUrl: './wallets.component.scss',
 })
-export class GoalsComponent implements OnInit {
+export class WalletsComponent implements OnInit {
 
-	goals: Goal[] = [];
+	wallets: Wallet[] = [];
 	categories: Category[] = [];
 
 	constructor(
 		private readonly dialog: MatDialog,
 		private readonly privateService: PrivateService,
-		private readonly goalsService: GoalsService,
+		private readonly walletsService: WalletsService,
 		private readonly categoriesService: CategoriesService,
 		private readonly errorHandler: ErrorHandlerService,
 	) {}
 
 	ngOnInit(): void {
-		this.privateService.setCrumbs({ current: 'Goals', crumbs: ['Budget', 'Goals'] });
-		this.initActiveGoals();
+		this.privateService.setCrumbs({ current: 'Wallets', crumbs: ['Budget', 'Wallets'] });
 		this.initCategories();
+		this.initActiveWallets();
 	}
 
-	get totalSaved(): number {
-		return this.goals.reduce((s, g) => s + g.saved, 0);
+	get totalBalance(): number {
+		return this.wallets.reduce((s, w) => s + w.balance, 0);
 	}
 
-	get totalTarget(): number {
-		return this.goals.reduce((s, g) => s + g.amount, 0);
+	get highestBalanceWallet(): Wallet | undefined {
+		if (!this.wallets.length) return undefined;
+		return this.wallets.reduce((max, w) => w.balance > max.balance ? w : max, this.wallets[0]);
 	}
 
-	getProgress(goal: Goal): number {
-		if (goal.amount === 0) return 0;
-		return Math.min((goal.saved / goal.amount) * 100, 100);
+	get lowBalanceCount(): number {
+		return this.wallets.filter(w => w.balance < 100).length;
 	}
 
-	expandedDescriptions = new Set<number>();
-
-	toggleDescription(id: number): void {
-		this.expandedDescriptions.has(id) ? this.expandedDescriptions.delete(id) : this.expandedDescriptions.add(id);
-	}
-
-	getCategoryFor(goal: Goal): Category | undefined {
-		return this.categories.find(c => c.id === goal.category_id);
-	}
-
-	getProgressColor(goal: Goal): string {
-		const pct = this.getProgress(goal);
-		if (pct >= 100) return '#22c55e';
-		if (pct >= 60) return this.getCategoryFor(goal)?.color ?? '#22c55e';
-		if (pct >= 30) return '#f59e0b';
-		return '#ef4444';
-	}
-
-	getDaysLeft(deadline: string): number {
-		const today = new Date();
-		today.setHours(0, 0, 0, 0);
-		const end = new Date(deadline);
-		return Math.ceil((end.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-	}
-
-	getMonthlySavingsNeeded(goal: Goal): number {
-		const remaining = goal.amount - goal.saved;
-		if (remaining <= 0) return 0;
-		const daysLeft = this.getDaysLeft(goal.deadline);
-		const monthsLeft = Math.max(daysLeft / 30, 1);
-		return remaining / monthsLeft;
+	getCategoryFor(wallet: Wallet): Category | undefined {
+		return this.categories.find(c => c.id === wallet.category_id);
 	}
 
 	openAdd(): void {
-		const data: GoalDialogData = { categories: this.categories };
-		const ref = this.dialog.open(GoalDialogComponent, { width: '90vw', maxWidth: '480px', disableClose: true, data });
-		ref.afterClosed().subscribe(async (result: Omit<Goal, 'id'> | undefined) => {
+		const data: WalletDialogData = { categories: this.categories };
+		const ref = this.dialog.open(WalletDialogComponent, { width: '90vw', maxWidth: '480px', disableClose: true, data });
+		ref.afterClosed().subscribe(async (result: Omit<Wallet, 'id'> | undefined) => {
 			if (!result) return;
 			const loadingRef = this.dialog.open(LoadingComponent, {
 				disableClose: true,
@@ -108,15 +79,14 @@ export class GoalsComponent implements OnInit {
 				data: { title: 'Saving', message: 'Please wait...' },
 				width: '400px',
 			});
-			
 			try {
-				await this.goalsService.storeGoal({ payload: result } as any);
+				await this.walletsService.storeWallet({ payload: result } as any);
 				loadingRef.close();
 				this.dialog.open(SuccessModalComponent, {
-					data: { items: [{ header: 'Goal Created', message: `"${result.name}" has been added successfully.` }] },
+					data: { items: [{ header: 'Wallet Created', message: `"${result.name}" has been added successfully.` }] },
 					width: '400px',
 				});
-				this.initActiveGoals();
+				this.initActiveWallets();
 			} catch (err: unknown) {
 				loadingRef.close();
 				this.errorHandler.open('Failed to Create', err);
@@ -124,10 +94,10 @@ export class GoalsComponent implements OnInit {
 		});
 	}
 
-	openEdit(goal: Goal): void {
-		const data: GoalDialogData = { goal, categories: this.categories };
-		const ref = this.dialog.open(GoalDialogComponent, { width: '90vw', maxWidth: '480px', disableClose: true, data });
-		ref.afterClosed().subscribe(async (result: Omit<Goal, 'id'> | undefined) => {
+	openEdit(wallet: Wallet): void {
+		const data: WalletDialogData = { wallet, categories: this.categories };
+		const ref = this.dialog.open(WalletDialogComponent, { width: '90vw', maxWidth: '480px', disableClose: true, data });
+		ref.afterClosed().subscribe(async (result: Omit<Wallet, 'id'> | undefined) => {
 			if (!result) return;
 			const loadingRef = this.dialog.open(LoadingComponent, {
 				disableClose: true,
@@ -137,13 +107,13 @@ export class GoalsComponent implements OnInit {
 				width: '400px',
 			});
 			try {
-				await this.goalsService.updateGoal(goal.id, result);
+				await this.walletsService.updateWallet(wallet.id, result);
 				loadingRef.close();
 				this.dialog.open(SuccessModalComponent, {
-					data: { items: [{ header: 'Goal Updated', message: `"${result.name}" has been updated successfully.` }] },
+					data: { items: [{ header: 'Wallet Updated', message: `"${result.name}" has been updated successfully.` }] },
 					width: '400px',
 				});
-				this.initActiveGoals();
+				this.initActiveWallets();
 			} catch (err: unknown) {
 				loadingRef.close();
 				this.errorHandler.open('Failed to Update', err);
@@ -151,15 +121,15 @@ export class GoalsComponent implements OnInit {
 		});
 	}
 
-	delete(goal: Goal): void {
+	delete(wallet: Wallet): void {
 		const confirmRef = this.dialog.open(ConfirmationDialogComponent, {
 			width: '400px',
 			data: {
 				warning: true,
 				items: [{
-					header: 'Delete Goal',
-					message: `Are you sure you want to delete "${goal.name}"?`,
-					description: 'This will permanently delete this goal and all its data.',
+					header: 'Delete Wallet',
+					message: `Are you sure you want to delete "${wallet.name}"?`,
+					description: 'This will permanently delete this wallet and all its data.',
 				}],
 			},
 		});
@@ -173,13 +143,13 @@ export class GoalsComponent implements OnInit {
 				width: '400px',
 			});
 			try {
-				await this.goalsService.deleteGoal(goal.id);
+				await this.walletsService.deleteWallet(wallet.id);
 				loadingRef.close();
 				this.dialog.open(SuccessModalComponent, {
-					data: { items: [{ header: 'Goal Deleted', message: `"${goal.name}" has been deleted successfully.` }] },
+					data: { items: [{ header: 'Wallet Deleted', message: `"${wallet.name}" has been deleted successfully.` }] },
 					width: '400px',
 				});
-				this.goals = this.goals.filter(g => g.id !== goal.id);
+				this.wallets = this.wallets.filter(w => w.id !== wallet.id);
 			} catch (err: unknown) {
 				loadingRef.close();
 				this.errorHandler.open('Failed to Delete', err);
@@ -187,16 +157,14 @@ export class GoalsComponent implements OnInit {
 		});
 	}
 
-	private async initActiveGoals(): Promise<void> {
+	private async initActiveWallets(): Promise<void> {
 		try {
-			const res = await this.goalsService.fetchActiveGoals();
-			this.goals = res.payload.map((item: any) => ({
+			const res = await this.walletsService.fetchActiveWallets();
+			this.wallets = res.payload.map((item: any) => ({
 				id: item.id,
 				name: item.name,
 				description: item.description,
-				amount: item.amount,
-				saved: item.saved,
-				deadline: item.deadline,
+				balance: item.balance,
 				category_id: item.category_id,
 			}));
 		} catch (err: unknown) {
@@ -206,7 +174,7 @@ export class GoalsComponent implements OnInit {
 
 	private async initCategories(): Promise<void> {
 		try {
-			const res = await this.categoriesService.fetchActiveCategoriesForGoals();
+			const res = await this.categoriesService.fetchActiveCategoriesForWallets();
 			this.categories = res.payload.map((item: any) => ({
 				id: item.id,
 				name: item.name,
@@ -214,9 +182,9 @@ export class GoalsComponent implements OnInit {
 				color: item.color,
 				description: item.description,
 			}));
-		} catch (err: unknown) {
-			this.errorHandler.open('Failed to Load Categories', err);
+		} catch {
+
 		}
 	}
-	
+
 }

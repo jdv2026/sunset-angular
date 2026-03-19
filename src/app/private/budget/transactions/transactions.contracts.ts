@@ -3,8 +3,10 @@ export interface Transaction {
 	date: string;
 	description: string;
 	category: string;
-	type: 'income' | 'expense';
-	amount: number;
+	type: 'income' | 'expense' | 'transfer';
+	wallet: number | null;
+	goal: number | null;
+	bill: number | null;
 	status: 'completed' | 'pending' | 'failed';
 }
 
@@ -12,3 +14,4 @@ export interface Month {
 	value: string;
 	label: string;
 }
+

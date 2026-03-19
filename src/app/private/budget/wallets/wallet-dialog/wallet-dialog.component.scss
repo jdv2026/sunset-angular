@@ -1,0 +1,25 @@
+.dialog-container {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.form-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding-top: 8px;
+}
+
+.full-width {
+    width: 100%;
+}
+
+.two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+
+    @media (max-width: 480px) {
+        grid-template-columns: 1fr;
+    }
+}

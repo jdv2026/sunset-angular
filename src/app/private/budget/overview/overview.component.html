@@ -114,8 +114,9 @@
                     </div>
                     <p class="text-sm font-semibold"
                         [class.text-green-600]="tx.type === 'income'"
-                        [class.text-red-500]="tx.type === 'expense'">
-                        {{ tx.type === 'income' ? '+' : '-' }}{{ tx.amount | currency }}
+                        [class.text-red-500]="tx.type === 'expense'"
+                        [style.color]="tx.type === 'transfer' ? '#b45309' : null">
+                        {{ tx.type === 'income' ? '+' : '-' }}{{ ((tx.wallet ?? 0) + (tx.goal ?? 0) + (tx.bill ?? 0)) | currency }}
                     </p>
                 </div>
             </div>
@@ -138,7 +139,7 @@
                                 <p class="text-sm font-medium text-gray-800 truncate">{{ goal.name }}</p>
                                 <p class="text-xs font-semibold text-gray-600">{{ getGoalProgress(goal) | number:'1.0-0' }}%</p>
                             </div>
-                            <p class="text-xs text-gray-400">{{ goal.saved | currency }} of {{ goal.target | currency }}</p>
+                            <p class="text-xs text-gray-400">{{ goal.saved | currency }} of {{ goal.amount | currency }}</p>
                         </div>
                     </div>
                     <div class="progress-track">

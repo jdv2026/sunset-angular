@@ -1,0 +1,44 @@
+<div class="dialog-container">
+
+    <h2 mat-dialog-title>Cash Inflow</h2>
+
+    <mat-dialog-content>
+        <form [formGroup]="form" class="form-grid">
+
+            <!-- Wallet -->
+            <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Wallet</mat-label>
+                <mat-select formControlName="wallet_id" [compareWith]="compareCategory">
+                    <mat-select-trigger>
+                        <ng-container *ngIf="selectedCategory; else noWallet">
+                            <mat-icon [style.color]="selectedCategory.color" style="vertical-align: middle; margin-right: 6px; font-size: 18px;">{{ selectedCategory.icon }}</mat-icon>
+                            {{ selectedCategory.name }}
+                        </ng-container>
+                        <ng-template #noWallet>Select wallet</ng-template>
+                    </mat-select-trigger>
+                    <mat-option *ngFor="let cat of categories" [value]="cat.id" [matTooltip]="cat.description" matTooltipShowDelay="300">
+                        <mat-icon [style.color]="cat.color" style="vertical-align: middle; margin-right: 6px; font-size: 18px;">{{ cat.icon }}</mat-icon>
+                        {{ cat.name }}
+                    </mat-option>
+                </mat-select>
+                <mat-error *ngIf="form.get('wallet_id')?.hasError('required')">Wallet is required</mat-error>
+            </mat-form-field>
+
+            <!-- Amount -->
+            <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Amount</mat-label>
+                <span matTextPrefix>$ &nbsp;</span>
+                <input matInput type="number" formControlName="amount" placeholder="0.00" />
+                <mat-error *ngIf="form.get('amount')?.hasError('required')">Amount is required</mat-error>
+                <mat-error *ngIf="form.get('amount')?.hasError('min')">Must be greater than 0</mat-error>
+            </mat-form-field>
+
+        </form>
+    </mat-dialog-content>
+
+    <mat-dialog-actions align="end">
+        <button mat-button (click)="cancel()">Cancel</button>
+        <button mat-raised-button color="primary" (click)="submit()" [disabled]="form.invalid">Cash In</button>
+    </mat-dialog-actions>
+
+</div>

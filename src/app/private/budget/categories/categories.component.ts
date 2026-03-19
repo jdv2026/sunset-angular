@@ -51,7 +51,7 @@ export class CategoriesComponent implements OnInit {
 	}
 
 	openAdd(): void {
-		const ref = this.dialog.open(CategoryDialogComponent, { width: '90vw', maxWidth: '480px' });
+		const ref = this.dialog.open(CategoryDialogComponent, { width: '90vw', maxWidth: '480px', disableClose: true });
 		ref.afterClosed().subscribe(async (result: Omit<Category, 'id'> | undefined) => {
 			if (!result) return;
 			const loadingRef = this.dialog.open(LoadingComponent, {
@@ -78,7 +78,7 @@ export class CategoriesComponent implements OnInit {
 
 	openEdit(category: Category): void {
 		const data: CategoryDialogData = { category };
-		const ref = this.dialog.open(CategoryDialogComponent, { width: '90vw', maxWidth: '480px', data });
+		const ref = this.dialog.open(CategoryDialogComponent, { width: '90vw', maxWidth: '480px', disableClose: true, data });
 		ref.afterClosed().subscribe(async (result: Omit<Category, 'id'> | undefined) => {
 			if (!result) return;
 			const loadingRef = this.dialog.open(LoadingComponent, {
@@ -155,6 +155,7 @@ export class CategoriesComponent implements OnInit {
 				description: item.description,
 				icon: item.icon,
 				color: item.color,
+				type: item.type,
 			}));
 
 		}

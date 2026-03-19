@@ -8,24 +8,33 @@
             <!-- Name -->
             <mat-form-field appearance="outline" class="full-width">
                 <mat-label>Bill Name</mat-label>
-                <input matInput formControlName="name" placeholder="e.g. Netflix">
+                <input matInput formControlName="name" placeholder="e.g. Netflix" maxlength="100">
+                <mat-hint align="end">{{ form.get('name')?.value?.length || 0 }}/100</mat-hint>
+                <mat-error *ngIf="form.get('name')?.hasError('required')">Bill name is required</mat-error>
+                <mat-error *ngIf="form.get('name')?.hasError('maxlength')">Max 100 characters</mat-error>
             </mat-form-field>
 
             <!-- Description -->
             <mat-form-field appearance="outline" class="full-width">
                 <mat-label>Description</mat-label>
-                <textarea matInput formControlName="description" placeholder="e.g. Monthly rent payment" rows="2"></textarea>
+                <textarea matInput formControlName="description" placeholder="e.g. Monthly rent payment" rows="2" maxlength="255"></textarea>
+                <mat-hint align="end">{{ form.get('description')?.value?.length || 0 }}/255</mat-hint>
+                <mat-error *ngIf="form.get('description')?.hasError('maxlength')">Max 255 characters</mat-error>
             </mat-form-field>
 
             <!-- Amount & Due Date -->
             <div class="two-col">
                 <mat-form-field appearance="outline">
-                    <mat-label>Amount ($)</mat-label>
+                    <mat-label>Target Amount</mat-label>
                     <input matInput type="number" formControlName="amount" placeholder="0.00">
+                    <mat-error *ngIf="form.get('amount')?.hasError('required')">Amount is required</mat-error>
+                    <mat-error *ngIf="form.get('amount')?.hasError('min')">Must be greater than 0</mat-error>
+                    <mat-error *ngIf="form.get('amount')?.hasError('max')">Max $999,999.99</mat-error>
                 </mat-form-field>
                 <mat-form-field appearance="outline">
                     <mat-label>Due Date</mat-label>
                     <input matInput type="date" formControlName="due_date">
+                    <mat-error *ngIf="form.get('due_date')?.hasError('required')">Due date is required</mat-error>
                 </mat-form-field>
             </div>
 
@@ -37,6 +46,7 @@
                     <mat-option value="monthly">Monthly</mat-option>
                     <mat-option value="yearly">Yearly</mat-option>
                 </mat-select>
+                <mat-error *ngIf="form.get('frequency')?.hasError('required')">Frequency is required</mat-error>
             </mat-form-field>
 
             <!-- Category -->
@@ -48,14 +58,14 @@
                             <mat-icon [style.color]="selectedCategory.color" style="vertical-align: middle; margin-right: 6px; font-size: 18px;">{{ selectedCategory.icon }}</mat-icon>
                             {{ selectedCategory.name }}
                         </ng-container>
-                        <ng-template #noCategory>None</ng-template>
+                        <ng-template #noCategory>Select a category</ng-template>
                     </mat-select-trigger>
-                    <mat-option [value]="null">None</mat-option>
                     <mat-option *ngFor="let cat of categories" [value]="cat.id">
                         <mat-icon [style.color]="cat.color" style="vertical-align: middle; margin-right: 6px; font-size: 18px;">{{ cat.icon }}</mat-icon>
                         {{ cat.name }}
                     </mat-option>
                 </mat-select>
+                <mat-error *ngIf="form.get('category_id')?.hasError('required')">Category is required</mat-error>
             </mat-form-field>
 
         </form>

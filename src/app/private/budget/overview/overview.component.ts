@@ -30,13 +30,13 @@ export class OverviewComponent implements OnInit {
 	private readonly currentMonth = '2026-03';
 
 	private readonly transactions: Transaction[] = [
-		{ id: 1, date: '2026-03-03', description: 'Monthly Salary', category: 'Income', type: 'income', amount: 3500.00, status: 'completed' },
-		{ id: 2, date: '2026-03-05', description: 'Netflix Subscription', category: 'Entertainment', type: 'expense', amount: 15.99, status: 'completed' },
-		{ id: 3, date: '2026-03-07', description: 'Electric Bill', category: 'Utilities', type: 'expense', amount: 120.00, status: 'completed' },
-		{ id: 4, date: '2026-03-09', description: 'Freelance Payment', category: 'Income', type: 'income', amount: 450.00, status: 'completed' },
-		{ id: 5, date: '2026-03-11', description: 'Restaurant Dinner', category: 'Food', type: 'expense', amount: 62.50, status: 'completed' },
-		{ id: 6, date: '2026-03-12', description: 'Grocery Store', category: 'Food', type: 'expense', amount: 85.40, status: 'completed' },
-		{ id: 7, date: '2026-03-13', description: 'Gas Station', category: 'Transport', type: 'expense', amount: 55.00, status: 'completed' },
+		{ id: 1, date: '2026-03-03', description: 'Monthly Salary', category: 'Income', type: 'income', wallet: 3500.00, goal: null, bill: null, status: 'completed' },
+		{ id: 2, date: '2026-03-05', description: 'Netflix Subscription', category: 'Entertainment', type: 'expense', wallet: null, goal: null, bill: 15.99, status: 'completed' },
+		{ id: 3, date: '2026-03-07', description: 'Electric Bill', category: 'Utilities', type: 'expense', wallet: null, goal: null, bill: 120.00, status: 'completed' },
+		{ id: 4, date: '2026-03-09', description: 'Freelance Payment', category: 'Income', type: 'income', wallet: 450.00, goal: null, bill: null, status: 'completed' },
+		{ id: 5, date: '2026-03-11', description: 'Restaurant Dinner', category: 'Food', type: 'expense', wallet: 62.50, goal: null, bill: null, status: 'completed' },
+		{ id: 6, date: '2026-03-12', description: 'Grocery Store', category: 'Food', type: 'expense', wallet: 85.40, goal: null, bill: null, status: 'completed' },
+		{ id: 7, date: '2026-03-13', description: 'Gas Station', category: 'Transport', type: 'expense', wallet: 55.00, goal: null, bill: null, status: 'completed' },
 	];
 
 	readonly categories: CategoryOverview[] = [
@@ -48,17 +48,17 @@ export class OverviewComponent implements OnInit {
 	];
 
 	readonly goals: Goal[] = [
-		{ id: 1, name: 'Emergency Fund', target: 10000, saved: 3500, deadline: '2026-12-31' },
-		{ id: 2, name: 'Vacation', target: 2500, saved: 800, deadline: '2026-07-01' },
-		{ id: 3, name: 'New Laptop', target: 1200, saved: 600, deadline: '2026-05-01' },
+		{ id: 1, name: 'Emergency Fund', amount: 10000, saved: 3500, deadline: '2026-12-31' },
+		{ id: 2, name: 'Vacation', amount: 2500, saved: 800, deadline: '2026-07-01' },
+		{ id: 3, name: 'New Laptop', amount: 1200, saved: 600, deadline: '2026-05-01' },
 	];
 
 	readonly bills: Bill[] = [
-		{ id: 1, name: 'Rent', amount: 1200.00, due_date: '2026-03-01', frequency: 'monthly', status: 'paid' },
-		{ id: 5, name: 'Gym Membership', amount: 50.00, due_date: '2026-03-15', frequency: 'monthly', status: 'upcoming' },
-		{ id: 6, name: 'Car Insurance', amount: 200.00, due_date: '2026-03-10', frequency: 'monthly', status: 'overdue' },
-		{ id: 7, name: 'Spotify', amount: 9.99, due_date: '2026-03-25', frequency: 'monthly', status: 'upcoming' },
-		{ id: 8, name: 'Cloud Storage', amount: 2.99, due_date: '2026-03-28', frequency: 'monthly', status: 'upcoming' },
+		{ id: 1, name: 'Rent', amount: 1200.00, target: 1200.00, paid: 1200.00, due_date: '2026-03-01', frequency: 'monthly', status: 'paid' },
+		{ id: 5, name: 'Gym Membership', amount: 50.00, target: 50.00, paid: 0, due_date: '2026-03-15', frequency: 'monthly', status: 'upcoming' },
+		{ id: 6, name: 'Car Insurance', amount: 200.00, target: 200.00, paid: 0, due_date: '2026-03-10', frequency: 'monthly', status: 'overdue' },
+		{ id: 7, name: 'Spotify', amount: 9.99, target: 9.99, paid: 0, due_date: '2026-03-25', frequency: 'monthly', status: 'upcoming' },
+		{ id: 8, name: 'Cloud Storage', amount: 2.99, target: 2.99, paid: 0, due_date: '2026-03-28', frequency: 'monthly', status: 'upcoming' },
 	];
 
 	// Summary
@@ -67,11 +67,11 @@ export class OverviewComponent implements OnInit {
 	}
 
 	get totalIncome(): number {
-		return this.monthlyCompleted.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
+		return this.monthlyCompleted.filter(t => t.type === 'income').reduce((s, t) => s + (t.wallet ?? 0) + (t.goal ?? 0) + (t.bill ?? 0), 0);
 	}
 
 	get totalExpenses(): number {
-		return this.monthlyCompleted.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
+		return this.monthlyCompleted.filter(t => t.type === 'expense').reduce((s, t) => s + (t.wallet ?? 0) + (t.goal ?? 0) + (t.bill ?? 0), 0);
 	}
 
 	get netBalance(): number {
@@ -132,14 +132,14 @@ export class OverviewComponent implements OnInit {
 	// Goals (top 3 in progress)
 	get activeGoals(): Goal[] {
 		return [...this.goals]
-			.filter(g => g.saved < g.target)
-			.sort((a, b) => (b.saved / b.target) - (a.saved / a.target))
+			.filter(g => g.saved < g.amount)
+			.sort((a, b) => (b.saved / b.amount) - (a.saved / a.amount))
 			.slice(0, 3);
 	}
 
 	getGoalProgress(goal: Goal): number {
-		if (goal.target === 0) return 0;
-		return Math.min((goal.saved / goal.target) * 100, 100);
+		if (goal.amount === 0) return 0;
+		return Math.min((goal.saved / goal.amount) * 100, 100);
 	}
 
 	// Chart
@@ -162,15 +162,15 @@ export class OverviewComponent implements OnInit {
 		const months = ['2026-01', '2026-02', '2026-03'];
 
 		const allTx: Transaction[] = [
-			{ id: 101, date: '2026-01-05', description: 'Monthly Salary', category: 'Income', type: 'income', amount: 3500.00, status: 'completed' },
-			{ id: 102, date: '2026-01-10', description: 'Grocery Store', category: 'Food', type: 'expense', amount: 210.00, status: 'completed' },
-			{ id: 103, date: '2026-01-15', description: 'Electric Bill', category: 'Utilities', type: 'expense', amount: 130.00, status: 'completed' },
-			{ id: 104, date: '2026-01-20', description: 'Gas Station', category: 'Transport', type: 'expense', amount: 60.00, status: 'completed' },
-			{ id: 105, date: '2026-02-05', description: 'Monthly Salary', category: 'Income', type: 'income', amount: 3500.00, status: 'completed' },
-			{ id: 106, date: '2026-02-08', description: 'Freelance Payment', category: 'Income', type: 'income', amount: 600.00, status: 'completed' },
-			{ id: 107, date: '2026-02-12', description: 'Restaurant Dinner', category: 'Food', type: 'expense', amount: 95.00, status: 'completed' },
-			{ id: 108, date: '2026-02-18', description: 'Netflix Subscription', category: 'Entertainment', type: 'expense', amount: 15.99, status: 'completed' },
-			{ id: 109, date: '2026-02-20', description: 'Gym Membership', category: 'Health', type: 'expense', amount: 50.00, status: 'completed' },
+			{ id: 101, date: '2026-01-05', description: 'Monthly Salary', category: 'Income', type: 'income', wallet: 3500.00, goal: null, bill: null, status: 'completed' },
+			{ id: 102, date: '2026-01-10', description: 'Grocery Store', category: 'Food', type: 'expense', wallet: 210.00, goal: null, bill: null, status: 'completed' },
+			{ id: 103, date: '2026-01-15', description: 'Electric Bill', category: 'Utilities', type: 'expense', wallet: null, goal: null, bill: 130.00, status: 'completed' },
+			{ id: 104, date: '2026-01-20', description: 'Gas Station', category: 'Transport', type: 'expense', wallet: 60.00, goal: null, bill: null, status: 'completed' },
+			{ id: 105, date: '2026-02-05', description: 'Monthly Salary', category: 'Income', type: 'income', wallet: 3500.00, goal: null, bill: null, status: 'completed' },
+			{ id: 106, date: '2026-02-08', description: 'Freelance Payment', category: 'Income', type: 'income', wallet: 600.00, goal: null, bill: null, status: 'completed' },
+			{ id: 107, date: '2026-02-12', description: 'Restaurant Dinner', category: 'Food', type: 'expense', wallet: 95.00, goal: null, bill: null, status: 'completed' },
+			{ id: 108, date: '2026-02-18', description: 'Netflix Subscription', category: 'Entertainment', type: 'expense', wallet: null, goal: null, bill: 15.99, status: 'completed' },
+			{ id: 109, date: '2026-02-20', description: 'Gym Membership', category: 'Health', type: 'expense', wallet: null, goal: null, bill: 50.00, status: 'completed' },
 			...this.transactions,
 		];
 
@@ -179,11 +179,11 @@ export class OverviewComponent implements OnInit {
 		this.spendingChartSeries = [
 			{
 				name: 'Income',
-				data: months.map(m => completed.filter(t => t.type === 'income' && t.date.startsWith(m)).reduce((s, t) => s + t.amount, 0)),
+				data: months.map(m => completed.filter(t => t.type === 'income' && t.date.startsWith(m)).reduce((s, t) => s + (t.wallet ?? 0) + (t.goal ?? 0) + (t.bill ?? 0), 0)),
 			},
 			{
 				name: 'Expenses',
-				data: months.map(m => completed.filter(t => t.type === 'expense' && t.date.startsWith(m)).reduce((s, t) => s + t.amount, 0)),
+				data: months.map(m => completed.filter(t => t.type === 'expense' && t.date.startsWith(m)).reduce((s, t) => s + (t.wallet ?? 0) + (t.goal ?? 0) + (t.bill ?? 0), 0)),
 			},
 		];
 

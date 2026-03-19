@@ -34,7 +34,6 @@ import { ErrorHandlerService } from 'src/app/services/ErrorHandler.service';
 export class BillsComponent implements OnInit {
 
 	bills: Bill[] = [];
-
 	categories: Category[] = [];
 
 	constructor(
@@ -80,6 +79,19 @@ export class BillsComponent implements OnInit {
 		return this.categories.find(c => c.id === bill.category_id);
 	}
 
+	getProgress(bill: Bill): number {
+		if (!bill.target || bill.target === 0) return 0;
+		return Math.min((bill.paid / bill.target) * 100, 100);
+	}
+
+	getProgressColor(bill: Bill): string {
+		const pct = this.getProgress(bill);
+		if (pct >= 100) return '#22c55e';
+		if (pct >= 60) return this.getCategoryFor(bill)?.color ?? '#3b82f6';
+		if (pct >= 30) return '#f59e0b';
+		return '#ef4444';
+	}
+
 	getDaysUntilDue(due_date: string): number {
 		const today = new Date();
 		today.setHours(0, 0, 0, 0);
@@ -103,7 +115,7 @@ export class BillsComponent implements OnInit {
 
 	openAdd(): void {
 		const data: BillDialogData = { categories: this.categories };
-		const ref = this.dialog.open(BillDialogComponent, { width: '90vw', maxWidth: '480px', data });
+		const ref = this.dialog.open(BillDialogComponent, { width: '90vw', maxWidth: '480px', disableClose: true, data });
 		ref.afterClosed().subscribe(async (result: Omit<Bill, 'id'> | undefined) => {
 			if (!result) return;
 			const loadingRef = this.dialog.open(LoadingComponent, {
@@ -130,7 +142,7 @@ export class BillsComponent implements OnInit {
 
 	openEdit(bill: Bill): void {
 		const data: BillDialogData = { bill, categories: this.categories };
-		const ref = this.dialog.open(BillDialogComponent, { width: '90vw', maxWidth: '480px', data });
+		const ref = this.dialog.open(BillDialogComponent, { width: '90vw', maxWidth: '480px', disableClose: true, data });
 		ref.afterClosed().subscribe(async (result: Omit<Bill, 'id'> | undefined) => {
 			if (!result) return;
 			const loadingRef = this.dialog.open(LoadingComponent, {
@@ -199,6 +211,8 @@ export class BillsComponent implements OnInit {
 				name: item.name,
 				description: item.description,
 				amount: item.amount,
+				target: item.target,
+				paid: item.paid,
 				due_date: item.due_date,
 				frequency: item.frequency,
 				status: item.status,
@@ -211,7 +225,7 @@ export class BillsComponent implements OnInit {
 
 	private async initCategories(): Promise<void> {
 		try {
-			const res = await this.categoriesService.fetchActiveCategories();
+			const res = await this.categoriesService.fetchActiveCategoriesForBills();
 			this.categories = res.payload.map((item: any) => ({
 				id: item.id,
 				name: item.name,
@@ -219,7 +233,7 @@ export class BillsComponent implements OnInit {
 				color: item.color,
 				description: item.description,
 			}));
-		} 
+		}
 		catch {
 
 		}

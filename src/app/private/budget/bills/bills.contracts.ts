@@ -7,6 +7,8 @@ export interface Bill {
 	id: number;
 	name: string;
 	amount: number;
+	target: number;
+	paid: number;
 	due_date: string;
 	frequency: BillFrequency;
 	status: BillStatus;

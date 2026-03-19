@@ -94,6 +94,10 @@ export const appRoutes: VexRoutes = [
 			{
 				path: 'budget/bills',
 				loadComponent: () => import('./private/budget/bills/bills.component').then(m => m.BillsComponent)
+			},
+			{
+				path: 'budget/wallets',
+				loadComponent: () => import('./private/budget/wallets/wallets.component').then(m => m.WalletsComponent)
 			}
 		]
 	}

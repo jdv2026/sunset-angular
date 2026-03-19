@@ -31,6 +31,18 @@ export class CategoriesService extends BaseApiService {
 		return this.budgetServiceGet('web/budget-active-categories');
 	}
 
+	fetchActiveCategoriesForBills(): Promise<ApiResponse> {
+		return this.budgetServiceGet('web/budget-active-categories/bills');
+	}
+
+	fetchActiveCategoriesForGoals(): Promise<ApiResponse> {
+		return this.budgetServiceGet('web/budget-active-categories/goals');
+	}
+
+	fetchActiveCategoriesForWallets(): Promise<ApiResponse> {
+		return this.budgetServiceGet('web/budget-active-categories/wallets');
+	}
+
 	storeCategoriesIcon(payload: ApiRequest): Promise<ApiResponse> {
 		payload.url = 'web/store/budget-active-categories';
 		return this.budgetServicePost(payload);

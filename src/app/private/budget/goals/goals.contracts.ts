@@ -1,7 +1,7 @@
 export interface Goal {
 	id: number;
 	name: string;
-	target: number;
+	amount: number;
 	saved: number;
 	deadline: string;
 	description?: string;

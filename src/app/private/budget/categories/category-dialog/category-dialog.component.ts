@@ -6,7 +6,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { CategoryDialogData } from '../categories.contracts';
+import { MatSelectModule } from '@angular/material/select';
+import { CategoryDialogData, CategoryType } from '../categories.contracts';
 import { ApiResponse } from 'src/app/contracts/ApiResponse';
 import { CategoriesService } from '../categories.service';
 import { LoggerService } from 'src/app/services/Logger.service';
@@ -22,6 +23,7 @@ import { LoggerService } from 'src/app/services/Logger.service';
 		MatInputModule,
 		MatButtonModule,
 		MatIconModule,
+		MatSelectModule,
 	],
 	templateUrl: './category-dialog.component.html',
 	styleUrl: './category-dialog.component.scss'
@@ -32,6 +34,7 @@ export class CategoryDialogComponent implements OnInit {
 	isEdit: boolean;
 	colors: string[] = [];
 	icons: string[] = [];
+	readonly CategoryType = CategoryType;
 
 	constructor(
 		private readonly fb: FormBuilder,
@@ -46,6 +49,7 @@ export class CategoryDialogComponent implements OnInit {
 			description: [data?.category?.description ?? '', [Validators.maxLength(500)]],
 			icon: [data?.category?.icon ?? 'payments', [Validators.required, Validators.maxLength(20)]],
 			color: [data?.category?.color ?? '#3b82f6', [Validators.required, Validators.maxLength(20)]],
+			type: [data?.category?.type ?? CategoryType.Expense, [Validators.required]],
 		});
 	}
 

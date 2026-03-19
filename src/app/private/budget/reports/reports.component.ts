@@ -24,25 +24,25 @@ type ViewMode = 'daily' | 'monthly' | 'yearly';
 export class ReportsComponent implements OnInit {
 
 	private readonly transactions: Transaction[] = [
-		{ id: 1, date: '2026-01-05', description: 'Monthly Salary', category: 'Income', type: 'income', amount: 3500.00, status: 'completed' },
-		{ id: 2, date: '2026-01-10', description: 'Grocery Store', category: 'Food', type: 'expense', amount: 210.00, status: 'completed' },
-		{ id: 3, date: '2026-01-15', description: 'Electric Bill', category: 'Utilities', type: 'expense', amount: 130.00, status: 'completed' },
-		{ id: 4, date: '2026-01-20', description: 'Gas Station', category: 'Transport', type: 'expense', amount: 60.00, status: 'completed' },
-		{ id: 5, date: '2026-02-05', description: 'Monthly Salary', category: 'Income', type: 'income', amount: 3500.00, status: 'completed' },
-		{ id: 6, date: '2026-02-08', description: 'Freelance Payment', category: 'Income', type: 'income', amount: 600.00, status: 'completed' },
-		{ id: 7, date: '2026-02-12', description: 'Restaurant Dinner', category: 'Food', type: 'expense', amount: 95.00, status: 'completed' },
-		{ id: 8, date: '2026-02-18', description: 'Netflix Subscription', category: 'Entertainment', type: 'expense', amount: 15.99, status: 'completed' },
-		{ id: 9, date: '2026-02-20', description: 'Gym Membership', category: 'Health', type: 'expense', amount: 50.00, status: 'completed' },
-		{ id: 10, date: '2026-03-03', description: 'Monthly Salary', category: 'Income', type: 'income', amount: 3500.00, status: 'completed' },
-		{ id: 11, date: '2026-03-05', description: 'Netflix Subscription', category: 'Entertainment', type: 'expense', amount: 15.99, status: 'completed' },
-		{ id: 12, date: '2026-03-07', description: 'Electric Bill', category: 'Utilities', type: 'expense', amount: 120.00, status: 'completed' },
-		{ id: 13, date: '2026-03-09', description: 'Freelance Payment', category: 'Income', type: 'income', amount: 450.00, status: 'completed' },
-		{ id: 14, date: '2026-03-11', description: 'Restaurant Dinner', category: 'Food', type: 'expense', amount: 62.50, status: 'completed' },
-		{ id: 15, date: '2026-03-12', description: 'Grocery Store', category: 'Food', type: 'expense', amount: 85.40, status: 'completed' },
-		{ id: 16, date: '2026-03-13T09:00', description: 'Salary Advance', category: 'Income', type: 'income', amount: 1750.00, status: 'completed' },
-		{ id: 17, date: '2026-03-13T10:30', description: 'Grocery Store', category: 'Food', type: 'expense', amount: 45.00, status: 'completed' },
-		{ id: 18, date: '2026-03-13T11:00', description: 'Coffee Shop', category: 'Food', type: 'expense', amount: 8.50, status: 'completed' },
-		{ id: 19, date: '2026-03-13T14:00', description: 'Gas Station', category: 'Transport', type: 'expense', amount: 55.00, status: 'completed' },
+		{ id: 1, date: '2026-01-05', description: 'Monthly Salary', category: 'Income', type: 'income', wallet: 3500.00, goal: null, bill: null, status: 'completed' },
+		{ id: 2, date: '2026-01-10', description: 'Grocery Store', category: 'Food', type: 'expense', wallet: 210.00, goal: null, bill: null, status: 'completed' },
+		{ id: 3, date: '2026-01-15', description: 'Electric Bill', category: 'Utilities', type: 'expense', wallet: null, goal: null, bill: 130.00, status: 'completed' },
+		{ id: 4, date: '2026-01-20', description: 'Gas Station', category: 'Transport', type: 'expense', wallet: 60.00, goal: null, bill: null, status: 'completed' },
+		{ id: 5, date: '2026-02-05', description: 'Monthly Salary', category: 'Income', type: 'income', wallet: 3500.00, goal: null, bill: null, status: 'completed' },
+		{ id: 6, date: '2026-02-08', description: 'Freelance Payment', category: 'Income', type: 'income', wallet: 600.00, goal: null, bill: null, status: 'completed' },
+		{ id: 7, date: '2026-02-12', description: 'Restaurant Dinner', category: 'Food', type: 'expense', wallet: 95.00, goal: null, bill: null, status: 'completed' },
+		{ id: 8, date: '2026-02-18', description: 'Netflix Subscription', category: 'Entertainment', type: 'expense', wallet: null, goal: null, bill: 15.99, status: 'completed' },
+		{ id: 9, date: '2026-02-20', description: 'Gym Membership', category: 'Health', type: 'expense', wallet: null, goal: null, bill: 50.00, status: 'completed' },
+		{ id: 10, date: '2026-03-03', description: 'Monthly Salary', category: 'Income', type: 'income', wallet: 3500.00, goal: null, bill: null, status: 'completed' },
+		{ id: 11, date: '2026-03-05', description: 'Netflix Subscription', category: 'Entertainment', type: 'expense', wallet: null, goal: null, bill: 15.99, status: 'completed' },
+		{ id: 12, date: '2026-03-07', description: 'Electric Bill', category: 'Utilities', type: 'expense', wallet: null, goal: null, bill: 120.00, status: 'completed' },
+		{ id: 13, date: '2026-03-09', description: 'Freelance Payment', category: 'Income', type: 'income', wallet: 450.00, goal: null, bill: null, status: 'completed' },
+		{ id: 14, date: '2026-03-11', description: 'Restaurant Dinner', category: 'Food', type: 'expense', wallet: 62.50, goal: null, bill: null, status: 'completed' },
+		{ id: 15, date: '2026-03-12', description: 'Grocery Store', category: 'Food', type: 'expense', wallet: 85.40, goal: null, bill: null, status: 'completed' },
+		{ id: 16, date: '2026-03-13T09:00', description: 'Salary Advance', category: 'Income', type: 'income', wallet: 1750.00, goal: null, bill: null, status: 'completed' },
+		{ id: 17, date: '2026-03-13T10:30', description: 'Grocery Store', category: 'Food', type: 'expense', wallet: 45.00, goal: null, bill: null, status: 'completed' },
+		{ id: 18, date: '2026-03-13T11:00', description: 'Coffee Shop', category: 'Food', type: 'expense', wallet: 8.50, goal: null, bill: null, status: 'completed' },
+		{ id: 19, date: '2026-03-13T14:00', description: 'Gas Station', category: 'Transport', type: 'expense', wallet: 55.00, goal: null, bill: null, status: 'completed' },
 	];
 
 	viewMode: ViewMode = 'daily';
@@ -67,11 +67,11 @@ export class ReportsComponent implements OnInit {
 	}
 
 	get totalIncome(): number {
-		return this.viewTransactions.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
+		return this.viewTransactions.filter(t => t.type === 'income').reduce((s, t) => s + (t.wallet ?? 0) + (t.goal ?? 0) + (t.bill ?? 0), 0);
 	}
 
 	get totalExpenses(): number {
-		return this.viewTransactions.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
+		return this.viewTransactions.filter(t => t.type === 'expense').reduce((s, t) => s + (t.wallet ?? 0) + (t.goal ?? 0) + (t.bill ?? 0), 0);
 	}
 
 	get balance(): number {
@@ -130,7 +130,7 @@ export class ReportsComponent implements OnInit {
 				data: hours.map(h =>
 					todayTx
 						.filter(t => t.type === 'income' && parseInt(t.date.split('T')[1] ?? '0') === h)
-						.reduce((s, t) => s + t.amount, 0)
+						.reduce((s, t) => s + (t.wallet ?? 0) + (t.goal ?? 0) + (t.bill ?? 0), 0)
 				),
 			},
 			{
@@ -138,7 +138,7 @@ export class ReportsComponent implements OnInit {
 				data: hours.map(h =>
 					todayTx
 						.filter(t => t.type === 'expense' && parseInt(t.date.split('T')[1] ?? '0') === h)
-						.reduce((s, t) => s + t.amount, 0)
+						.reduce((s, t) => s + (t.wallet ?? 0) + (t.goal ?? 0) + (t.bill ?? 0), 0)
 				),
 			},
 		];
@@ -161,7 +161,7 @@ export class ReportsComponent implements OnInit {
 				data: months.map(m =>
 					this.completed
 						.filter(t => t.type === 'income' && t.date.startsWith(m) && t.date.slice(0, 10) <= this.todayStr)
-						.reduce((s, t) => s + t.amount, 0)
+						.reduce((s, t) => s + (t.wallet ?? 0) + (t.goal ?? 0) + (t.bill ?? 0), 0)
 				),
 			},
 			{
@@ -169,7 +169,7 @@ export class ReportsComponent implements OnInit {
 				data: months.map(m =>
 					this.completed
 						.filter(t => t.type === 'expense' && t.date.startsWith(m) && t.date.slice(0, 10) <= this.todayStr)
-						.reduce((s, t) => s + t.amount, 0)
+						.reduce((s, t) => s + (t.wallet ?? 0) + (t.goal ?? 0) + (t.bill ?? 0), 0)
 				),
 			},
 		];
@@ -190,7 +190,7 @@ export class ReportsComponent implements OnInit {
 				data: years.map(y =>
 					this.completed
 						.filter(t => t.type === 'income' && t.date.startsWith(y) && t.date.slice(0, 10) <= this.todayStr)
-						.reduce((s, t) => s + t.amount, 0)
+						.reduce((s, t) => s + (t.wallet ?? 0) + (t.goal ?? 0) + (t.bill ?? 0), 0)
 				),
 			},
 			{
@@ -198,7 +198,7 @@ export class ReportsComponent implements OnInit {
 				data: years.map(y =>
 					this.completed
 						.filter(t => t.type === 'expense' && t.date.startsWith(y) && t.date.slice(0, 10) <= this.todayStr)
-						.reduce((s, t) => s + t.amount, 0)
+						.reduce((s, t) => s + (t.wallet ?? 0) + (t.goal ?? 0) + (t.bill ?? 0), 0)
 				),
 			},
 		];
@@ -223,7 +223,7 @@ export class ReportsComponent implements OnInit {
 	private buildDonutChart(): void {
 		const expensesByCategory: Record<string, number> = {};
 		this.viewTransactions.filter(t => t.type === 'expense').forEach(t => {
-			expensesByCategory[t.category] = (expensesByCategory[t.category] ?? 0) + t.amount;
+			expensesByCategory[t.category] = (expensesByCategory[t.category] ?? 0) + (t.wallet ?? 0) + (t.goal ?? 0) + (t.bill ?? 0);
 		});
 
 		const labels = Object.keys(expensesByCategory);

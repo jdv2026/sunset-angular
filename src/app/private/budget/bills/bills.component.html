@@ -34,51 +34,29 @@
         </div>
     </div>
 
-    <!-- Bills List -->
-    <div class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
-        <div *ngFor="let bill of sortedBills; let last = last"
-            class="bill-row px-4 sm:px-5 py-3 sm:py-4"
-            [class.border-b]="!last"
-            [class.border-gray-100]="!last">
+    <!-- Bill Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
+        <div *ngFor="let bill of sortedBills" class="bill-card bg-white rounded-lg p-5 shadow-sm border border-gray-100"
+            [class.bill-card--paid]="bill.status === 'paid'">
 
-            <!-- Top Row: icon + name + actions -->
-            <div class="flex items-center gap-3">
-
-                <!-- Icon -->
-                <div class="icon-wrap flex-shrink-0"
-                    [style.background-color]="(getCategoryFor(bill)?.color ?? '#64748b') + '1a'"
-                    [style.color]="getCategoryFor(bill)?.color ?? '#64748b'"
-                    [matTooltip]="getCategoryFor(bill)?.name || ''"
-                    [matTooltipDisabled]="!getCategoryFor(bill)?.name">
-                    <mat-icon>{{ getCategoryFor(bill)?.icon ?? 'receipt_long' }}</mat-icon>
-                </div>
-
-                <!-- Name & Category -->
-                <div class="flex-1 min-w-0">
-                    <p class="font-medium text-gray-800 truncate"
-                        [matTooltip]="bill.description || ''"
-                        [matTooltipDisabled]="!bill.description">{{ bill.name }}</p>
-                    <p class="text-xs text-gray-400">{{ getCategoryFor(bill)?.name ?? 'Uncategorized' }} &middot; {{ bill.frequency | titlecase }}</p>
-                </div>
-
-                <!-- Desktop: due date, amount, status icon -->
-                <div class="hidden sm:flex items-center gap-4">
-                    <div class="text-right min-w-[100px]">
-                        <span class="status-badge" [ngClass]="bill.status">{{ getDueDateLabel(bill) }}</span>
+            <!-- Card Header -->
+            <div class="flex items-start justify-between mb-4">
+                <div class="flex items-center gap-3">
+                    <div class="icon-wrap"
+                        [style.background-color]="(getCategoryFor(bill)?.color ?? '#64748b') + '1a'"
+                        [style.color]="getCategoryFor(bill)?.color ?? '#64748b'"
+                        [matTooltip]="getCategoryFor(bill)?.name || ''"
+                        [matTooltipDisabled]="!getCategoryFor(bill)?.name">
+                        <mat-icon>{{ getCategoryFor(bill)?.icon ?? 'receipt_long' }}</mat-icon>
                     </div>
-                    <div class="text-right min-w-[90px]">
-                        <p class="font-semibold text-gray-800">{{ bill.amount | currency }}</p>
+                    <div>
+                        <p class="font-semibold text-gray-800">{{ bill.name }}</p>
+                        <p class="text-xs text-gray-400">{{ getCategoryFor(bill)?.name ?? 'Uncategorized' }} &middot; {{ bill.frequency | titlecase }}</p>
                     </div>
-                    <mat-icon [ngClass]="{
-                        'text-green-500': bill.status === 'paid',
-                        'text-red-500':   bill.status === 'overdue',
-                        'text-blue-500':  bill.status === 'upcoming'
-                    }">check_circle</mat-icon>
                 </div>
-
-                <!-- Actions -->
-                <div>
-                    <button mat-icon-button [matMenuTriggerFor]="menu">
+                <div class="flex items-center gap-1">
+                    <span class="status-badge" [ngClass]="bill.status">{{ getDueDateLabel(bill) }}</span>
+                    <button mat-icon-button [matMenuTriggerFor]="menu" class="action-btn">
                         <mat-icon>more_vert</mat-icon>
                     </button>
                     <mat-menu #menu="matMenu">
@@ -92,28 +70,56 @@
                         </button>
                     </mat-menu>
                 </div>
-
             </div>
 
-            <!-- Mobile: second row with status + amount + check -->
-            <div class="flex sm:hidden items-center gap-3 mt-2 pl-[56px]">
-                <span class="status-badge" [ngClass]="bill.status">{{ getDueDateLabel(bill) }}</span>
-                <span class="text-sm font-semibold text-gray-800 ml-auto">{{ bill.amount | currency }}</span>
-                <mat-icon style="font-size: 20px; width: 20px; height: 20px;" [ngClass]="{
-                    'text-green-500': bill.status === 'paid',
-                    'text-red-500':   bill.status === 'overdue',
-                    'text-blue-500':  bill.status === 'upcoming'
-                }">check_circle</mat-icon>
+            <!-- Amount Row -->
+            <div class="flex items-end justify-between mb-2">
+                <div>
+                    <p class="text-2xl font-bold" [style.color]="getCategoryFor(bill)?.color ?? '#64748b'">{{ bill.paid | currency }}</p>
+                    <p class="text-xs text-gray-400">paid of {{ bill.target | currency }}</p>
+                </div>
+                <div class="text-right">
+                    <p class="text-lg font-semibold text-gray-700">{{ getProgress(bill) | number:'1.0-0' }}%</p>
+                    <p class="text-xs text-gray-400">complete</p>
+                </div>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="progress-track mb-4">
+                <div class="progress-fill"
+                    [style.width.%]="getProgress(bill)"
+                    [style.background-color]="getProgressColor(bill)">
+                </div>
+            </div>
+
+            <!-- Footer Stats -->
+            <div class="flex items-center justify-between text-xs text-gray-500 mb-3">
+                <span>
+                    <span class="font-medium text-gray-700">{{ bill.target - bill.paid | currency }}</span> remaining
+                </span>
+                <span class="font-medium text-gray-700">{{ bill.amount | currency }}</span>
+            </div>
+
+            <!-- Due Date -->
+            <div class="flex items-center gap-1 text-xs border-t pt-3"
+                [ngClass]="bill.status === 'overdue' ? 'text-red-400' : 'text-gray-400'">
+                <mat-icon style="font-size: 14px; width: 14px; height: 14px;">event</mat-icon>
+                <span>Due: <span class="font-medium">{{ bill.due_date | date:'mediumDate' }}</span></span>
+                <span class="ml-auto" *ngIf="bill.status !== 'paid' && getDaysUntilDue(bill.due_date) > 0">
+                    {{ getDaysUntilDue(bill.due_date) }} days left
+                </span>
+                <span class="ml-auto font-medium text-red-500" *ngIf="bill.status === 'overdue'">Overdue</span>
+                <span class="ml-auto font-medium text-green-500" *ngIf="bill.status === 'paid'">Paid</span>
             </div>
 
         </div>
+    </div>
 
-        <!-- Empty State -->
-        <div *ngIf="bills.length === 0" class="flex flex-col items-center justify-center py-16 text-gray-400">
-            <mat-icon style="font-size: 48px; width: 48px; height: 48px;" class="mb-3">receipt_long</mat-icon>
-            <p class="text-base font-medium">No bills yet</p>
-            <p class="text-sm mt-1">Add a bill to start tracking your recurring payments</p>
-        </div>
+    <!-- Empty State -->
+    <div *ngIf="bills.length === 0" class="flex flex-col items-center justify-center py-16 text-gray-400">
+        <mat-icon style="font-size: 48px; width: 48px; height: 48px;" class="mb-3">receipt_long</mat-icon>
+        <p class="text-base font-medium">No bills yet</p>
+        <p class="text-sm mt-1">Add a bill to start tracking your recurring payments</p>
     </div>
 
 </div>

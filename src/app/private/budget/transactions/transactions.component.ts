@@ -1,17 +1,20 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatMenuModule } from '@angular/material/menu';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { FormsModule } from '@angular/forms';
-import { AddTransactionDialogComponent } from './add-transaction-dialog/add-transaction-dialog.component';
 import { Transaction, Month } from './transactions.contracts';
-import { CATEGORY_COLOR_MAP } from '../categories/categories.contracts';
+import { AddIncomeDialogComponent } from './add-income-dialog/add-income-dialog.component';
+import { AddExpenseDialogComponent } from './add-expense-dialog/add-expense-dialog.component';
+import { TransactionsService } from './transactions.service';
+import { LoadingComponent } from 'src/app/utilities/loading/loading.component';
+import { SuccessModalComponent } from 'src/app/utilities/success-modal/success-modal.component';
+import { ErrorHandlerService } from 'src/app/services/ErrorHandler.service';
 import { PrivateService } from '../../private.service';
 
 @Component({
@@ -22,11 +25,10 @@ import { PrivateService } from '../../private.service';
 		MatTableModule,
 		MatIconModule,
 		MatButtonModule,
-		MatChipsModule,
-		MatMenuModule,
 		MatDialogModule,
 		MatSelectModule,
 		MatFormFieldModule,
+		MatPaginatorModule,
 		FormsModule,
 	],
 	templateUrl: './transactions.component.html',
@@ -34,78 +36,155 @@ import { PrivateService } from '../../private.service';
 })
 export class TransactionsComponent implements OnInit {
 
-	displayedColumns: string[] = ['date', 'description', 'category', 'type', 'amount', 'status', 'actions'];
+	readonly Math = Math;
+
+	displayedColumns: string[] = ['date', 'description', 'type', 'wallet', 'goal', 'bill'];
+
+	transactions: Transaction[] = [];
+	totalItems = 0;
+	pageSize = 10;
+	pageIndex = 0;
+
+	balance = 0;
+	totalIncome = 0;
+	totalExpense = 0;
+
+	@ViewChild(MatPaginator) paginator!: MatPaginator;
+
+	years: string[] = ['2024', '2025', '2026'];
 
 	months: Month[] = [
-		{ value: '2026-01', label: 'January 2026' },
-		{ value: '2026-02', label: 'February 2026' },
-		{ value: '2026-03', label: 'March 2026' },
-		{ value: '2026-04', label: 'April 2026' },
-		{ value: '2026-05', label: 'May 2026' },
-		{ value: '2026-06', label: 'June 2026' },
-		{ value: '2026-07', label: 'July 2026' },
-		{ value: '2026-08', label: 'August 2026' },
-		{ value: '2026-09', label: 'September 2026' },
-		{ value: '2026-10', label: 'October 2026' },
-		{ value: '2026-11', label: 'November 2026' },
-		{ value: '2026-12', label: 'December 2026' },
+		{ value: '01', label: 'January' },
+		{ value: '02', label: 'February' },
+		{ value: '03', label: 'March' },
+		{ value: '04', label: 'April' },
+		{ value: '05', label: 'May' },
+		{ value: '06', label: 'June' },
+		{ value: '07', label: 'July' },
+		{ value: '08', label: 'August' },
+		{ value: '09', label: 'September' },
+		{ value: '10', label: 'October' },
+		{ value: '11', label: 'November' },
+		{ value: '12', label: 'December' },
 	];
 
-	selectedMonth: string = '2026-03';
-
-	transactions: Transaction[] = [
-		{ id: 1, date: '2026-03-01', description: 'Grocery Store', category: 'Food', type: 'expense', amount: 85.40, status: 'completed' },
-		{ id: 2, date: '2026-03-03', description: 'Monthly Salary', category: 'Income', type: 'income', amount: 3500.00, status: 'completed' },
-		{ id: 3, date: '2026-03-05', description: 'Netflix Subscription', category: 'Entertainment', type: 'expense', amount: 15.99, status: 'completed' },
-		{ id: 4, date: '2026-03-07', description: 'Electric Bill', category: 'Utilities', type: 'expense', amount: 120.00, status: 'pending' },
-		{ id: 5, date: '2026-03-09', description: 'Freelance Payment', category: 'Income', type: 'income', amount: 450.00, status: 'completed' },
-		{ id: 6, date: '2026-03-11', description: 'Restaurant Dinner', category: 'Food', type: 'expense', amount: 62.50, status: 'completed' },
-		{ id: 7, date: '2026-03-12', description: 'Gas Station', category: 'Transport', type: 'expense', amount: 45.00, status: 'failed' },
-	];
+	selectedYear: string = '2026';
+	selectedMonth: string = '03';
 
 	constructor(
 		private readonly dialog: MatDialog,
 		private readonly privateService: PrivateService,
+		private readonly transactionsService: TransactionsService,
+		private readonly errorHandler: ErrorHandlerService,
 	) {}
 
 	ngOnInit(): void {
 		this.setBreadcrumb();
+		this.initActiveTransactions();
 	}
 
-	get filteredTransactions(): Transaction[] {
-		const list = this.selectedMonth
-			? this.transactions.filter(t => t.date.startsWith(this.selectedMonth))
-			: this.transactions;
-		return [...list].sort((a, b) => b.date.localeCompare(a.date));
+onPageChange(event: PageEvent): void {
+		this.pageIndex = event.pageIndex;
+		this.pageSize = event.pageSize;
+		this.initActiveTransactions();
 	}
 
-	get lastIncome(): number {
-		const tx = this.filteredTransactions.find(t => t.type === 'income' && t.status === 'completed');
-		return tx?.amount ?? 0;
-	}
-
-	get lastExpense(): number {
-		const tx = this.filteredTransactions.find(t => t.type === 'expense' && t.status === 'completed');
-		return tx?.amount ?? 0;
-	}
-
-	getCategoryColor(name: string): string {
-		return CATEGORY_COLOR_MAP[name] ?? '#64748b';
-	}
-
-	openAddTransaction(): void {
-		const ref = this.dialog.open(AddTransactionDialogComponent, {
-			width: '540px',
+	openAddIncome(): void {
+		const ref = this.dialog.open(AddIncomeDialogComponent, {
+			width: '480px',
+			disableClose: true,
 		});
 
-		ref.afterClosed().subscribe((result: Omit<Transaction, 'id'> | undefined) => {
+		ref.afterClosed().subscribe(async (result: any | undefined) => {
 			if (!result) return;
-			const newTransaction: Transaction = {
-				...result,
-				id: this.transactions.length + 1,
-			};
-			this.transactions = [newTransaction, ...this.transactions];
+			const loadingRef = this.dialog.open(LoadingComponent, {
+				disableClose: true,
+				panelClass: 'loading-dialog',
+				backdropClass: 'loading-backdrop',
+				data: { title: 'Saving', message: 'Please wait...' },
+				width: '400px',
+			});
+			try {
+				await this.transactionsService.storeTransactionIncome({ payload: result } as any);
+				loadingRef.close();
+				this.dialog.open(SuccessModalComponent, {
+					data: { items: [{ header: 'Income Added', message: 'Income transaction has been saved successfully.' }] },
+					width: '400px',
+				});
+				this.initActiveTransactions();
+			} catch (err: unknown) {
+				loadingRef.close();
+				this.errorHandler.open('Failed to Save', err);
+			}
 		});
+	}
+
+	openAddExpense(): void {
+		const ref = this.dialog.open(AddExpenseDialogComponent, {
+			width: '480px',
+			disableClose: true,
+		});
+
+		ref.afterClosed().subscribe(async (result: any | undefined) => {
+			if (!result) return;
+			const loadingRef = this.dialog.open(LoadingComponent, {
+				disableClose: true,
+				panelClass: 'loading-dialog',
+				backdropClass: 'loading-backdrop',
+				data: { title: 'Saving', message: 'Please wait...' },
+				width: '400px',
+			});
+			try {
+				if (result.action === 'pay') {
+					await this.transactionsService.storeTransactionPay({ payload: result } as any);
+					loadingRef.close();
+					this.dialog.open(SuccessModalComponent, {
+						data: { items: [{ header: 'Payment Saved', message: 'Bill payment has been saved successfully.' }] },
+						width: '400px',
+					});
+					this.initActiveTransactions();
+				} else {
+					await this.transactionsService.storeTransactionTransfer({ payload: result } as any);
+					loadingRef.close();
+					this.dialog.open(SuccessModalComponent, {
+						data: { items: [{ header: 'Transfer Saved', message: 'Transfer has been saved successfully.' }] },
+						width: '400px',
+					});
+					this.initActiveTransactions();
+				}
+			} catch (err: unknown) {
+				loadingRef.close();
+				this.errorHandler.open('Failed to Save', err);
+			}
+		});
+	}
+
+	async initActiveTransactions(): Promise<void> {
+		try {
+			const res = await this.transactionsService.fetchActiveTransactions({
+				year: this.selectedYear || undefined,
+				month: this.selectedMonth || undefined,
+				page: this.pageIndex + 1,
+				per_page: this.pageSize,
+			});
+			this.balance = res.payload.balance ?? 0;
+			this.totalIncome = res.payload.total_income ?? 0;
+			this.totalExpense = res.payload.total_expense ?? 0;
+			this.transactions = res.payload.transactions.data.map((item: any) => ({
+				id: item.id,
+				date: item.date,
+				description: item.description,
+				category: item.category,
+				type: item.type,
+				wallet: item.wallet ?? null,
+				goal: item.goal ?? null,
+				bill: item.bill ?? null,
+				status: item.status,
+			}));
+			this.totalItems = res.payload.transactions.total;
+		} catch (err: unknown) {
+			this.errorHandler.open('Failed to Load', err);
+		}
 	}
 
 	private setBreadcrumb(): void {
@@ -114,5 +193,5 @@ export class TransactionsComponent implements OnInit {
 			crumbs: ['Budget', 'Transactions'],
 		});
 	}
-	
+
 }

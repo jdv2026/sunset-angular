@@ -19,8 +19,12 @@ export class TransactionsService extends BaseApiService {
 		super(http, logService, storageService);
 	}
 
-	fetchDashboard(): Promise<ApiResponse> {
-		return this.budgetServiceGet('web/budget-dashboard');
+	fetchActiveOverview(): Promise<ApiResponse> {
+		return this.budgetServiceGet('web/budget-active-overview');
+	}
+
+	fetchTransferPayOptions(): Promise<ApiResponse> {
+		return this.budgetServiceGet('web/budget-active-transactions/pay-transfer-options');
 	}
 
 	fetchActiveTransactions(params?: { year?: string; month?: string; page?: number; per_page?: number }): Promise<ApiResponse> {

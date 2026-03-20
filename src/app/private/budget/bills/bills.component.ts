@@ -75,10 +75,6 @@ export class BillsComponent implements OnInit {
 		});
 	}
 
-	getCategoryFor(bill: Bill): Category | undefined {
-		return this.categories.find(c => c.id === bill.category_id);
-	}
-
 	getProgress(bill: Bill): number {
 		if (!bill.target || bill.target === 0) return 0;
 		return Math.min((bill.paid / bill.target) * 100, 100);
@@ -87,7 +83,7 @@ export class BillsComponent implements OnInit {
 	getProgressColor(bill: Bill): string {
 		const pct = this.getProgress(bill);
 		if (pct >= 100) return '#22c55e';
-		if (pct >= 60) return this.getCategoryFor(bill)?.color ?? '#3b82f6';
+		if (pct >= 60) return bill.category_color ?? '#3b82f6';
 		if (pct >= 30) return '#f59e0b';
 		return '#ef4444';
 	}
@@ -211,12 +207,14 @@ export class BillsComponent implements OnInit {
 				name: item.name,
 				description: item.description,
 				amount: item.amount,
-				target: item.target,
+				target: item.amount,
 				paid: item.paid,
 				due_date: item.due_date,
 				frequency: item.frequency,
 				status: item.status,
-				category_id: item.category_id,
+				category_name: item.category_name,
+				category_icon: item.category_icon,
+				category_color: item.category_color,
 			}));
 		} catch (err: unknown) {
 			this.errorHandler.open('Failed to Load', err);

@@ -40,13 +40,14 @@ export class BillDialogComponent {
 		this.isEdit = !!data?.bill;
 		this.categories = data?.categories ?? [];
 		const b = data?.bill;
+		const matchedCategory = b ? this.categories.find(c => c.name === b.category_name) : undefined;
 		this.form = this.fb.group({
 			name: [b?.name ?? '', [Validators.required, Validators.maxLength(100)]],
 			description: [b?.description ?? '', Validators.maxLength(255)],
 			amount: [b?.amount ?? null, [Validators.required, Validators.min(0.01), Validators.max(999999.99)]],
 			due_date: [b?.due_date ?? '', Validators.required],
 			frequency: [b?.frequency ?? 'monthly', Validators.required],
-			category_id: [b?.category_id ?? null, Validators.required],
+			category_id: [matchedCategory?.id ?? null, Validators.required],
 		});
 	}
 

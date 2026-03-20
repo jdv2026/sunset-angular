@@ -22,7 +22,7 @@
                 <mat-error *ngIf="form.get('description')?.hasError('maxlength')">Max 255 characters</mat-error>
             </mat-form-field>
 
-<!-- Category -->
+			<!-- Category -->
             <mat-form-field appearance="outline" class="full-width">
                 <mat-label>Category</mat-label>
                 <mat-select formControlName="category_id" [compareWith]="compareCategory">

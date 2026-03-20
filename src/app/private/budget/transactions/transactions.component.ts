@@ -176,9 +176,9 @@ onPageChange(event: PageEvent): void {
 				description: item.description,
 				category: item.category,
 				type: item.type,
-				wallet: item.wallet ?? null,
-				goal: item.goal ?? null,
-				bill: item.bill ?? null,
+				wallet: item.wallet_amount ?? null,
+				goal: item.goal_saved ?? null,
+				bill: item.bill_paid ?? null,
 				status: item.status,
 			}));
 			this.totalItems = res.payload.transactions.total;

@@ -183,7 +183,7 @@ export class AddExpenseDialogComponent implements OnInit, OnDestroy {
 
 	private async initOptions(): Promise<void> {
 		try {
-			const res = await this.transactionsService.fetchDashboard();
+			const res = await this.transactionsService.fetchTransferPayOptions();
 			const data = res.payload;
 			if (data.wallets) {
 				this.walletOptions = data.wallets.map((w: any) => ({

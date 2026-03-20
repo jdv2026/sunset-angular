@@ -53,8 +53,8 @@ export class AddIncomeDialogComponent implements OnInit {
 			this.categories = res.payload.map((item: any) => ({
 				id: item.id,
 				name: item.name,
-				icon: item.icon,
-				color: item.color,
+				icon: item.category_icon,
+				color: item.category_color,
 				description: item.description || '',
 			}));
 		} catch {

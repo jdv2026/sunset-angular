@@ -40,9 +40,9 @@ export class CategoriesService extends BaseApiService {
 	}
 
 	fetchActiveCategoriesForWallets(): Promise<ApiResponse> {
-		return this.budgetServiceGet('web/budget-active-categories/wallets');
+		return this.budgetServiceGet('web/budget-active-wallets');
 	}
-
+	
 	storeCategoriesIcon(payload: ApiRequest): Promise<ApiResponse> {
 		payload.url = 'web/store/budget-active-categories';
 		return this.budgetServicePost(payload);

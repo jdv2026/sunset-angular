@@ -46,15 +46,15 @@
             <div class="flex items-start justify-between mb-4">
                 <div class="flex items-center gap-3">
                     <div class="icon-wrap"
-                        [style.background-color]="(getCategoryFor(wallet)?.color ?? '#64748b') + '1a'"
-                        [style.color]="getCategoryFor(wallet)?.color ?? '#64748b'"
-                        [matTooltip]="getCategoryFor(wallet)?.name || ''"
-                        [matTooltipDisabled]="!getCategoryFor(wallet)?.name">
-                        <mat-icon>{{ getCategoryFor(wallet)?.icon ?? 'account_balance_wallet' }}</mat-icon>
+                        [style.background-color]="(wallet.category_color ?? '#64748b') + '1a'"
+                        [style.color]="wallet.category_color ?? '#64748b'"
+                        [matTooltip]="wallet.category_name || ''"
+                        [matTooltipDisabled]="!wallet.category_name">
+                        <mat-icon>{{ wallet.category_icon ?? 'account_balance_wallet' }}</mat-icon>
                     </div>
                     <div>
                         <p class="font-semibold text-gray-800">{{ wallet.name }}</p>
-                        <p class="text-xs text-gray-400">{{ getCategoryFor(wallet)?.name ?? 'Uncategorized' }}</p>
+                        <p class="text-xs text-gray-400">{{ wallet.category_name ?? 'Uncategorized' }}</p>
                     </div>
                 </div>
                 <button mat-icon-button [matMenuTriggerFor]="menu" class="action-btn">
@@ -74,7 +74,7 @@
 
             <!-- Balance -->
             <div class="mb-3">
-                <p class="text-3xl font-bold" [style.color]="getCategoryFor(wallet)?.color ?? '#64748b'">
+                <p class="text-3xl font-bold" [style.color]="wallet.category_color ?? '#64748b'">
                     {{ wallet.balance | currency }}
                 </p>
                 <p class="text-xs text-gray-400 mt-1">Current balance</p>

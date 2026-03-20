@@ -40,10 +40,11 @@ export class WalletDialogComponent {
 		this.isEdit = !!data?.wallet;
 		this.categories = data?.categories ?? [];
 		const w = data?.wallet;
+		const matchedCategory = w ? this.categories.find(c => c.name === w.category_name) : undefined;
 		this.form = this.fb.group({
 			name: [w?.name ?? '', [Validators.required, Validators.maxLength(100)]],
 			description: [w?.description ?? '', Validators.maxLength(255)],
-category_id: [w?.category_id ?? null, Validators.required],
+			category_id: [matchedCategory?.id ?? null, Validators.required],
 		});
 	}
 

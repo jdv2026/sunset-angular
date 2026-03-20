@@ -13,7 +13,9 @@ export interface Bill {
 	frequency: BillFrequency;
 	status: BillStatus;
 	description?: string;
-	category_id?: number;
+	category_name?: string;
+	category_icon?: string;
+	category_color?: string;
 }
 
 export interface BillDialogData {

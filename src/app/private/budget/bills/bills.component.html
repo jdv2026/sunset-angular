@@ -43,15 +43,15 @@
             <div class="flex items-start justify-between mb-4">
                 <div class="flex items-center gap-3">
                     <div class="icon-wrap"
-                        [style.background-color]="(getCategoryFor(bill)?.color ?? '#64748b') + '1a'"
-                        [style.color]="getCategoryFor(bill)?.color ?? '#64748b'"
-                        [matTooltip]="getCategoryFor(bill)?.name || ''"
-                        [matTooltipDisabled]="!getCategoryFor(bill)?.name">
-                        <mat-icon>{{ getCategoryFor(bill)?.icon ?? 'receipt_long' }}</mat-icon>
+                        [style.background-color]="(bill.category_color ?? '#64748b') + '1a'"
+                        [style.color]="bill.category_color ?? '#64748b'"
+                        [matTooltip]="bill.category_name || ''"
+                        [matTooltipDisabled]="!bill.category_name">
+                        <mat-icon>{{ bill.category_icon ?? 'receipt_long' }}</mat-icon>
                     </div>
                     <div>
                         <p class="font-semibold text-gray-800">{{ bill.name }}</p>
-                        <p class="text-xs text-gray-400">{{ getCategoryFor(bill)?.name ?? 'Uncategorized' }} &middot; {{ bill.frequency | titlecase }}</p>
+                        <p class="text-xs text-gray-400">{{ bill.category_name ?? 'Uncategorized' }} &middot; {{ bill.frequency | titlecase }}</p>
                     </div>
                 </div>
                 <div class="flex items-center gap-1">
@@ -75,7 +75,7 @@
             <!-- Amount Row -->
             <div class="flex items-end justify-between mb-2">
                 <div>
-                    <p class="text-2xl font-bold" [style.color]="getCategoryFor(bill)?.color ?? '#64748b'">{{ bill.paid | currency }}</p>
+                    <p class="text-2xl font-bold" [style.color]="bill.category_color ?? '#64748b'">{{ bill.paid | currency }}</p>
                     <p class="text-xs text-gray-400">paid of {{ bill.target | currency }}</p>
                 </div>
                 <div class="text-right">

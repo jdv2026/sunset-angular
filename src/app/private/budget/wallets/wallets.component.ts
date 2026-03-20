@@ -63,10 +63,6 @@ export class WalletsComponent implements OnInit {
 		return this.wallets.filter(w => w.balance < 100).length;
 	}
 
-	getCategoryFor(wallet: Wallet): Category | undefined {
-		return this.categories.find(c => c.id === wallet.category_id);
-	}
-
 	openAdd(): void {
 		const data: WalletDialogData = { categories: this.categories };
 		const ref = this.dialog.open(WalletDialogComponent, { width: '90vw', maxWidth: '480px', disableClose: true, data });
@@ -164,8 +160,10 @@ export class WalletsComponent implements OnInit {
 				id: item.id,
 				name: item.name,
 				description: item.description,
-				balance: item.balance,
-				category_id: item.category_id,
+				balance: item.amount,
+				category_name: item.category_name,
+				category_icon: item.category_icon,
+				category_color: item.category_color,
 			}));
 		} catch (err: unknown) {
 			this.errorHandler.open('Failed to Load', err);
@@ -174,7 +172,7 @@ export class WalletsComponent implements OnInit {
 
 	private async initCategories(): Promise<void> {
 		try {
-			const res = await this.categoriesService.fetchActiveCategoriesForWallets();
+			const res = await this.categoriesService.fetchActiveCategories();
 			this.categories = res.payload.map((item: any) => ({
 				id: item.id,
 				name: item.name,

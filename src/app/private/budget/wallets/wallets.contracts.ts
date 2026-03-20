@@ -5,7 +5,9 @@ export interface Wallet {
     name: string;
     balance: number;
     description?: string;
-    category_id?: number;
+    category_name?: string;
+    category_icon?: string;
+    category_color?: string;
 }
 
 export interface WalletDialogData {

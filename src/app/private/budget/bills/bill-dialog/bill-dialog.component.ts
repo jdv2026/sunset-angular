@@ -7,20 +7,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { Bill, BillDialogData } from '../bills.contracts';
-
-const ICON_OPTIONS = [
-	'home', 'bolt', 'wifi', 'phone', 'local_gas_station', 'water_drop',
-	'tv', 'fitness_center', 'health_and_safety', 'school', 'directions_car', 'credit_card',
-	'subscriptions', 'cloud', 'security', 'payments',
-];
-
-const COLOR_OPTIONS = [
-	'#22c55e', '#3b82f6', '#f97316', '#ec4899',
-	'#8b5cf6', '#10b981', '#f59e0b', '#ef4444',
-	'#06b6d4', '#64748b', '#a855f7', '#14b8a6',
-	'#f43f5e', '#84cc16', '#0ea5e9', '#d946ef',
-];
+import { BillDialogData } from '../bills.contracts';
+import { Category } from '../../categories/categories.contracts';
 
 @Component({
 	selector: 'vex-bill-dialog',
@@ -40,11 +28,9 @@ const COLOR_OPTIONS = [
 })
 export class BillDialogComponent {
 
-	readonly iconOptions = ICON_OPTIONS;
-	readonly colorOptions = COLOR_OPTIONS;
-
 	readonly isEdit: boolean;
 	readonly form: FormGroup;
+	readonly categories: Category[];
 
 	constructor(
 		private readonly fb: FormBuilder,
@@ -52,25 +38,25 @@ export class BillDialogComponent {
 		@Optional() @Inject(MAT_DIALOG_DATA) data: BillDialogData | null,
 	) {
 		this.isEdit = !!data?.bill;
+		this.categories = data?.categories ?? [];
 		const b = data?.bill;
+		const matchedCategory = b ? this.categories.find(c => c.name === b.category_name) : undefined;
 		this.form = this.fb.group({
-			name: [b?.name ?? '', Validators.required],
-			amount: [b?.amount ?? null, [Validators.required, Validators.min(0.01)]],
-			dueDate: [b?.dueDate ?? '', Validators.required],
+			name: [b?.name ?? '', [Validators.required, Validators.maxLength(100)]],
+			description: [b?.description ?? '', Validators.maxLength(255)],
+			amount: [b?.amount ?? null, [Validators.required, Validators.min(0.01), Validators.max(999999.99)]],
+			due_date: [b?.due_date ?? '', Validators.required],
 			frequency: [b?.frequency ?? 'monthly', Validators.required],
-			category: [b?.category ?? '', Validators.required],
-			status: [b?.status ?? 'upcoming', Validators.required],
-			icon: [b?.icon ?? 'credit_card'],
-			color: [b?.color ?? '#3b82f6'],
+			category_id: [matchedCategory?.id ?? null, Validators.required],
 		});
 	}
 
-	selectIcon(icon: string): void {
-		this.form.patchValue({ icon });
+	get selectedCategory(): Category | undefined {
+		return this.categories.find(c => c.id === this.form.value.category_id);
 	}
 
-	selectColor(color: string): void {
-		this.form.patchValue({ color });
+	compareCategory(a: any, b: any): boolean {
+		return Number(a) === Number(b);
 	}
 
 	submit(): void {

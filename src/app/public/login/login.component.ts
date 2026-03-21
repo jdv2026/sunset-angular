@@ -115,6 +115,10 @@ export class LoginComponent {
 		this.storageService.clearToken();
 	}
 
+	continueAsGuest(): void {
+		this.router.navigate(['/guest/home']);
+	}
+
 	private isFormInvalid(): boolean {
 		return this.loginForm.invalid;
 	}
@@ -160,10 +164,6 @@ export class LoginComponent {
 		this.storageService.setToken(res.payload.token);
 		this.appService.setUser(res.payload.user);
 		this.router.navigate(['/dashboard/home']);
-	}
-
-	continueAsGuest(): void {
-		this.router.navigate(['/guest/home']);
 	}
 
 	private onFailedLogin(err: unknown): void {

@@ -8,70 +8,65 @@
             <!-- Name -->
             <mat-form-field appearance="outline" class="full-width">
                 <mat-label>Bill Name</mat-label>
-                <input matInput formControlName="name" placeholder="e.g. Netflix">
+                <input matInput formControlName="name" placeholder="e.g. Netflix" maxlength="100">
+                <mat-hint align="end">{{ form.get('name')?.value?.length || 0 }}/100</mat-hint>
+                <mat-error *ngIf="form.get('name')?.hasError('required')">Bill name is required</mat-error>
+                <mat-error *ngIf="form.get('name')?.hasError('maxlength')">Max 100 characters</mat-error>
+            </mat-form-field>
+
+            <!-- Description -->
+            <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Description</mat-label>
+                <textarea matInput formControlName="description" placeholder="e.g. Monthly rent payment" rows="2" maxlength="255"></textarea>
+                <mat-hint align="end">{{ form.get('description')?.value?.length || 0 }}/255</mat-hint>
+                <mat-error *ngIf="form.get('description')?.hasError('maxlength')">Max 255 characters</mat-error>
             </mat-form-field>
 
             <!-- Amount & Due Date -->
             <div class="two-col">
                 <mat-form-field appearance="outline">
-                    <mat-label>Amount ($)</mat-label>
+                    <mat-label>Target Amount</mat-label>
                     <input matInput type="number" formControlName="amount" placeholder="0.00">
+                    <mat-error *ngIf="form.get('amount')?.hasError('required')">Amount is required</mat-error>
+                    <mat-error *ngIf="form.get('amount')?.hasError('min')">Must be greater than 0</mat-error>
+                    <mat-error *ngIf="form.get('amount')?.hasError('max')">Max $999,999.99</mat-error>
                 </mat-form-field>
                 <mat-form-field appearance="outline">
                     <mat-label>Due Date</mat-label>
-                    <input matInput type="date" formControlName="dueDate">
+                    <input matInput type="date" formControlName="due_date">
+                    <mat-error *ngIf="form.get('due_date')?.hasError('required')">Due date is required</mat-error>
                 </mat-form-field>
             </div>
 
-            <!-- Frequency & Category -->
-            <div class="two-col">
-                <mat-form-field appearance="outline">
-                    <mat-label>Frequency</mat-label>
-                    <mat-select formControlName="frequency">
-                        <mat-option value="weekly">Weekly</mat-option>
-                        <mat-option value="monthly">Monthly</mat-option>
-                        <mat-option value="yearly">Yearly</mat-option>
-                    </mat-select>
-                </mat-form-field>
-                <mat-form-field appearance="outline">
-                    <mat-label>Category</mat-label>
-                    <input matInput formControlName="category" placeholder="e.g. Utilities">
-                </mat-form-field>
-            </div>
-
-            <!-- Status -->
+            <!-- Frequency -->
             <mat-form-field appearance="outline" class="full-width">
-                <mat-label>Status</mat-label>
-                <mat-select formControlName="status">
-                    <mat-option value="upcoming">Upcoming</mat-option>
-                    <mat-option value="paid">Paid</mat-option>
-                    <mat-option value="overdue">Overdue</mat-option>
+                <mat-label>Frequency</mat-label>
+                <mat-select formControlName="frequency">
+                    <mat-option value="weekly">Weekly</mat-option>
+                    <mat-option value="monthly">Monthly</mat-option>
+                    <mat-option value="yearly">Yearly</mat-option>
                 </mat-select>
+                <mat-error *ngIf="form.get('frequency')?.hasError('required')">Frequency is required</mat-error>
             </mat-form-field>
 
-            <!-- Icon Picker -->
-            <div class="field-label">Icon</div>
-            <div class="icon-grid">
-                <button type="button" *ngFor="let icon of iconOptions"
-                    class="icon-btn"
-                    [class.selected]="form.value.icon === icon"
-                    [style.color]="form.value.icon === icon ? form.value.color : ''"
-                    [style.border-color]="form.value.icon === icon ? form.value.color : ''"
-                    (click)="selectIcon(icon)">
-                    <mat-icon>{{ icon }}</mat-icon>
-                </button>
-            </div>
-
-            <!-- Color Picker -->
-            <div class="field-label mt-3">Color</div>
-            <div class="color-grid">
-                <button type="button" *ngFor="let color of colorOptions"
-                    class="color-swatch"
-                    [style.background-color]="color"
-                    [class.selected]="form.value.color === color"
-                    (click)="selectColor(color)">
-                </button>
-            </div>
+            <!-- Category -->
+            <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Category</mat-label>
+                <mat-select formControlName="category_id" [compareWith]="compareCategory">
+                    <mat-select-trigger>
+                        <ng-container *ngIf="selectedCategory; else noCategory">
+                            <mat-icon [style.color]="selectedCategory.color" style="vertical-align: middle; margin-right: 6px; font-size: 18px;">{{ selectedCategory.icon }}</mat-icon>
+                            {{ selectedCategory.name }}
+                        </ng-container>
+                        <ng-template #noCategory>Select a category</ng-template>
+                    </mat-select-trigger>
+                    <mat-option *ngFor="let cat of categories" [value]="cat.id">
+                        <mat-icon [style.color]="cat.color" style="vertical-align: middle; margin-right: 6px; font-size: 18px;">{{ cat.icon }}</mat-icon>
+                        {{ cat.name }}
+                    </mat-option>
+                </mat-select>
+                <mat-error *ngIf="form.get('category_id')?.hasError('required')">Category is required</mat-error>
+            </mat-form-field>
 
         </form>
     </mat-dialog-content>

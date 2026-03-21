@@ -14,7 +14,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { AsyncPipe, NgFor, NgIf } from '@angular/common';
 import { AppService } from 'src/app/app.service';
-import { environment } from 'src/environments/environment';
 
 @Component({
 	selector: 'vex-sidenav',
@@ -54,10 +53,9 @@ export class SidenavComponent implements OnInit {
 	public userMenuOpen$: Observable<boolean> = of(false);
 
 	public items$: Observable<NavigationItem[]> = this.navigationService.items$;
-	public defImg: string = 'assets/img/avatars/default.png';
-	public profile_img: string = this.defImg;
 	public name: string = '';
-	public role!: string | undefined;
+	public role: string = '';
+	public initials: string = '?';
 
 	constructor(
 		private navigationService: NavigationService,
@@ -68,7 +66,14 @@ export class SidenavComponent implements OnInit {
 	) {}
 
 	ngOnInit() {
-
+		const user = this.appService.currentUser;
+		if (user) {
+			const first = user.first_name ?? '';
+			const last = user.last_name ?? '';
+			this.name = (first + ' ' + last).trim() || 'Not Available';
+			this.role = user.type;
+			this.initials = (first.charAt(0) + last.charAt(0)).toUpperCase() || '?';
+		}
 	}
 
 	collapseOpenSidenav() {
@@ -85,7 +90,7 @@ export class SidenavComponent implements OnInit {
 		: this.layoutService.collapseSidenav();
 	}
 
-	trackByRoute(index: number, item: NavigationItem): string {
+	trackByRoute(_index: number, item: NavigationItem): string {
 		if (item.type === 'link') {
 		return item.route;
 		}

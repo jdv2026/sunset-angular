@@ -32,6 +32,10 @@ export const appRoutes: VexRoutes = [
 				loadComponent: () => import('./public/guest/home/home.component').then(m => m.HomeComponent),
 			},
 			{
+				path: 'profile',
+				loadComponent: () => import('./public/guest/profile/profile.component').then(m => m.GuestProfileComponent),
+			},
+			{
 				path: 'budget/overview',
 				loadComponent: () => import('./public/guest/budget/overview/overview.component').then(m => m.OverviewComponent),
 			},
@@ -54,6 +58,26 @@ export const appRoutes: VexRoutes = [
 			{
 				path: 'budget/bills',
 				loadComponent: () => import('./public/guest/budget/bills/bills.component').then(m => m.BillsComponent),
+			},
+			{
+				path: 'physical/overview',
+				loadComponent: () => import('./utilities/under-construction/under-construction.component').then(m => m.UnderConstructionComponent),
+			},
+			{
+				path: 'physical/workouts',
+				loadComponent: () => import('./utilities/under-construction/under-construction.component').then(m => m.UnderConstructionComponent),
+			},
+			{
+				path: 'physical/program',
+				loadComponent: () => import('./utilities/under-construction/under-construction.component').then(m => m.UnderConstructionComponent),
+			},
+			{
+				path: 'physical/progress-report',
+				loadComponent: () => import('./utilities/under-construction/under-construction.component').then(m => m.UnderConstructionComponent),
+			},
+			{
+				path: 'physical/schedule',
+				loadComponent: () => import('./utilities/under-construction/under-construction.component').then(m => m.UnderConstructionComponent),
 			},
 			{
 				path: '',
@@ -94,6 +118,34 @@ export const appRoutes: VexRoutes = [
 			{
 				path: 'budget/bills',
 				loadComponent: () => import('./private/budget/bills/bills.component').then(m => m.BillsComponent)
+			},
+			{
+				path: 'budget/wallets',
+				loadComponent: () => import('./private/budget/wallets/wallets.component').then(m => m.WalletsComponent)
+			},
+			{
+				path: 'profile/:id',
+				loadComponent: () => import('./private/profile/profile.component').then(m => m.ProfileComponent)
+			},
+			{
+				path: 'physical/overview',
+				loadComponent: () => import('./utilities/under-construction/under-construction.component').then(m => m.UnderConstructionComponent)
+			},
+			{
+				path: 'physical/workouts',
+				loadComponent: () => import('./utilities/under-construction/under-construction.component').then(m => m.UnderConstructionComponent)
+			},
+			{
+				path: 'physical/program',
+				loadComponent: () => import('./utilities/under-construction/under-construction.component').then(m => m.UnderConstructionComponent)
+			},
+			{
+				path: 'physical/progress-report',
+				loadComponent: () => import('./utilities/under-construction/under-construction.component').then(m => m.UnderConstructionComponent)
+			},
+			{
+				path: 'physical/schedule',
+				loadComponent: () => import('./utilities/under-construction/under-construction.component').then(m => m.UnderConstructionComponent)
 			}
 		]
 	}

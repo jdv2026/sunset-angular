@@ -4,9 +4,17 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { BillDialogComponent } from './bill-dialog/bill-dialog.component';
 import { Bill, BillDialogData } from './bills.contracts';
 import { PrivateService } from '../../private.service';
+import { BillsService } from './bills.service';
+import { CategoriesService } from '../categories/categories.service';
+import { Category } from '../categories/categories.contracts';
+import { LoadingComponent } from 'src/app/utilities/loading/loading.component';
+import { SuccessModalComponent } from 'src/app/utilities/success-modal/success-modal.component';
+import { ConfirmationDialogComponent } from 'src/app/utilities/confirmation-dialog/confirmation-dialog.component';
+import { ErrorHandlerService } from 'src/app/services/ErrorHandler.service';
 
 @Component({
 	selector: 'vex-bills',
@@ -17,30 +25,29 @@ import { PrivateService } from '../../private.service';
 		MatIconModule,
 		MatDialogModule,
 		MatMenuModule,
+		MatTooltipModule,
+		ConfirmationDialogComponent,
 	],
 	templateUrl: './bills.component.html',
 	styleUrl: './bills.component.scss',
 })
 export class BillsComponent implements OnInit {
 
-	bills: Bill[] = [
-		{ id: 1, name: 'Rent', icon: 'home', color: '#3b82f6', amount: 1200.00, dueDate: '2026-03-01', frequency: 'monthly', status: 'paid', category: 'Housing' },
-		{ id: 2, name: 'Netflix', icon: 'tv', color: '#ef4444', amount: 15.99, dueDate: '2026-03-05', frequency: 'monthly', status: 'paid', category: 'Entertainment' },
-		{ id: 3, name: 'Electric Bill', icon: 'bolt', color: '#f59e0b', amount: 120.00, dueDate: '2026-03-07', frequency: 'monthly', status: 'paid', category: 'Utilities' },
-		{ id: 4, name: 'Internet', icon: 'wifi', color: '#06b6d4', amount: 60.00, dueDate: '2026-03-10', frequency: 'monthly', status: 'paid', category: 'Utilities' },
-		{ id: 5, name: 'Gym Membership', icon: 'fitness_center', color: '#10b981', amount: 50.00, dueDate: '2026-03-15', frequency: 'monthly', status: 'upcoming', category: 'Health' },
-		{ id: 6, name: 'Car Insurance', icon: 'directions_car', color: '#f97316', amount: 200.00, dueDate: '2026-03-10', frequency: 'monthly', status: 'overdue', category: 'Insurance' },
-		{ id: 7, name: 'Spotify', icon: 'subscriptions', color: '#22c55e', amount: 9.99, dueDate: '2026-03-25', frequency: 'monthly', status: 'upcoming', category: 'Entertainment' },
-		{ id: 8, name: 'Cloud Storage', icon: 'cloud', color: '#8b5cf6', amount: 2.99, dueDate: '2026-03-28', frequency: 'monthly', status: 'upcoming', category: 'Subscriptions' },
-	];
+	bills: Bill[] = [];
+	categories: Category[] = [];
 
 	constructor(
 		private readonly dialog: MatDialog,
 		private readonly privateService: PrivateService,
+		private readonly billsService: BillsService,
+		private readonly categoriesService: CategoriesService,
+		private readonly errorHandler: ErrorHandlerService,
 	) {}
 
 	ngOnInit(): void {
 		this.privateService.setCrumbs({ current: 'Bills', crumbs: ['Budget', 'Bills'] });
+		this.initCategories();
+		this.initActiveBills();
 	}
 
 	get totalMonthly(): number {
@@ -64,20 +71,33 @@ export class BillsComponent implements OnInit {
 		return [...this.bills].sort((a, b) => {
 			const statusDiff = order[a.status] - order[b.status];
 			if (statusDiff !== 0) return statusDiff;
-			return a.dueDate.localeCompare(b.dueDate);
+			return a.due_date.localeCompare(b.due_date);
 		});
 	}
 
-	getDaysUntilDue(dueDate: string): number {
+	getProgress(bill: Bill): number {
+		if (!bill.target || bill.target === 0) return 0;
+		return Math.min((bill.paid / bill.target) * 100, 100);
+	}
+
+	getProgressColor(bill: Bill): string {
+		const pct = this.getProgress(bill);
+		if (pct >= 100) return '#22c55e';
+		if (pct >= 60) return bill.category_color ?? '#3b82f6';
+		if (pct >= 30) return '#f59e0b';
+		return '#ef4444';
+	}
+
+	getDaysUntilDue(due_date: string): number {
 		const today = new Date();
 		today.setHours(0, 0, 0, 0);
-		const due = new Date(dueDate);
+		const due = new Date(due_date);
 		return Math.ceil((due.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
 	}
 
 	getDueDateLabel(bill: Bill): string {
 		if (bill.status === 'paid') return 'Paid';
-		const days = this.getDaysUntilDue(bill.dueDate);
+		const days = this.getDaysUntilDue(bill.due_date);
 		if (days < 0) return `${Math.abs(days)}d overdue`;
 		if (days === 0) return 'Due today';
 		if (days === 1) return 'Due tomorrow';
@@ -90,24 +110,131 @@ export class BillsComponent implements OnInit {
 	}
 
 	openAdd(): void {
-		const ref = this.dialog.open(BillDialogComponent, { width: '480px' });
-		ref.afterClosed().subscribe((result: Omit<Bill, 'id'> | undefined) => {
+		const data: BillDialogData = { categories: this.categories };
+		const ref = this.dialog.open(BillDialogComponent, { width: '90vw', maxWidth: '480px', disableClose: true, data });
+		ref.afterClosed().subscribe(async (result: Omit<Bill, 'id'> | undefined) => {
 			if (!result) return;
-			this.bills.push({ ...result, id: this.bills.length + 1 });
+			const loadingRef = this.dialog.open(LoadingComponent, {
+				disableClose: true,
+				panelClass: 'loading-dialog',
+				backdropClass: 'loading-backdrop',
+				data: { title: 'Saving', message: 'Please wait...' },
+				width: '400px',
+			});
+			try {
+				await this.billsService.storeBill({ payload: result } as any);
+				loadingRef.close();
+				this.dialog.open(SuccessModalComponent, {
+					data: { items: [{ header: 'Bill Created', message: `"${result.name}" has been added successfully.` }] },
+					width: '400px',
+				});
+				this.initActiveBills();
+			} catch (err: unknown) {
+				loadingRef.close();
+				this.errorHandler.open('Failed to Create', err);
+			}
 		});
 	}
 
 	openEdit(bill: Bill): void {
-		const data: BillDialogData = { bill };
-		const ref = this.dialog.open(BillDialogComponent, { width: '480px', data });
-		ref.afterClosed().subscribe((result: Omit<Bill, 'id'> | undefined) => {
+		const data: BillDialogData = { bill, categories: this.categories };
+		const ref = this.dialog.open(BillDialogComponent, { width: '90vw', maxWidth: '480px', disableClose: true, data });
+		ref.afterClosed().subscribe(async (result: Omit<Bill, 'id'> | undefined) => {
 			if (!result) return;
-			const idx = this.bills.findIndex(b => b.id === bill.id);
-			if (idx !== -1) this.bills[idx] = { ...this.bills[idx], ...result };
+			const loadingRef = this.dialog.open(LoadingComponent, {
+				disableClose: true,
+				panelClass: 'loading-dialog',
+				backdropClass: 'loading-backdrop',
+				data: { title: 'Saving', message: 'Please wait...' },
+				width: '400px',
+			});
+			try {
+				await this.billsService.updateBill(bill.id, result);
+				loadingRef.close();
+				this.dialog.open(SuccessModalComponent, {
+					data: { items: [{ header: 'Bill Updated', message: `"${result.name}" has been updated successfully.` }] },
+					width: '400px',
+				});
+				this.initActiveBills();
+			} catch (err: unknown) {
+				loadingRef.close();
+				this.errorHandler.open('Failed to Update', err);
+			}
 		});
 	}
 
-	delete(id: number): void {
-		this.bills = this.bills.filter(b => b.id !== id);
+	delete(bill: Bill): void {
+		const confirmRef = this.dialog.open(ConfirmationDialogComponent, {
+			width: '400px',
+			data: {
+				warning: true,
+				items: [{
+					header: 'Delete Bill',
+					message: `Are you sure you want to delete "${bill.name}"?`,
+					description: 'This will permanently delete this bill and all its data.',
+				}],
+			},
+		});
+		confirmRef.afterClosed().subscribe(async (confirmed: boolean) => {
+			if (!confirmed) return;
+			const loadingRef = this.dialog.open(LoadingComponent, {
+				disableClose: true,
+				panelClass: 'loading-dialog',
+				backdropClass: 'loading-backdrop',
+				data: { title: 'Deleting', message: 'Please wait...' },
+				width: '400px',
+			});
+			try {
+				await this.billsService.deleteBill(bill.id);
+				loadingRef.close();
+				this.dialog.open(SuccessModalComponent, {
+					data: { items: [{ header: 'Bill Deleted', message: `"${bill.name}" has been deleted successfully.` }] },
+					width: '400px',
+				});
+				this.bills = this.bills.filter(b => b.id !== bill.id);
+			} catch (err: unknown) {
+				loadingRef.close();
+				this.errorHandler.open('Failed to Delete', err);
+			}
+		});
 	}
+
+	private async initActiveBills(): Promise<void> {
+		try {
+			const res = await this.billsService.fetchActiveBills();
+			this.bills = res.payload.map((item: any) => ({
+				id: item.id,
+				name: item.name,
+				description: item.description,
+				amount: item.amount,
+				target: item.amount,
+				paid: item.paid,
+				due_date: item.due_date,
+				frequency: item.frequency,
+				status: item.status,
+				category_name: item.category_name,
+				category_icon: item.category_icon,
+				category_color: item.category_color,
+			}));
+		} catch (err: unknown) {
+			this.errorHandler.open('Failed to Load', err);
+		}
+	}
+
+	private async initCategories(): Promise<void> {
+		try {
+			const res = await this.categoriesService.fetchActiveCategoriesForBills();
+			this.categories = res.payload.map((item: any) => ({
+				id: item.id,
+				name: item.name,
+				icon: item.icon,
+				color: item.color,
+				description: item.description,
+			}));
+		}
+		catch {
+
+		}
+	}
+	
 }

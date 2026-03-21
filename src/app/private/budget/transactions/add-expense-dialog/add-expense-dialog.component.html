@@ -1,0 +1,111 @@
+<div class="dialog-container">
+
+    <h2 mat-dialog-title>Transfer / Pay</h2>
+
+    <mat-dialog-content>
+        <form [formGroup]="form" class="form-grid">
+
+            <!-- From -->
+            <mat-form-field appearance="outline" class="full-width">
+                <mat-label>From</mat-label>
+                <mat-select formControlName="from">
+                    <mat-select-trigger>
+                        <ng-container *ngIf="fromOpt as sel">
+                            <mat-icon style="vertical-align: middle; margin-right: 6px; font-size: 18px;">{{ sel.icon }}</mat-icon>
+                            {{ sel.name }}
+                        </ng-container>
+                    </mat-select-trigger>
+                    <mat-optgroup label="Wallets" *ngIf="walletOptions.length">
+                        <mat-option *ngFor="let opt of walletOptions" [value]="opt.key" [matTooltip]="fromTooltipFor(opt)" matTooltipShowDelay="300">
+                            <mat-icon style="vertical-align: middle; margin-right: 6px; font-size: 18px;">{{ opt.icon }}</mat-icon>
+                            {{ opt.name }}
+                        </mat-option>
+                    </mat-optgroup>
+                    <mat-optgroup label="Goals" *ngIf="goalOptions.length">
+                        <mat-option *ngFor="let opt of goalOptions" [value]="opt.key" [matTooltip]="fromTooltipFor(opt)" matTooltipShowDelay="300">
+                            <mat-icon style="vertical-align: middle; margin-right: 6px; font-size: 18px;">{{ opt.icon }}</mat-icon>
+                            {{ opt.name }}
+                        </mat-option>
+                    </mat-optgroup>
+                    <mat-optgroup label="Bills" *ngIf="billOptions.length">
+                        <mat-option *ngFor="let opt of billOptions" [value]="opt.key" [matTooltip]="fromTooltipFor(opt)" matTooltipShowDelay="300">
+                            <mat-icon style="vertical-align: middle; margin-right: 6px; font-size: 18px;">{{ opt.icon }}</mat-icon>
+                            {{ opt.name }}
+                        </mat-option>
+                    </mat-optgroup>
+                </mat-select>
+                <mat-hint *ngIf="fromOpt">
+                    Can send up to: <strong>${{ maxTransferOut(fromOpt).toFixed(2) }}</strong>
+                </mat-hint>
+                <mat-error *ngIf="form.get('from')?.hasError('required')">From is required</mat-error>
+            </mat-form-field>
+
+            <!-- To -->
+            <mat-form-field appearance="outline" class="full-width">
+                <mat-label>To</mat-label>
+                <mat-select formControlName="to">
+                    <mat-select-trigger>
+                        <ng-container *ngIf="toOpt as sel">
+                            <mat-icon style="vertical-align: middle; margin-right: 6px; font-size: 18px;">{{ sel.icon }}</mat-icon>
+                            {{ sel.name }}
+                        </ng-container>
+                    </mat-select-trigger>
+                    <mat-optgroup label="Wallets" *ngIf="toWalletOptions.length">
+                        <mat-option *ngFor="let opt of toWalletOptions" [value]="opt.key" [matTooltip]="toTooltipFor(opt)" matTooltipShowDelay="300">
+                            <mat-icon style="vertical-align: middle; margin-right: 6px; font-size: 18px;">{{ opt.icon }}</mat-icon>
+                            {{ opt.name }}
+                        </mat-option>
+                    </mat-optgroup>
+                    <mat-optgroup label="Goals" *ngIf="toGoalOptions.length">
+                        <mat-option *ngFor="let opt of toGoalOptions" [value]="opt.key" [matTooltip]="toTooltipFor(opt)" matTooltipShowDelay="300">
+                            <mat-icon style="vertical-align: middle; margin-right: 6px; font-size: 18px;">{{ opt.icon }}</mat-icon>
+                            {{ opt.name }}
+                        </mat-option>
+                    </mat-optgroup>
+                    <mat-optgroup label="Bills" *ngIf="toBillOptions.length">
+                        <mat-option *ngFor="let opt of toBillOptions" [value]="opt.key" [matTooltip]="toTooltipFor(opt)" matTooltipShowDelay="300">
+                            <mat-icon style="vertical-align: middle; margin-right: 6px; font-size: 18px;">{{ opt.icon }}</mat-icon>
+                            {{ opt.name }}
+                        </mat-option>
+                    </mat-optgroup>
+                </mat-select>
+                <mat-hint *ngIf="fromOpt && fromOpt.type !== 'wallet'">
+                    Goals &amp; Bills must transfer to a Wallet first
+                </mat-hint>
+                <mat-hint *ngIf="toOpt && toOpt.type !== 'wallet'">
+                    Can receive up to: <strong>${{ maxReceive(toOpt).toFixed(2) }}</strong>
+                </mat-hint>
+                <mat-error *ngIf="form.get('to')?.hasError('required')">To is required</mat-error>
+            </mat-form-field>
+
+            <!-- Amount -->
+            <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Amount</mat-label>
+                <span matTextPrefix>$ &nbsp;</span>
+                <input matInput type="number" formControlName="amount" placeholder="0.00" />
+                <mat-hint *ngIf="fromOpt && toOpt && isFinite(maxTransferAmount)">
+                    Max: <strong>${{ maxTransferAmount.toFixed(2) }}</strong>
+                </mat-hint>
+                <mat-error *ngIf="form.get('amount')?.hasError('required')">Amount is required</mat-error>
+                <mat-error *ngIf="form.get('amount')?.hasError('min')">Must be greater than 0</mat-error>
+                <mat-error *ngIf="form.get('amount')?.hasError('max')">
+                    Exceeds max transfer of ${{ maxTransferAmount.toFixed(2) }}
+                </mat-error>
+            </mat-form-field>
+
+        </form>
+    </mat-dialog-content>
+
+    <mat-dialog-actions align="end">
+        <button mat-button (click)="cancel()">Cancel</button>
+        <button mat-raised-button color="primary" (click)="submitTransfer()" [disabled]="form.invalid"
+            *ngIf="!(fromOpt?.type === 'wallet' && toOpt?.type === 'bill')">
+            Transfer
+        </button>
+        <button mat-raised-button color="primary" (click)="submitPay()" [disabled]="form.invalid"
+            *ngIf="fromOpt?.type === 'wallet' && toOpt?.type === 'bill'">
+            Pay
+        </button>
+    </mat-dialog-actions>
+
+</div>

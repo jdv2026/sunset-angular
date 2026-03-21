@@ -1,0 +1,60 @@
+name: Version Bump
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  version-bump:
+    runs-on: ubuntu-latest
+    if: |
+      contains(github.event.head_commit.message, '[patch]') ||
+      contains(github.event.head_commit.message, '[minor]') ||
+      contains(github.event.head_commit.message, '[major]')
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GH_PAT }}
+
+      - name: Determine bump type
+        id: bump
+        run: |
+          MSG="${{ github.event.head_commit.message }}"
+          if echo "$MSG" | grep -q '\[major\]'; then
+            echo "type=major" >> $GITHUB_OUTPUT
+          elif echo "$MSG" | grep -q '\[minor\]'; then
+            echo "type=minor" >> $GITHUB_OUTPUT
+          else
+            echo "type=patch" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Compute next version
+        id: version
+        run: |
+          LATEST=$(git tag --sort=-v:refname | grep '^v[0-9]' | head -n1)
+          [ -z "$LATEST" ] && LATEST="v0.0.0"
+          VERSION="${LATEST#v}"
+          MAJOR=$(echo $VERSION | cut -d. -f1)
+          MINOR=$(echo $VERSION | cut -d. -f2)
+          PATCH=$(echo $VERSION | cut -d. -f3)
+
+          case "${{ steps.bump.outputs.type }}" in
+            major) MAJOR=$((MAJOR+1)); MINOR=0; PATCH=0 ;;
+            minor) MINOR=$((MINOR+1)); PATCH=0 ;;
+            patch) PATCH=$((PATCH+1)) ;;
+          esac
+
+          NEW="v${MAJOR}.${MINOR}.${PATCH}"
+          echo "new_version=$NEW" >> $GITHUB_OUTPUT
+          echo "Bumping $LATEST → $NEW (${{ steps.bump.outputs.type }})"
+
+      - name: Create and push tag
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag ${{ steps.version.outputs.new_version }} -m "Release ${{ steps.version.outputs.new_version }}"
+          git push origin ${{ steps.version.outputs.new_version }}

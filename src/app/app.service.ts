@@ -1,6 +1,7 @@
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { BehaviorSubject, map, Observable } from "rxjs";
+import { environment } from "src/environments/environment";
 import { ApiRequest } from "src/app/contracts/ApiRequest";
 import { ApiResponse } from "src/app/contracts/ApiResponse";
 import { BaseApiService } from "src/app/services/BaseApi.service";
@@ -18,7 +19,13 @@ export class AppService extends BaseApiService {
 
 	private _metaData$ = new BehaviorSubject<MetaDataResponse | null>(null);
 	protected metaData$: Observable<MetaDataResponse | null> = this._metaData$.asObservable();
-	public version$: Observable<string> = this._metaData$.pipe(map(data => data?.dbVersions.version ?? ''));
+	public version$: Observable<string> = this._metaData$.pipe(
+		map(data => {
+			const fe = `FE: ${environment.version}`;
+			const auth = data?.appVersion ? ` | Auth: ${data.appVersion}` : '';
+			return `${fe}${auth}`;
+		})
+	);
 
 	private _user$ = new BehaviorSubject<User | null>(null);
 	protected user$: Observable<User | null> = this._user$.asObservable();

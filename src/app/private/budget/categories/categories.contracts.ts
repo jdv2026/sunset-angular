@@ -1,3 +1,9 @@
+export enum CategoryType {
+	Expense = 'expense',
+	Income = 'income',
+	Goals = 'goals',
+}
+
 export const CATEGORY_COLOR_MAP: Record<string, string> = {
 	Food: '#f97316',
 	Transport: '#3b82f6',
@@ -13,8 +19,8 @@ export interface Category {
 	name: string;
 	icon: string;
 	color: string;
-	budget: number;
-	spent: number;
+	description: string;
+	type: CategoryType;
 }
 
 export interface CategoryDialogData {

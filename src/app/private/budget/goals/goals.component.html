@@ -1,7 +1,7 @@
 <div class="p-6">
 
     <!-- Header -->
-    <div class="flex items-center justify-between mb-6">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
         <div>
             <h1 class="text-2xl font-semibold">Goals</h1>
             <p class="text-sm text-gray-500 mt-1">Track your savings goals and milestones</p>
@@ -13,7 +13,7 @@
     </div>
 
     <!-- Summary Row -->
-    <div class="grid grid-cols-3 gap-4 mb-6">
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
         <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
             <p class="text-sm text-gray-500">Total Goals</p>
             <p class="text-2xl font-semibold text-gray-800 mt-1">{{ goals.length }}</p>
@@ -29,18 +29,33 @@
     </div>
 
     <!-- Goal Cards -->
-    <div class="grid grid-cols-2 gap-4">
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
         <div *ngFor="let goal of goals" class="goal-card bg-white rounded-lg p-5 shadow-sm border border-gray-100">
 
             <!-- Card Header -->
             <div class="flex items-start justify-between mb-4">
                 <div class="flex items-center gap-3">
-                    <div class="icon-wrap" [style.background-color]="goal.color + '1a'" [style.color]="goal.color">
-                        <mat-icon>{{ goal.icon }}</mat-icon>
+                    <div class="icon-wrap"
+                        [style.background-color]="(getCategoryFor(goal)?.color ?? '#22c55e') + '1a'"
+                        [style.color]="getCategoryFor(goal)?.color ?? '#22c55e'"
+                        [matTooltip]="getCategoryFor(goal)?.name || ''"
+                        [matTooltipDisabled]="!getCategoryFor(goal)?.name">
+                        <mat-icon>{{ getCategoryFor(goal)?.icon ?? 'savings' }}</mat-icon>
                     </div>
                     <div>
                         <p class="font-semibold text-gray-800">{{ goal.name }}</p>
-                        <p class="text-xs text-gray-400">Target: {{ goal.deadline | date:'mediumDate' }}</p>
+                        <button *ngIf="goal.description" type="button"
+                            class="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600 mt-0.5"
+                            (click)="toggleDescription(goal.id)">
+                            <mat-icon style="font-size: 14px; width: 14px; height: 14px;">
+                                {{ expandedDescriptions.has(goal.id) ? 'expand_less' : 'expand_more' }}
+                            </mat-icon>
+                            {{ expandedDescriptions.has(goal.id) ? 'Hide' : 'Details' }}
+                        </button>
+                        <p *ngIf="goal.description && expandedDescriptions.has(goal.id)"
+                            class="text-xs text-gray-500 mt-1 max-w-[180px]">
+                            {{ goal.description }}
+                        </p>
                     </div>
                 </div>
                 <button mat-icon-button [matMenuTriggerFor]="menu" class="action-btn">
@@ -51,7 +66,7 @@
                         <mat-icon>edit</mat-icon>
                         <span>Edit</span>
                     </button>
-                    <button mat-menu-item (click)="delete(goal.id)">
+                    <button mat-menu-item (click)="delete(goal)">
                         <mat-icon>delete</mat-icon>
                         <span>Delete</span>
                     </button>
@@ -61,8 +76,8 @@
             <!-- Amount Row -->
             <div class="flex items-end justify-between mb-2">
                 <div>
-                    <p class="text-2xl font-bold" [style.color]="goal.color">{{ goal.saved | currency }}</p>
-                    <p class="text-xs text-gray-400">saved of {{ goal.target | currency }}</p>
+                    <p class="text-2xl font-bold" [style.color]="getCategoryFor(goal)?.color ?? '#22c55e'">{{ goal.saved | currency }}</p>
+                    <p class="text-xs text-gray-400">saved of {{ goal.amount | currency }}</p>
                 </div>
                 <div class="text-right">
                     <p class="text-lg font-semibold text-gray-700">{{ getProgress(goal) | number:'1.0-0' }}%</p>
@@ -79,14 +94,23 @@
             </div>
 
             <!-- Footer Stats -->
-            <div class="flex items-center justify-between text-xs text-gray-500">
+            <div class="flex items-center justify-between text-xs text-gray-500 mb-3">
                 <span>
-                    <span class="font-medium text-gray-700">{{ goal.target - goal.saved | currency }}</span> remaining
+                    <span class="font-medium text-gray-700">{{ goal.amount - goal.saved | currency }}</span> remaining
                 </span>
                 <span *ngIf="getDaysLeft(goal.deadline) > 0">
                     <span class="font-medium text-gray-700">{{ getMonthlySavingsNeeded(goal) | currency }}</span>/mo needed
                 </span>
                 <span *ngIf="getDaysLeft(goal.deadline) <= 0" class="text-red-500 font-medium">Overdue</span>
+            </div>
+
+            <!-- Deadline -->
+            <div class="flex items-center gap-1 text-xs border-t pt-3"
+                [ngClass]="getDaysLeft(goal.deadline) <= 0 ? 'text-red-400' : 'text-gray-400'">
+                <mat-icon style="font-size: 14px; width: 14px; height: 14px;">event</mat-icon>
+                <span>Deadline: <span class="font-medium">{{ goal.deadline | date:'mediumDate' }}</span></span>
+                <span class="ml-auto" *ngIf="getDaysLeft(goal.deadline) > 0">{{ getDaysLeft(goal.deadline) }} days left</span>
+                <span class="ml-auto font-medium" *ngIf="getDaysLeft(goal.deadline) <= 0">Overdue</span>
             </div>
 
         </div>

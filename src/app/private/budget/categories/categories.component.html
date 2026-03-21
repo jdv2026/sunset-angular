@@ -1,7 +1,7 @@
 <div class="p-6">
 
     <!-- Header -->
-    <div class="flex items-center justify-between mb-6">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
         <div>
             <h1 class="text-2xl font-semibold">Categories</h1>
             <p class="text-sm text-gray-500 mt-1">Manage your spending categories</p>
@@ -13,8 +13,8 @@
     </div>
 
     <!-- Category Cards -->
-    <div class="grid grid-cols-3 gap-4">
-        <div *ngFor="let cat of categories" class="category-card bg-white rounded-lg p-5 shadow-sm border border-gray-100">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 items-start">
+        <div *ngFor="let cat of categories; let i = index" class="category-card bg-white rounded-lg p-5 shadow-sm border border-gray-100">
 
             <!-- Card Header -->
             <div class="flex items-start justify-between mb-4">
@@ -24,48 +24,42 @@
                     </div>
                     <div>
                         <p class="font-semibold text-gray-800">{{ cat.name }}</p>
-                        <p class="text-xs text-gray-400">{{ cat.budget > 0 ? ('Budget: $' + cat.budget) : 'No budget set' }}</p>
                     </div>
                 </div>
-                <button mat-icon-button [matMenuTriggerFor]="menu" class="action-btn">
-                    <mat-icon>more_vert</mat-icon>
-                </button>
+                <div class="flex items-center">
+                    <button mat-icon-button (click)="toggleDescription(i)" class="action-btn"
+                        [matTooltip]="expandedMap[i] ? 'Hide description' : 'Show description'">
+                        <mat-icon>{{ expandedMap[i] ? 'expand_less' : 'expand_more' }}</mat-icon>
+                    </button>
+                    <button mat-icon-button [matMenuTriggerFor]="menu" class="action-btn" matTooltip="More options">
+                        <mat-icon>more_vert</mat-icon>
+                    </button>
+                </div>
                 <mat-menu #menu="matMenu">
                     <button mat-menu-item (click)="openEdit(cat)">
                         <mat-icon>edit</mat-icon>
                         <span>Edit</span>
                     </button>
-                    <button mat-menu-item (click)="delete(cat.id)">
+                    <button mat-menu-item (click)="delete(cat)">
                         <mat-icon>delete</mat-icon>
                         <span>Delete</span>
                     </button>
                 </mat-menu>
             </div>
 
-            <!-- Spent -->
-            <div class="flex items-end justify-between mb-2">
-                <p class="text-sm text-gray-500">Spent</p>
-                <p class="text-sm font-semibold" [style.color]="getProgressColor(cat)">
-                    ${{ cat.spent | number:'1.2-2' }}
-                    <span *ngIf="cat.budget > 0" class="text-gray-400 font-normal"> / ${{ cat.budget }}</span>
-                </p>
-            </div>
-
-            <!-- Progress Bar -->
-            <div *ngIf="cat.budget > 0" class="progress-track">
-                <div class="progress-fill"
-                    [style.width.%]="getProgress(cat)"
-                    [style.background-color]="getProgressColor(cat)">
-                </div>
-            </div>
-
-            <!-- Color Dot -->
-            <div class="flex items-center gap-2 mt-3">
-                <span class="color-dot" [style.background-color]="cat.color"></span>
-                <span class="text-xs text-gray-400">{{ cat.color }}</span>
+            <!-- Description -->
+            <div *ngIf="expandedMap[i]" class="mt-2 text-sm text-gray-500 border-t pt-3">
+                {{ cat.description || '—' }}
             </div>
 
         </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="categories.length === 0" class="flex flex-col items-center justify-center py-16 text-gray-400">
+        <mat-icon style="font-size: 48px; width: 48px; height: 48px;" class="mb-3">category</mat-icon>
+        <p class="text-base font-medium">No categories yet</p>
+        <p class="text-sm mt-1">Add a category to start organising your budget</p>
     </div>
 
 </div>

@@ -10,8 +10,8 @@ import { StorageService } from './Storage.service';
   	providedIn: 'root',
 })
 export abstract class BaseApiService {
-	private useURL = '';
 	protected readonly authServiceUrl = environment.authServiceUrl;
+	protected readonly budgetServiceUrl = environment.budgetServiceUrl;
 
 	constructor(
 		protected http: HttpClient,
@@ -24,23 +24,41 @@ export abstract class BaseApiService {
 	* ------------------------- */
 
 	protected authServicePost<T>(params: ApiRequest): Promise<T> {
-		this.useURL = this.authServiceUrl;
-		return this.post(params);
+		return this.post(this.authServiceUrl, params);
 	}
 
-	protected get<T>(url: string, params?: Record<string, any>): Observable<T> {
-		return this.http.get<T>(
-			this.buildUrl(url),
+	protected budgetServicePost<T>(params: ApiRequest): Promise<T> {
+		return this.post(this.budgetServiceUrl, params);
+	}
+
+	protected budgetServiceGet<T>(url: string, params?: Record<string, any>): Promise<T> {
+		return this.get<T>(this.budgetServiceUrl, url, params);
+	}
+
+	protected budgetServicePut<T>(url: string, body?: any): Promise<T> {
+		return firstValueFrom(this.put<T>(this.budgetServiceUrl, url, body));
+	}
+
+	protected budgetServiceDelete<T>(url: string): Promise<T> {
+		return firstValueFrom(this.delete<T>(this.budgetServiceUrl, url));
+	}
+
+	protected async get<T>(baseUrl: string, url: string, params?: Record<string, any>): Promise<T> {
+		const observable = this.http.get<T>(
+			this.buildUrl(baseUrl, url),
 			{
 				headers: this.buildHeaders(),
 				params: this.buildParams(params),
 			}
 		);
+		const res = await firstValueFrom(observable);
+		this.logService.debug(url, res);
+		return res;
 	}
 
-	private async post<T>(params: ApiRequest): Promise<T> {
+	private async post<T>(baseUrl: string, params: ApiRequest): Promise<T> {
 		const observable = this.http.post<T>(
-			this.buildUrl(params.url),
+			this.buildUrl(baseUrl, params.url),
 			params.payload,
 			{ headers: this.buildHeaders() }
 		);
@@ -50,32 +68,33 @@ export abstract class BaseApiService {
 	}
 
 	protected postFile<T>(data: FormData, url: string): Observable<T> {
-		return this.http.post<T>(this.buildUrl(url), data);
+		return this.http.post<T>(this.buildUrl(this.authServiceUrl, url), data);
 	}
 
 
-	protected put<T>(url: string, body?: any): Observable<T> {
+	protected put<T>(baseUrl: string, url: string, body?: any): Observable<T> {
 		return this.http.put<T>(
-			this.buildUrl(url),
+			this.buildUrl(baseUrl, url),
 			body,
 			{ headers: this.buildHeaders() }
 		);
 	}
 
-	protected delete<T>(url: string): Observable<T> {
+	protected delete<T>(baseUrl: string, url: string): Observable<T> {
 		return this.http.delete<T>(
-			this.buildUrl(url),
+			this.buildUrl(baseUrl, url),
 			{ headers: this.buildHeaders() }
 		);
 	}
 
 	protected upload<T>(
+		baseUrl: string,
 		url: string,
 		formData: FormData,
 		params?: Record<string, any>
 	): Observable<T> {
 		return this.http.post<T>(
-			this.buildUrl(url),
+			this.buildUrl(baseUrl, url),
 			formData,
 			{
 				headers: this.buildUploadHeaders(),
@@ -84,12 +103,8 @@ export abstract class BaseApiService {
 		);
 	}
 
-	/* -------------------------
-	* Helpers
-	* ------------------------- */
-
-	private buildUrl(url: string): string {
-		return `${this.useURL}${url}`;
+	private buildUrl(baseUrl: string, url: string): string {
+		return `${baseUrl}${url}`;
 	}
 
 	private buildHeaders(): HttpHeaders {

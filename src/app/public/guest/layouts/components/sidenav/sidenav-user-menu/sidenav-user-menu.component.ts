@@ -3,14 +3,6 @@ import { VexPopoverRef } from '@vex/components/vex-popover/vex-popover-ref';
 import { MatRippleModule } from '@angular/material/core';
 import { Router, RouterLink } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
-import { AppService } from 'src/app/app.service';
-import { LoggerService } from 'src/app/services/Logger.service';
-import { StorageService } from 'src/app/services/Storage.service';
-import { ApiResponse } from 'src/app/contracts/ApiResponse';
-import { MatDialog } from '@angular/material/dialog';
-import { LoadingComponent } from 'src/app/utilities/loading/loading.component';
-import { SidenavUserMenuService } from './sidenav-user-menu.service';
-import { firstValueFrom } from 'rxjs';
 
 @Component({
 	selector: 'vex-sidenav-user-menu',
@@ -18,54 +10,25 @@ import { firstValueFrom } from 'rxjs';
 	styleUrls: ['./sidenav-user-menu.component.scss'],
 	imports: [MatRippleModule, RouterLink, MatIconModule],
 	standalone: true,
-	providers: [SidenavUserMenuService],
 })
 export class SidenavUserMenuComponent implements OnInit {
 	public loading: boolean = false;
 
 	constructor(
-		private appService: AppService,
-		private logService: LoggerService,
 		private router: Router,
-		private storageService: StorageService,
 		private readonly popoverRef: VexPopoverRef,
-		private readonly dialog: MatDialog,
-		private readonly sidenavUserMenuService: SidenavUserMenuService
 	) {}
 
 	ngOnInit(): void {}
 
 	async onLogout(): Promise<void> {
 		await this.delayClosePopover();
-	
-		const dialogRef = this.dialog.open(LoadingComponent, {
-			disableClose: true,
-			panelClass: 'loading-dialog',
-			backdropClass: 'loading-backdrop',
-			data: { title: 'Logging out', message: 'Please wait' },
-			width: '400px'
-		});
-	
-		try {
-			const res = await this.sidenavUserMenuService.initiateLogout();
-			this.logService.debug('logout', res);
-			this.storageService.clearToken();
-			this.appService.setUser(null);
-			await this.sleep(500);
-			this.router.navigate(['/']);
-		} 
-		catch (err) {
-			this.logService.error('logout', err);
-		}
-		finally {
-			dialogRef.close();
-		}
+		this.router.navigate(['/']);
 	}
 
 	async onOpenProfile(): Promise<void> {
 		await this.delayClosePopover();
-		this.navigateToProfile();
-		this.reloadPage();
+		this.router.navigate(['/guest/profile']);
 	}
 
 	private async delayClosePopover(): Promise<void> {
@@ -75,15 +38,6 @@ export class SidenavUserMenuComponent implements OnInit {
 
 	private sleep(ms: number) {
 		return new Promise(resolve => setTimeout(resolve, ms));
-	}
-
-	private reloadPage(): void {
-		window.location.reload();
-	}
-
-	private navigateToProfile(): void {
-		const id = this.appService.currentUser?.id;
-		this.router.navigate([`dashboard/profile/${id}`]);
 	}
 
 }

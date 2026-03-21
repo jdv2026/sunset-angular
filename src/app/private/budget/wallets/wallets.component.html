@@ -1,0 +1,104 @@
+<div class="p-4 sm:p-6">
+
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+        <div>
+            <h1 class="text-2xl font-semibold">Wallets</h1>
+            <p class="text-sm text-gray-500 mt-1">Manage your accounts and track your balances</p>
+        </div>
+        <button mat-raised-button color="primary" (click)="openAdd()">
+            <mat-icon class="mr-1">add</mat-icon>
+            Add Wallet
+        </button>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+        <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
+            <p class="text-sm text-gray-500">Total Balance</p>
+            <p class="text-2xl font-semibold text-gray-800 mt-1">{{ totalBalance | currency }}</p>
+        </div>
+        <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
+            <p class="text-sm text-gray-500">Wallets</p>
+            <p class="text-2xl font-semibold text-blue-500 mt-1">{{ wallets.length }}</p>
+        </div>
+        <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
+            <p class="text-sm text-gray-500">Highest Balance</p>
+            <p class="text-2xl font-semibold text-green-600 mt-1">
+                {{ highestBalanceWallet ? (highestBalanceWallet.balance | currency) : '—' }}
+            </p>
+        </div>
+        <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
+            <p class="text-sm text-gray-500">Low Balance</p>
+            <p class="text-2xl font-semibold mt-1"
+                [class.text-red-500]="lowBalanceCount > 0"
+                [class.text-gray-800]="lowBalanceCount === 0">
+                {{ lowBalanceCount }}
+            </p>
+        </div>
+    </div>
+
+    <!-- Wallet Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
+        <div *ngFor="let wallet of wallets" class="wallet-card bg-white rounded-lg p-5 shadow-sm border border-gray-100">
+
+            <!-- Card Header -->
+            <div class="flex items-start justify-between mb-4">
+                <div class="flex items-center gap-3">
+                    <div class="icon-wrap"
+                        [style.background-color]="(wallet.category_color ?? '#64748b') + '1a'"
+                        [style.color]="wallet.category_color ?? '#64748b'"
+                        [matTooltip]="wallet.category_name || ''"
+                        [matTooltipDisabled]="!wallet.category_name">
+                        <mat-icon>{{ wallet.category_icon ?? 'account_balance_wallet' }}</mat-icon>
+                    </div>
+                    <div>
+                        <p class="font-semibold text-gray-800">{{ wallet.name }}</p>
+                        <p class="text-xs text-gray-400">{{ wallet.category_name ?? 'Uncategorized' }}</p>
+                    </div>
+                </div>
+                <button mat-icon-button [matMenuTriggerFor]="menu" class="action-btn">
+                    <mat-icon>more_vert</mat-icon>
+                </button>
+                <mat-menu #menu="matMenu">
+                    <button mat-menu-item (click)="openEdit(wallet)">
+                        <mat-icon>edit</mat-icon>
+                        <span>Edit</span>
+                    </button>
+                    <button mat-menu-item (click)="delete(wallet)">
+                        <mat-icon>delete</mat-icon>
+                        <span>Delete</span>
+                    </button>
+                </mat-menu>
+            </div>
+
+            <!-- Balance -->
+            <div class="mb-3">
+                <p class="text-3xl font-bold" [style.color]="wallet.category_color ?? '#64748b'">
+                    {{ wallet.balance | currency }}
+                </p>
+                <p class="text-xs text-gray-400 mt-1">Current balance</p>
+            </div>
+
+            <!-- Description -->
+            <div *ngIf="wallet.description" class="border-t pt-3">
+                <p class="text-xs text-gray-500">{{ wallet.description }}</p>
+            </div>
+
+            <!-- Low balance indicator -->
+            <div *ngIf="wallet.balance < 100" class="flex items-center gap-1 text-xs text-red-400 border-t pt-3">
+                <mat-icon style="font-size: 14px; width: 14px; height: 14px;">warning</mat-icon>
+                <span>Low balance</span>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="wallets.length === 0" class="flex flex-col items-center justify-center py-16 text-gray-400">
+        <mat-icon style="font-size: 48px; width: 48px; height: 48px;" class="mb-3">account_balance_wallet</mat-icon>
+        <p class="text-base font-medium">No wallets yet</p>
+        <p class="text-sm mt-1">Add a wallet to start tracking your balances</p>
+    </div>
+
+</div>

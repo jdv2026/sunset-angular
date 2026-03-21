@@ -6,20 +6,9 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { Goal, GoalDialogData } from '../goals.contracts';
-
-const ICON_OPTIONS = [
-	'savings', 'flight', 'laptop', 'directions_car', 'home', 'school',
-	'favorite', 'beach_access', 'shopping_bag', 'build', 'sports_esports', 'child_care',
-	'local_hospital', 'attach_money', 'account_balance', 'card_giftcard',
-];
-
-const COLOR_OPTIONS = [
-	'#22c55e', '#3b82f6', '#f97316', '#ec4899',
-	'#8b5cf6', '#10b981', '#f59e0b', '#ef4444',
-	'#06b6d4', '#64748b', '#a855f7', '#14b8a6',
-	'#f43f5e', '#84cc16', '#0ea5e9', '#d946ef',
-];
+import { MatSelectModule } from '@angular/material/select';
+import { GoalDialogData } from '../goals.contracts';
+import { Category } from '../../categories/categories.contracts';
 
 @Component({
 	selector: 'vex-goal-dialog',
@@ -32,17 +21,16 @@ const COLOR_OPTIONS = [
 		MatInputModule,
 		MatButtonModule,
 		MatIconModule,
+		MatSelectModule,
 	],
 	templateUrl: './goal-dialog.component.html',
 	styleUrl: './goal-dialog.component.scss',
 })
 export class GoalDialogComponent {
 
-	readonly iconOptions = ICON_OPTIONS;
-	readonly colorOptions = COLOR_OPTIONS;
-
 	readonly isEdit: boolean;
 	readonly form: FormGroup;
+	readonly categories: Category[];
 
 	constructor(
 		private readonly fb: FormBuilder,
@@ -50,23 +38,23 @@ export class GoalDialogComponent {
 		@Optional() @Inject(MAT_DIALOG_DATA) data: GoalDialogData | null,
 	) {
 		this.isEdit = !!data?.goal;
+		this.categories = data?.categories ?? [];
 		const g = data?.goal;
 		this.form = this.fb.group({
-			name: [g?.name ?? '', Validators.required],
-			target: [g?.target ?? null, [Validators.required, Validators.min(1)]],
-			saved: [g?.saved ?? 0, [Validators.required, Validators.min(0)]],
+			name: [g?.name ?? '', [Validators.required, Validators.maxLength(100)]],
+			description: [g?.description ?? '', Validators.maxLength(255)],
+			amount: [g?.saved ?? null, [Validators.required, Validators.min(0), Validators.max(999999.99)]],
 			deadline: [g?.deadline ?? '', Validators.required],
-			icon: [g?.icon ?? 'savings'],
-			color: [g?.color ?? '#22c55e'],
+			category_id: [g?.category_id ?? null, Validators.required],
 		});
 	}
 
-	selectIcon(icon: string): void {
-		this.form.patchValue({ icon });
+	get selectedCategory(): Category | undefined {
+		return this.categories.find(c => c.id === this.form.value.category_id);
 	}
 
-	selectColor(color: string): void {
-		this.form.patchValue({ color });
+	compareCategory(a: any, b: any): boolean {
+		return Number(a) === Number(b);
 	}
 
 	submit(): void {

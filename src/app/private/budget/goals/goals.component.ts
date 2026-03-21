@@ -4,9 +4,17 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { GoalDialogComponent } from './goal-dialog/goal-dialog.component';
 import { Goal, GoalDialogData } from './goals.contracts';
 import { PrivateService } from '../../private.service';
+import { GoalsService } from './goals.service';
+import { CategoriesService } from '../categories/categories.service';
+import { Category } from '../categories/categories.contracts';
+import { LoadingComponent } from 'src/app/utilities/loading/loading.component';
+import { SuccessModalComponent } from 'src/app/utilities/success-modal/success-modal.component';
+import { ConfirmationDialogComponent } from 'src/app/utilities/confirmation-dialog/confirmation-dialog.component';
+import { ErrorHandlerService } from 'src/app/services/ErrorHandler.service';
 
 @Component({
 	selector: 'vex-goals',
@@ -17,37 +25,58 @@ import { PrivateService } from '../../private.service';
 		MatIconModule,
 		MatDialogModule,
 		MatMenuModule,
+		MatTooltipModule,
+		ConfirmationDialogComponent,
 	],
 	templateUrl: './goals.component.html',
 	styleUrl: './goals.component.scss',
 })
 export class GoalsComponent implements OnInit {
 
-	goals: Goal[] = [
-		{ id: 1, name: 'Emergency Fund', icon: 'savings', color: '#22c55e', target: 10000, saved: 3500, deadline: '2026-12-31' },
-		{ id: 2, name: 'Vacation', icon: 'flight', color: '#3b82f6', target: 2500, saved: 800, deadline: '2026-07-01' },
-		{ id: 3, name: 'New Laptop', icon: 'laptop', color: '#8b5cf6', target: 1200, saved: 600, deadline: '2026-05-01' },
-		{ id: 4, name: 'Car Down Payment', icon: 'directions_car', color: '#f97316', target: 5000, saved: 1250, deadline: '2026-09-30' },
-	];
+	goals: Goal[] = [];
+	categories: Category[] = [];
 
 	constructor(
 		private readonly dialog: MatDialog,
 		private readonly privateService: PrivateService,
+		private readonly goalsService: GoalsService,
+		private readonly categoriesService: CategoriesService,
+		private readonly errorHandler: ErrorHandlerService,
 	) {}
 
 	ngOnInit(): void {
 		this.privateService.setCrumbs({ current: 'Goals', crumbs: ['Budget', 'Goals'] });
+		this.initActiveGoals();
+		this.initCategories();
+	}
+
+	get totalSaved(): number {
+		return this.goals.reduce((s, g) => s + g.saved, 0);
+	}
+
+	get totalTarget(): number {
+		return this.goals.reduce((s, g) => s + g.amount, 0);
 	}
 
 	getProgress(goal: Goal): number {
-		if (goal.target === 0) return 0;
-		return Math.min((goal.saved / goal.target) * 100, 100);
+		if (goal.amount === 0) return 0;
+		return Math.min((goal.saved / goal.amount) * 100, 100);
+	}
+
+	expandedDescriptions = new Set<number>();
+
+	toggleDescription(id: number): void {
+		this.expandedDescriptions.has(id) ? this.expandedDescriptions.delete(id) : this.expandedDescriptions.add(id);
+	}
+
+	getCategoryFor(goal: Goal): Category | undefined {
+		return this.categories.find(c => c.id === goal.category_id);
 	}
 
 	getProgressColor(goal: Goal): string {
 		const pct = this.getProgress(goal);
 		if (pct >= 100) return '#22c55e';
-		if (pct >= 60) return goal.color;
+		if (pct >= 60) return this.getCategoryFor(goal)?.color ?? '#22c55e';
 		if (pct >= 30) return '#f59e0b';
 		return '#ef4444';
 	}
@@ -60,7 +89,7 @@ export class GoalsComponent implements OnInit {
 	}
 
 	getMonthlySavingsNeeded(goal: Goal): number {
-		const remaining = goal.target - goal.saved;
+		const remaining = goal.amount - goal.saved;
 		if (remaining <= 0) return 0;
 		const daysLeft = this.getDaysLeft(goal.deadline);
 		const monthsLeft = Math.max(daysLeft / 30, 1);
@@ -68,32 +97,126 @@ export class GoalsComponent implements OnInit {
 	}
 
 	openAdd(): void {
-		const ref = this.dialog.open(GoalDialogComponent, { width: '480px' });
-		ref.afterClosed().subscribe((result: Omit<Goal, 'id'> | undefined) => {
+		const data: GoalDialogData = { categories: this.categories };
+		const ref = this.dialog.open(GoalDialogComponent, { width: '90vw', maxWidth: '480px', disableClose: true, data });
+		ref.afterClosed().subscribe(async (result: Omit<Goal, 'id'> | undefined) => {
 			if (!result) return;
-			this.goals.push({ ...result, id: this.goals.length + 1 });
+			const loadingRef = this.dialog.open(LoadingComponent, {
+				disableClose: true,
+				panelClass: 'loading-dialog',
+				backdropClass: 'loading-backdrop',
+				data: { title: 'Saving', message: 'Please wait...' },
+				width: '400px',
+			});
+			
+			try {
+				await this.goalsService.storeGoal({ payload: result } as any);
+				loadingRef.close();
+				this.dialog.open(SuccessModalComponent, {
+					data: { items: [{ header: 'Goal Created', message: `"${result.name}" has been added successfully.` }] },
+					width: '400px',
+				});
+				this.initActiveGoals();
+			} catch (err: unknown) {
+				loadingRef.close();
+				this.errorHandler.open('Failed to Create', err);
+			}
 		});
 	}
 
 	openEdit(goal: Goal): void {
-		const data: GoalDialogData = { goal };
-		const ref = this.dialog.open(GoalDialogComponent, { width: '480px', data });
-		ref.afterClosed().subscribe((result: Omit<Goal, 'id'> | undefined) => {
+		const data: GoalDialogData = { goal, categories: this.categories };
+		const ref = this.dialog.open(GoalDialogComponent, { width: '90vw', maxWidth: '480px', disableClose: true, data });
+		ref.afterClosed().subscribe(async (result: Omit<Goal, 'id'> | undefined) => {
 			if (!result) return;
-			const idx = this.goals.findIndex(g => g.id === goal.id);
-			if (idx !== -1) this.goals[idx] = { ...this.goals[idx], ...result };
+			const loadingRef = this.dialog.open(LoadingComponent, {
+				disableClose: true,
+				panelClass: 'loading-dialog',
+				backdropClass: 'loading-backdrop',
+				data: { title: 'Saving', message: 'Please wait...' },
+				width: '400px',
+			});
+			try {
+				await this.goalsService.updateGoal(goal.id, result);
+				loadingRef.close();
+				this.dialog.open(SuccessModalComponent, {
+					data: { items: [{ header: 'Goal Updated', message: `"${result.name}" has been updated successfully.` }] },
+					width: '400px',
+				});
+				this.initActiveGoals();
+			} catch (err: unknown) {
+				loadingRef.close();
+				this.errorHandler.open('Failed to Update', err);
+			}
 		});
 	}
 
-	get totalSaved(): number {
-		return this.goals.reduce((s, g) => s + g.saved, 0);
+	delete(goal: Goal): void {
+		const confirmRef = this.dialog.open(ConfirmationDialogComponent, {
+			width: '400px',
+			data: {
+				warning: true,
+				items: [{
+					header: 'Delete Goal',
+					message: `Are you sure you want to delete "${goal.name}"?`,
+					description: 'This will permanently delete this goal and all its data.',
+				}],
+			},
+		});
+		confirmRef.afterClosed().subscribe(async (confirmed: boolean) => {
+			if (!confirmed) return;
+			const loadingRef = this.dialog.open(LoadingComponent, {
+				disableClose: true,
+				panelClass: 'loading-dialog',
+				backdropClass: 'loading-backdrop',
+				data: { title: 'Deleting', message: 'Please wait...' },
+				width: '400px',
+			});
+			try {
+				await this.goalsService.deleteGoal(goal.id);
+				loadingRef.close();
+				this.dialog.open(SuccessModalComponent, {
+					data: { items: [{ header: 'Goal Deleted', message: `"${goal.name}" has been deleted successfully.` }] },
+					width: '400px',
+				});
+				this.goals = this.goals.filter(g => g.id !== goal.id);
+			} catch (err: unknown) {
+				loadingRef.close();
+				this.errorHandler.open('Failed to Delete', err);
+			}
+		});
 	}
 
-	get totalTarget(): number {
-		return this.goals.reduce((s, g) => s + g.target, 0);
+	private async initActiveGoals(): Promise<void> {
+		try {
+			const res = await this.goalsService.fetchActiveGoals();
+			this.goals = res.payload.map((item: any) => ({
+				id: item.id,
+				name: item.name,
+				description: item.description,
+				amount: item.amount,
+				saved: item.saved,
+				deadline: item.deadline,
+				category_id: item.category_id,
+			}));
+		} catch (err: unknown) {
+			this.errorHandler.open('Failed to Load', err);
+		}
 	}
 
-	delete(id: number): void {
-		this.goals = this.goals.filter(g => g.id !== id);
+	private async initCategories(): Promise<void> {
+		try {
+			const res = await this.categoriesService.fetchActiveCategoriesForGoals();
+			this.categories = res.payload.map((item: any) => ({
+				id: item.id,
+				name: item.name,
+				icon: item.icon,
+				color: item.color,
+				description: item.description,
+			}));
+		} catch (err: unknown) {
+			this.errorHandler.open('Failed to Load Categories', err);
+		}
 	}
+	
 }

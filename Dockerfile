@@ -7,6 +7,10 @@ COPY package*.json ./
 RUN npm ci
 
 COPY . .
+
+ARG APP_VERSION=dev
+RUN sed -i "s/version: '[^']*'/version: '${APP_VERSION}'/g" src/environments/environment.ts
+
 RUN npm run build
 
 # Stage 2: Serve with Nginx

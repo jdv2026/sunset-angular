@@ -1,4 +1,4 @@
-import { Component, Inject, Optional } from '@angular/core';
+import { Component, Inject, OnInit, Optional } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
@@ -6,7 +6,11 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { CategoryDialogData } from '../categories.contracts';
+import { MatSelectModule } from '@angular/material/select';
+import { CategoryDialogData, CategoryType } from '../categories.contracts';
+import { ApiResponse } from 'src/app/contracts/ApiResponse';
+import { CategoriesService } from '../categories.service';
+import { LoggerService } from 'src/app/services/Logger.service';
 
 @Component({
 	selector: 'vex-category-dialog',
@@ -19,41 +23,39 @@ import { CategoryDialogData } from '../categories.contracts';
 		MatInputModule,
 		MatButtonModule,
 		MatIconModule,
+		MatSelectModule,
 	],
 	templateUrl: './category-dialog.component.html',
 	styleUrl: './category-dialog.component.scss'
 })
-export class CategoryDialogComponent {
+export class CategoryDialogComponent implements OnInit {
 
 	form: FormGroup;
 	isEdit: boolean;
-
-	colors: string[] = [
-		'#ef4444', '#f97316', '#f59e0b', '#eab308',
-		'#84cc16', '#22c55e', '#10b981', '#14b8a6',
-		'#06b6d4', '#3b82f6', '#6366f1', '#8b5cf6',
-		'#a855f7', '#ec4899', '#f43f5e', '#64748b',
-	];
-
-	icons: string[] = [
-		'restaurant', 'directions_car', 'bolt', 'movie',
-		'favorite', 'payments', 'shopping_cart', 'home',
-		'flight', 'fitness_center', 'school', 'work',
-		'sports_esports', 'local_hospital', 'pets', 'savings',
-	];
+	colors: string[] = [];
+	icons: string[] = [];
+	readonly CategoryType = CategoryType;
 
 	constructor(
 		private readonly fb: FormBuilder,
 		private readonly dialogRef: MatDialogRef<CategoryDialogComponent>,
-		@Optional() @Inject(MAT_DIALOG_DATA) public data: CategoryDialogData
+		private readonly categoriesService: CategoriesService,
+		private readonly logService: LoggerService,
+		@Optional() @Inject(MAT_DIALOG_DATA) public data: CategoryDialogData,
 	) {
 		this.isEdit = !!data?.category;
 		this.form = this.fb.group({
-			name: [data?.category?.name ?? '', Validators.required],
-			icon: [data?.category?.icon ?? 'payments', Validators.required],
-			color: [data?.category?.color ?? '#3b82f6', Validators.required],
-			budget: [data?.category?.budget ?? 0, [Validators.required, Validators.min(0)]],
+			name: [data?.category?.name ?? '', [Validators.required, Validators.minLength(3), Validators.maxLength(20)]],
+			description: [data?.category?.description ?? '', [Validators.maxLength(500)]],
+			icon: [data?.category?.icon ?? 'payments', [Validators.required, Validators.maxLength(20)]],
+			color: [data?.category?.color ?? '#3b82f6', [Validators.required, Validators.maxLength(20)]],
+			type: [data?.category?.type ?? CategoryType.Expense, [Validators.required]],
 		});
+	}
+
+	ngOnInit(): void {
+		this.initIconCategories();
+		this.initColorCategories();
 	}
 
 	selectColor(color: string): void {
@@ -75,4 +77,25 @@ export class CategoryDialogComponent {
 	cancel(): void {
 		this.dialogRef.close();
 	}
+
+	private async initIconCategories(): Promise<void> {
+		try {
+			const res: ApiResponse = await this.categoriesService.fetchCategoriesIcon();
+			this.icons = res.payload.map((item: { icon_name: string }) => item.icon_name);
+		}
+		catch (err: unknown) {
+			this.logService.error('user', err);
+		}
+	}
+
+	private async initColorCategories(): Promise<void> {
+		try {
+			const res: ApiResponse = await this.categoriesService.fetchCategoriesColor();
+			this.colors = res.payload.map((item: { hex_code: string }) => item.hex_code);
+		}
+		catch (err: unknown) {
+			this.logService.error('user', err);
+		}
+	}
+
 }

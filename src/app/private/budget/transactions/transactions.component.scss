@@ -26,6 +26,16 @@
     &.expense {
         color: #ef4444;
     }
+
+    &.transfer {
+        color: #b45309;
+    }
+
+    .transfer-dash {
+        font-size: 16px;
+        font-weight: 700;
+        line-height: 14px;
+    }
 }
 
 .status-badge {
@@ -52,7 +62,11 @@
 }
 
 .month-filter {
-    width: 200px;
+    width: 150px;
+
+    @media (max-width: 480px) {
+        width: 100%;
+    }
 }
 
 table {

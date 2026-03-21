@@ -1,0 +1,65 @@
+<div class="p-6 max-w-2xl mx-auto">
+
+    <!-- Header -->
+    <div class="mb-6">
+        <h1 class="text-2xl font-semibold">Profile</h1>
+        <p class="text-sm text-gray-500 mt-1">Your account information</p>
+    </div>
+
+    <!-- Avatar + Name Card -->
+    <div class="bg-white rounded-lg p-6 shadow-sm border border-gray-100 mb-4 flex items-center gap-5">
+        <div class="avatar-circle">
+            <span class="initials">{{ initials }}</span>
+        </div>
+        <div>
+            <p class="text-xl font-semibold text-gray-800">{{ name }}</p>
+            <p class="text-sm text-gray-400 mt-0.5">{{ role }}</p>
+        </div>
+    </div>
+
+    <!-- Details Card -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-100 divide-y divide-gray-100">
+
+        <div class="flex items-center gap-4 px-6 py-4">
+            <mat-icon class="text-gray-400 shrink-0">person</mat-icon>
+            <div>
+                <p class="text-xs text-gray-400">First Name</p>
+                <p class="text-sm font-medium text-gray-700">Jane</p>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-4 px-6 py-4">
+            <mat-icon class="text-gray-400 shrink-0">person_outline</mat-icon>
+            <div>
+                <p class="text-xs text-gray-400">Last Name</p>
+                <p class="text-sm font-medium text-gray-700">Doe</p>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-4 px-6 py-4">
+            <mat-icon class="text-gray-400 shrink-0">alternate_email</mat-icon>
+            <div>
+                <p class="text-xs text-gray-400">Username</p>
+                <p class="text-sm font-medium text-gray-700">{{ username }}</p>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-4 px-6 py-4">
+            <mat-icon class="text-gray-400 shrink-0">manage_accounts</mat-icon>
+            <div>
+                <p class="text-xs text-gray-400">Account Type</p>
+                <p class="text-sm font-medium text-gray-700">{{ role }}</p>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-4 px-6 py-4">
+            <mat-icon class="text-gray-400 shrink-0">calendar_today</mat-icon>
+            <div>
+                <p class="text-xs text-gray-400">Member Since</p>
+                <p class="text-sm font-medium text-gray-700">{{ memberSince | date:'mediumDate' }}</p>
+            </div>
+        </div>
+
+    </div>
+
+</div>

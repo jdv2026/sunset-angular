@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { AppService } from './app.service';
-import { ApiResponse } from './contracts/ApiResponse';
 import { LoggerService } from './services/Logger.service';
 import { Observable } from 'rxjs';
 import { MainLoadingComponent } from './utilities/main-loading/main-loading.component';
@@ -9,7 +8,6 @@ import { CommonModule } from '@angular/common';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
 import { VagueErrorPageComponent } from './utilities/vague-error-page/vague-error-page.component';
-import { MetaDataResponse } from './private/private.contracts';
 
 @Component({
 	selector: 'vex-root',
@@ -44,7 +42,10 @@ export class AppComponent implements OnInit {
 
 	private async handleAppInitialization() {
 		try {
-			const res: ApiResponse = await this.appService.handleAppInitialization();
+			const [res] = await Promise.all([
+				this.appService.handleAppInitialization(),
+				this.appService.fetchBudgetVersion(),
+			]);
 			this.appService.setMetaData(res.payload);
 		}
 		catch (err) {

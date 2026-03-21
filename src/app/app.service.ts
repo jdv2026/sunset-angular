@@ -1,6 +1,6 @@
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { BehaviorSubject, map, Observable } from "rxjs";
+import { BehaviorSubject, combineLatest, map, Observable } from "rxjs";
 import { environment } from "src/environments/environment";
 import { ApiRequest } from "src/app/contracts/ApiRequest";
 import { ApiResponse } from "src/app/contracts/ApiResponse";
@@ -19,11 +19,13 @@ export class AppService extends BaseApiService {
 
 	private _metaData$ = new BehaviorSubject<MetaDataResponse | null>(null);
 	protected metaData$: Observable<MetaDataResponse | null> = this._metaData$.asObservable();
-	public version$: Observable<string> = this._metaData$.pipe(
-		map(data => {
+	private _budgetVersion$ = new BehaviorSubject<string | null>(null);
+	public version$: Observable<string> = combineLatest([this._metaData$, this._budgetVersion$]).pipe(
+		map(([data, budgetVersion]) => {
 			const fe = `FE: ${environment.version}`;
 			const auth = data?.appVersion ? ` | ${data.appVersion}` : '';
-			return `${fe}${auth}`;
+			const budget = budgetVersion ? ` | Budget: ${budgetVersion}` : '';
+			return `${fe}${auth}${budget}`;
 		})
 	);
 
@@ -93,6 +95,15 @@ export class AppService extends BaseApiService {
 	get params(): ApiMeta {
 		return {
 			api_time: new Date().toISOString(),
+		}
+	}
+
+	async fetchBudgetVersion(): Promise<void> {
+		try {
+			const res = await this.budgetServiceGet<{ version: string }>('version');
+			this._budgetVersion$.next(res.version);
+		} catch (err) {
+			this.logService.error('budget version', err);
 		}
 	}
 

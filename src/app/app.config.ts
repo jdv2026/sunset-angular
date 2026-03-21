@@ -5,7 +5,6 @@ import { provideAnimations } from '@angular/platform-browser/animations';
 import {
   provideHttpClient,
   withInterceptors,
-  withInterceptorsFromDi
 } from '@angular/common/http';
 import { provideRouter, withInMemoryScrolling } from '@angular/router';
 import { MatDialogModule } from '@angular/material/dialog';
@@ -18,6 +17,7 @@ import { provideNavigation } from './private/layouts/navigation/navigation.provi
 import { vexConfigs } from '@vex/config/vex-configs';
 import { provideQuillConfig } from 'ngx-quill';
 import { attachTokenInterceptor } from './core/attachTokenInterceptor';
+import { provideNoAutocomplete } from './utilities/no-autocomplete/no-autocomplete.provider';
 
 export const appConfig: ApplicationConfig = {
 	providers: [
@@ -37,6 +37,7 @@ export const appConfig: ApplicationConfig = {
 		),
 		provideAnimations(),
 		provideHttpClient(withInterceptors([attachTokenInterceptor])),
+		provideNoAutocomplete(),
 
 		provideVex({
 		/**

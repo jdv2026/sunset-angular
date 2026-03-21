@@ -1,10 +1,18 @@
-<span
-	*ngIf="version$ | async as v"
-	[matTooltip]="v"
-	matTooltipPosition="above"
-	class="fixed bottom-3 right-4 text-xs text-secondary z-[9999] cursor-default select-none">
-	Version
-</span>
+<div class="fixed bottom-3 right-4 flex items-center gap-2 z-[9999]">
+	<a href="https://www.facebook.com/johnde3n" target="_blank" rel="noopener"
+		class="text-gray-400 hover:text-gray-600 transition-colors">
+		<mat-icon svgIcon="logo:facebook" class="icon-sm"></mat-icon>
+	</a>
+	<a href="https://github.com/orgs/jdv2026/repositories" target="_blank" rel="noopener"
+		class="text-gray-400 hover:text-gray-600 transition-colors">
+		<mat-icon svgIcon="logo:github" class="icon-sm"></mat-icon>
+	</a>
+	<mat-icon *ngIf="version$ | async as v"
+		[matTooltip]="v"
+		matTooltipPosition="above"
+		style="font-size: 1.25rem; width: 1.25rem; height: 1.25rem;"
+		class="text-gray-400 cursor-default select-none">info</mat-icon>
+</div>
 
 <ng-container *ngIf="error; else notError">
 	<vex-vague-error-page></vex-vague-error-page>

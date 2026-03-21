@@ -22,7 +22,7 @@ export class AppService extends BaseApiService {
 	public version$: Observable<string> = this._metaData$.pipe(
 		map(data => {
 			const fe = `FE: ${environment.version}`;
-			const auth = data?.appVersion ? ` | Auth: ${data.appVersion}` : '';
+			const auth = data?.appVersion ? ` | ${data.appVersion}` : '';
 			return `${fe}${auth}`;
 		})
 	);

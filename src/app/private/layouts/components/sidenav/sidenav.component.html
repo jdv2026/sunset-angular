@@ -58,9 +58,9 @@
 		matRipple
 		matRippleColor="var(--vex-sidenav-item-ripple-color)">
 		
-		<img
-			class="vex-sidenav-user__image flex-none"
-			[src]="profile_img"/>
+		<div class="vex-sidenav-user__image vex-sidenav-user__initials flex-none">
+			{{ initials }}
+		</div>
 		<div class="vex-sidenav-user__content flex-auto">
 			<div class="vex-sidenav-user__title">{{ name }}</div>
 			<div class="vex-sidenav-user__subtitle">{{ role }}</div>

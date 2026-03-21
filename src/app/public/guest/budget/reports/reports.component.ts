@@ -45,7 +45,7 @@ export class ReportsComponent implements OnInit {
 		{ id: 19, date: '2026-03-13T14:00', description: 'Gas Station', category: 'Transport', type: 'expense', amount: 55.00, status: 'completed' },
 	];
 
-	viewMode: ViewMode = 'daily';
+	viewMode: ViewMode = 'monthly';
 
 	private readonly now = new Date();
 	private readonly todayStr = this.now.toISOString().split('T')[0];

@@ -127,6 +127,18 @@
   @apply w-9 h-9 block rounded-full;
 }
 
+.vex-sidenav-user__initials {
+  background-color: #3b82f6;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
 .vex-sidenav-user__content {
   @apply pl-3;
 }

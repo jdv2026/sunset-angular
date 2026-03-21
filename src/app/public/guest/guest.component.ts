@@ -12,9 +12,9 @@ import { combineLatest, map, Observable } from 'rxjs';
 import { VexLayoutService } from '@vex/services/vex-layout.service';
 import { VexConfigService } from '@vex/config/vex-config.service';
 import { FooterComponent } from 'src/app/private/layouts/footer/footer.component';
-import { SidenavComponent } from 'src/app/private/layouts/components/sidenav/sidenav.component';
+import { SidenavComponent } from 'src/app/public/guest/layouts/components/sidenav/sidenav.component';
 import { NavigationItem } from 'src/app/private/layouts/navigation/navigation-item.interface';
-import { NavigationLoaderService } from 'src/app/private/layouts/navigation/navigation-loader.service';
+import { NavigationLoaderService } from 'src/app/public/guest/layouts/navigation/navigation-loader.service';
 import { VexBreadcrumbsComponent } from '@vex/components/vex-breadcrumbs/vex-breadcrumbs.component';
 import { VexPageLayoutHeaderDirective } from '@vex/components/vex-page-layout/vex-page-layout-header.directive';
 import { VexPageLayoutComponent } from '@vex/components/vex-page-layout/vex-page-layout.component';
@@ -119,6 +119,17 @@ export class GuestComponent implements OnInit {
 					{ type: 'link', label: 'Reports', icon: 'mat:bar_chart', route: '/guest/budget/reports' },
 					{ type: 'link', label: 'Goals', icon: 'mat:savings', route: '/guest/budget/goals' },
 					{ type: 'link', label: 'Bills', icon: 'mat:event_repeat', route: '/guest/budget/bills' },
+				],
+			},
+			{
+				type: 'subheading',
+				label: 'Physical Focus',
+				children: [
+					{ type: 'link', label: 'Overview', icon: 'mat:dashboard', route: '/guest/physical/overview' },
+					{ type: 'link', label: 'Workouts', icon: 'mat:fitness_center', route: '/guest/physical/workouts' },
+					{ type: 'link', label: 'Program', icon: 'mat:list_alt', route: '/guest/physical/program' },
+					{ type: 'link', label: 'Progress Report', icon: 'mat:bar_chart', route: '/guest/physical/progress-report' },
+					{ type: 'link', label: 'Schedule', icon: 'mat:calendar_month', route: '/guest/physical/schedule' },
 				],
 			}
 		];

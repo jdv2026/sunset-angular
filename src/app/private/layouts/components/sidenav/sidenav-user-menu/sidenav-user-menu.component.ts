@@ -6,11 +6,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { AppService } from 'src/app/app.service';
 import { LoggerService } from 'src/app/services/Logger.service';
 import { StorageService } from 'src/app/services/Storage.service';
-import { ApiResponse } from 'src/app/contracts/ApiResponse';
 import { MatDialog } from '@angular/material/dialog';
 import { LoadingComponent } from 'src/app/utilities/loading/loading.component';
 import { SidenavUserMenuService } from './sidenav-user-menu.service';
-import { firstValueFrom } from 'rxjs';
 
 @Component({
 	selector: 'vex-sidenav-user-menu',
@@ -65,7 +63,6 @@ export class SidenavUserMenuComponent implements OnInit {
 	async onOpenProfile(): Promise<void> {
 		await this.delayClosePopover();
 		this.navigateToProfile();
-		this.reloadPage();
 	}
 
 	private async delayClosePopover(): Promise<void> {
@@ -75,10 +72,6 @@ export class SidenavUserMenuComponent implements OnInit {
 
 	private sleep(ms: number) {
 		return new Promise(resolve => setTimeout(resolve, ms));
-	}
-
-	private reloadPage(): void {
-		window.location.reload();
 	}
 
 	private navigateToProfile(): void {

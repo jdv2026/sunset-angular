@@ -46,8 +46,10 @@ export type authCredentials = {
 
 export type User = {
 	id: number;
-	first_name: string;
-	last_name: string;
+	first_name: string | null;
+	last_name: string | null;
 	username: string;
 	type: string;
+	created_at: string;
+	updated_at: string;
 };

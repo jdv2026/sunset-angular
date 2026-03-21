@@ -25,7 +25,7 @@ export class SidenavUserMenuService extends BaseApiService {
 	}
 
 	initiateLogout(): Promise<ApiResponse<MetaDataResponse>> {
-		this.appService.postRequestParameter.url = 'web/admin/logout';
+		this.appService.postRequestParameter.url = 'web/user/logout';
 		return this.authServicePost(this.appService.postRequestParameter);
 	}
 

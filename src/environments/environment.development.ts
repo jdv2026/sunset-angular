@@ -6,4 +6,5 @@ export const environment = {
     authServiceUrl: 'http://localhost:9999/api/',
     budgetServiceUrl: 'http://localhost:9998/api/',
 	token: 'pr-be-token',
+	version: 'dev',
 };

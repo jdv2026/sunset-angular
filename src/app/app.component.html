@@ -1,17 +1,95 @@
 <div class="fixed bottom-3 right-4 flex items-center gap-2 z-[9999]">
-	<a href="https://www.facebook.com/johnde3n" target="_blank" rel="noopener"
-		class="text-gray-400 hover:text-gray-600 transition-colors">
-		<mat-icon svgIcon="logo:facebook" class="icon-sm"></mat-icon>
+	<a routerLink="/docu"
+		class="text-gray-400 hover:text-gray-600 transition-colors"
+		title="Documentation">
+		<mat-icon style="font-size: 1.25rem; width: 1.25rem; height: 1.25rem;">article</mat-icon>
 	</a>
+	<button (click)="showContact = true"
+		class="text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
+		title="Contact">
+		<mat-icon style="font-size: 1.25rem; width: 1.25rem; height: 1.25rem;">contact_mail</mat-icon>
+	</button>
 	<a href="https://github.com/orgs/jdv2026/repositories" target="_blank" rel="noopener"
 		class="text-gray-400 hover:text-gray-600 transition-colors">
 		<mat-icon svgIcon="logo:github" class="icon-sm"></mat-icon>
 	</a>
-	<mat-icon *ngIf="version$ | async as v"
-		[matTooltip]="v"
-		matTooltipPosition="above"
-		style="font-size: 1.25rem; width: 1.25rem; height: 1.25rem;"
-		class="text-gray-400 cursor-default select-none">info</mat-icon>
+	<button *ngIf="version$ | async as v"
+		(click)="showVersion = true"
+		class="text-gray-400 hover:text-gray-600 transition-colors cursor-pointer">
+		<mat-icon style="font-size: 1.25rem; width: 1.25rem; height: 1.25rem;">new_releases</mat-icon>
+	</button>
+</div>
+
+<!-- Contact Modal -->
+<div *ngIf="showContact"
+	class="fixed inset-0 z-[99999] flex items-center justify-center p-4"
+	(click)="showContact = false">
+	<div class="absolute inset-0 bg-black/50"></div>
+	<div class="relative bg-white dark:bg-gray-900 rounded-2xl shadow-2xl p-6 w-full max-w-sm"
+		(click)="$event.stopPropagation()">
+
+		<!-- Close -->
+		<button (click)="showContact = false"
+			class="absolute top-3 right-3 text-gray-400 hover:text-gray-600 transition-colors">
+			<mat-icon style="font-size:1.25rem;width:1.25rem;height:1.25rem;">close</mat-icon>
+		</button>
+
+		<!-- Name -->
+		<div class="mb-5">
+			<p class="text-xs text-gray-400 mb-0.5">Name</p>
+			<p class="text-base font-semibold text-gray-800 dark:text-white">John Dennis Vistal</p>
+		</div>
+
+		<!-- Email -->
+		<div class="mb-4">
+			<p class="text-xs text-gray-400 mb-1">Email</p>
+			<div class="flex items-center justify-between gap-2 bg-gray-100 dark:bg-gray-800 rounded-lg px-3 py-2">
+				<span class="text-sm text-gray-700 dark:text-gray-200 truncate">jhondennisvistal&#64;gmail.com</span>
+				<button (click)="copy('email', 'jhondennisvistal@gmail.com')"
+					class="text-gray-400 hover:text-gray-600 transition-colors shrink-0">
+					<mat-icon style="font-size:1rem;width:1rem;height:1rem;">
+						{{ copiedKey === 'email' ? 'check' : 'content_copy' }}
+					</mat-icon>
+				</button>
+			</div>
+		</div>
+
+		<!-- Phone -->
+		<div>
+			<p class="text-xs text-gray-400 mb-1">Phone</p>
+			<div class="flex items-center justify-between gap-2 bg-gray-100 dark:bg-gray-800 rounded-lg px-3 py-2">
+				<span class="text-sm text-gray-700 dark:text-gray-200">09168511673</span>
+				<button (click)="copy('phone', '09168511673')"
+					class="text-gray-400 hover:text-gray-600 transition-colors shrink-0">
+					<mat-icon style="font-size:1rem;width:1rem;height:1rem;">
+						{{ copiedKey === 'phone' ? 'check' : 'content_copy' }}
+					</mat-icon>
+				</button>
+			</div>
+		</div>
+
+	</div>
+</div>
+
+<!-- Version Modal -->
+<div *ngIf="showVersion"
+	class="fixed inset-0 z-[99999] flex items-center justify-center p-4"
+	(click)="showVersion = false">
+	<div class="absolute inset-0 bg-black/50"></div>
+	<div class="relative bg-white dark:bg-gray-900 rounded-2xl shadow-2xl p-6 w-full max-w-sm"
+		(click)="$event.stopPropagation()">
+
+		<button (click)="showVersion = false"
+			class="absolute top-3 right-3 text-gray-400 hover:text-gray-600 transition-colors">
+			<mat-icon style="font-size:1.25rem;width:1.25rem;height:1.25rem;">close</mat-icon>
+		</button>
+
+		<div class="mb-1">
+			<p class="text-xs text-gray-400 mb-0.5">Application Version</p>
+			<p class="text-base font-semibold text-gray-800 dark:text-white font-mono">{{ version$ | async }}</p>
+		</div>
+
+	</div>
 </div>
 
 <ng-container *ngIf="error; else notError">

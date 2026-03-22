@@ -8,6 +8,10 @@ import { GuestComponent } from './public/guest/guest.component';
 
 export const appRoutes: VexRoutes = [
 	{
+		path: 'docu',
+		loadComponent: () => import('./utilities/docu/docu.component').then(m => m.DocuComponent),
+	},
+	{
 		path: 'error/:status',
 		component: ErrorPageComponent,
 		canActivate: [errorGuard]

@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { RouterLink, RouterOutlet } from '@angular/router';
 import { AppService } from './app.service';
 import { LoggerService } from './services/Logger.service';
 import { Observable } from 'rxjs';
@@ -15,6 +15,7 @@ import { VagueErrorPageComponent } from './utilities/vague-error-page/vague-erro
 	standalone: true,
 	imports: [
 		RouterOutlet,
+		RouterLink,
 		MainLoadingComponent,
 		CommonModule,
 		MatTooltipModule,
@@ -27,6 +28,16 @@ export class AppComponent implements OnInit {
 	isLoading: Observable<boolean>;
 	version$: Observable<string>;
 	error: boolean = false;
+	showContact = false;
+	showVersion = false;
+	copiedKey: string | null = null;
+
+	copy(key: string, value: string): void {
+		navigator.clipboard.writeText(value).then(() => {
+			this.copiedKey = key;
+			setTimeout(() => this.copiedKey = null, 2000);
+		});
+	}
 
 	constructor(
 		private appService: AppService,

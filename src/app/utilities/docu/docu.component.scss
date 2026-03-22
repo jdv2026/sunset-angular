@@ -1,0 +1,44 @@
+:host {
+	display: block;
+	height: 100vh;
+	overflow-y: auto;
+	background: #0f172a;
+	color: #e2e8f0;
+}
+
+.connector {
+	display: flex;
+	align-items: center;
+	gap: 0;
+}
+
+.connector-line {
+	width: 2px;
+	background: #475569;
+	height: 32px;
+	margin: 0 auto;
+}
+
+.connector-arrow {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	color: #475569;
+	font-size: 0.75rem;
+}
+
+.connector-arrow-h {
+	flex: 1;
+	height: 2px;
+	background: #475569;
+	position: relative;
+
+	&::after {
+		content: '';
+		position: absolute;
+		right: -1px;
+		top: -4px;
+		border: 5px solid transparent;
+		border-left-color: #475569;
+	}
+}

@@ -1,7 +1,7 @@
-<div class="p-6">
+<div class="p-4 md:p-6">
 
     <!-- Header -->
-    <div class="flex items-center justify-between mb-6">
+    <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
         <div>
             <h1 class="text-2xl font-semibold">Goals</h1>
             <p class="text-sm text-gray-500 mt-1">Track your savings goals and milestones</p>
@@ -13,7 +13,7 @@
     </div>
 
     <!-- Summary Row -->
-    <div class="grid grid-cols-3 gap-4 mb-6">
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
         <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
             <p class="text-sm text-gray-500">Total Goals</p>
             <p class="text-2xl font-semibold text-gray-800 mt-1">{{ goals.length }}</p>
@@ -29,7 +29,7 @@
     </div>
 
     <!-- Goal Cards -->
-    <div class="grid grid-cols-2 gap-4">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div *ngFor="let goal of goals" class="goal-card bg-white rounded-lg p-5 shadow-sm border border-gray-100">
 
             <!-- Card Header -->

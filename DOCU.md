@@ -21,7 +21,7 @@ Added an `article` Material icon link **beside** the Facebook icon in the fixed 
 
 ```
 /docu  →  DocuComponent  (lazy-loaded)
-```
+``` 
 
 Top-level route, no layout shell — fully standalone page.
 

@@ -1,7 +1,7 @@
-<div class="p-6">
+<div class="p-4 md:p-6">
 
     <!-- Header -->
-    <div class="flex items-center justify-between mb-6">
+    <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
         <div>
             <h1 class="text-2xl font-semibold">Bills</h1>
             <p class="text-sm text-gray-500 mt-1">Manage your recurring bills and subscriptions</p>
@@ -13,7 +13,7 @@
     </div>
 
     <!-- Summary Cards -->
-    <div class="grid grid-cols-4 gap-4 mb-6">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
             <p class="text-sm text-gray-500">Monthly Total</p>
             <p class="text-2xl font-semibold text-gray-800 mt-1">{{ totalMonthly | currency }}</p>
@@ -37,7 +37,7 @@
     <!-- Bills List -->
     <div class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
         <div *ngFor="let bill of sortedBills; let last = last"
-            class="bill-row flex items-center gap-4 px-5 py-4"
+            class="bill-row flex flex-wrap items-center gap-3 px-4 py-4 sm:px-5"
             [class.border-b]="!last"
             [class.border-gray-100]="!last">
 
@@ -53,17 +53,17 @@
             </div>
 
             <!-- Due Date Label -->
-            <div class="text-right min-w-[100px]">
+            <div class="text-right">
                 <span class="status-badge" [ngClass]="bill.status">{{ getDueDateLabel(bill) }}</span>
             </div>
 
             <!-- Amount -->
-            <div class="text-right min-w-[90px]">
+            <div class="text-right">
                 <p class="font-semibold text-gray-800">{{ bill.amount | currency }}</p>
             </div>
 
             <!-- Mark Paid Button -->
-            <div class="min-w-[90px] flex justify-end">
+            <div class="flex justify-end">
                 <button *ngIf="bill.status !== 'paid'" mat-stroked-button class="mark-paid-btn"
                     (click)="markPaid(bill)">
                     Mark Paid

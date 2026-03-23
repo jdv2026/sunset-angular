@@ -35,9 +35,9 @@
     </div>
 
     <!-- Bills List -->
-    <div class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+    <div class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-x-auto">
         <div *ngFor="let bill of sortedBills; let last = last"
-            class="bill-row flex flex-wrap items-center gap-3 px-4 py-4 sm:px-5"
+            class="bill-row flex items-center gap-4 px-5 py-4 min-w-[600px]"
             [class.border-b]="!last"
             [class.border-gray-100]="!last">
 
@@ -53,17 +53,17 @@
             </div>
 
             <!-- Due Date Label -->
-            <div class="text-right">
+            <div class="text-right min-w-[100px]">
                 <span class="status-badge" [ngClass]="bill.status">{{ getDueDateLabel(bill) }}</span>
             </div>
 
             <!-- Amount -->
-            <div class="text-right">
+            <div class="text-right min-w-[90px]">
                 <p class="font-semibold text-gray-800">{{ bill.amount | currency }}</p>
             </div>
 
             <!-- Mark Paid Button -->
-            <div class="flex justify-end">
+            <div class="min-w-[90px] flex justify-end">
                 <button *ngIf="bill.status !== 'paid'" mat-stroked-button class="mark-paid-btn"
                     (click)="markPaid(bill)">
                     Mark Paid

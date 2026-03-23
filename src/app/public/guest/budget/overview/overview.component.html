@@ -13,7 +13,7 @@
                 <p class="text-sm text-gray-500">Total Income</p>
                 <span class="summary-icon bg-green-50 text-green-600"><mat-icon>arrow_downward</mat-icon></span>
             </div>
-            <p class="text-2xl font-semibold text-green-600">{{ totalIncome | currency }}</p>
+            <p class="text-2xl font-semibold text-green-600 overflow-x-auto">{{ totalIncome | currency }}</p>
         </div>
         <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
             <div class="flex items-center justify-between mb-2">
@@ -27,7 +27,7 @@
                 <p class="text-sm text-gray-500">Net Balance</p>
                 <span class="summary-icon bg-blue-50 text-blue-500"><mat-icon>account_balance_wallet</mat-icon></span>
             </div>
-            <p class="text-2xl font-semibold"
+            <p class="text-2xl font-semibold overflow-x-auto"
                 [class.text-green-600]="netBalance >= 0"
                 [class.text-red-500]="netBalance < 0">
                 {{ netBalance | currency }}

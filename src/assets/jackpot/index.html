@@ -918,6 +918,10 @@ function submitRegistration() {
 
   if (!name)  { err.textContent = 'Please enter your name.'; return; }
   if (!phone) { err.textContent = 'Phone number is required.'; return; }
+  // Allow digits, spaces, hyphens, parentheses, and a leading +. Min 7 digits.
+  if (!/^\+?[\d\s\-()\[\]]{7,20}$/.test(phone) || (phone.match(/\d/g) || []).length < 7) {
+    err.textContent = 'Please enter a valid phone number (digits only, 7–15 numbers).'; return;
+  }
   if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     err.textContent = 'Please enter a valid email address.'; return;
   }

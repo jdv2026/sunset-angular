@@ -203,85 +203,44 @@
       margin-top:2px;
     }
 
-    /* reels area */
-    .reels-wrap {
-      display:flex;
-      gap:10px;
-      padding:16px;
-      background:rgba(0,0,0,.55);
-      border-radius:16px;
-      border:2px solid rgba(255,215,0,.15);
-      margin-bottom:16px;
+    /* wheel area */
+    .wheel-area {
       position:relative;
-    }
-    .reel-col { flex:1; position:relative; }
-    .reel-label {
-      text-align:center;
-      font-size:10px;
-      letter-spacing:2px;
-      color:rgba(255,215,0,.35);
-      margin-bottom:6px;
-      text-transform:uppercase;
-    }
-    .reel-window {
-      height:216px;
-      overflow:hidden;
-      border-radius:10px;
-      background:#060606;
-      border:2px solid rgba(255,215,0,.2);
-      box-shadow:inset 0 0 24px rgba(0,0,0,.8);
-      position:relative;
-    }
-    /* top/bottom fade overlay */
-    .reel-window::before {
-      content:'';
-      position:absolute;
-      inset:0;
-      background:linear-gradient(
-        to bottom,
-        rgba(6,6,6,.85) 0%,
-        transparent 28%,
-        transparent 72%,
-        rgba(6,6,6,.85) 100%
-      );
-      z-index:3;
-      pointer-events:none;
-    }
-    /* center row highlight */
-    .reel-window::after {
-      content:'';
-      position:absolute;
-      top:50%;
-      left:0; right:0;
-      height:72px;
-      transform:translateY(-50%);
-      background:rgba(255,215,0,.04);
-      border-top:1px solid rgba(255,215,0,.18);
-      border-bottom:1px solid rgba(255,215,0,.18);
-      pointer-events:none;
-      z-index:2;
-    }
-    .reel-symbols { display:flex; flex-direction:column; }
-    .reel-sym {
-      height:72px;
       display:flex;
       align-items:center;
       justify-content:center;
-      font-size:34px;
-      user-select:none;
-      flex-shrink:0;
+      padding:16px 0 12px;
+      margin-bottom:16px;
     }
-    .reel-sym.mid { filter:drop-shadow(0 0 8px rgba(255,215,0,.6)); }
-    .reel-sym.side { opacity:.35; filter:grayscale(.6); }
-
-    /* glow overlay on win */
-    .reel-window.win-glow {
+    .wheel-wrap {
+      position:relative;
+      display:inline-flex;
+      flex-direction:column;
+      align-items:center;
+      gap:0;
+    }
+    /* pointer triangle above the wheel */
+    .wheel-pointer {
+      width:0; height:0;
+      border-left:14px solid transparent;
+      border-right:14px solid transparent;
+      border-top:22px solid var(--primary);
+      filter:drop-shadow(0 0 6px rgba(255,215,0,.8));
+      z-index:5;
+      margin-bottom:-2px;
+    }
+    #wheel-canvas {
+      display:block;
+      width:min(280px, 76vw);
+      height:min(280px, 76vw);
+      border-radius:50%;
       box-shadow:
-        inset 0 0 24px rgba(0,0,0,.8),
-        0 0 20px rgba(255,215,0,.7);
-      border-color:var(--primary);
-      animation:pulseGlow .7s 3;
+        0 0 0 4px rgba(255,215,0,.4),
+        0 0 40px rgba(255,215,0,.25),
+        0 8px 32px rgba(0,0,0,.6);
     }
+    /* win pulse on wheel */
+    #wheel-canvas.win-glow { animation:pulseGlow .7s 3; }
 
     /* ── handle ── */
     .handle-zone {
@@ -634,15 +593,10 @@
       #s-select   { padding:16px; gap:12px; }
       #s-confirm  { padding:16px; gap:12px; }
 
-      /* Scale down reels */
-      .reel-window        { height:159px; }
-      .reel-window::after { height:53px; }
-      .reel-sym           { height:53px; font-size:26px; }
-
       /* Tighten machine */
-      .machine       { padding:18px 14px 14px; }
-      .reels-wrap    { gap:7px; padding:10px; margin-bottom:12px; }
-      .machine-top   { margin-bottom:14px; padding:8px 12px; }
+      .machine      { padding:18px 14px 14px; }
+      .wheel-area   { padding:10px 0 8px; margin-bottom:10px; }
+      .machine-top  { margin-bottom:14px; padding:8px 12px; }
       .machine-title { font-size:18px; letter-spacing:3px; }
 
       /* Registration card */
@@ -666,11 +620,7 @@
     }
 
     @media (max-width: 380px) {
-      .reel-window        { height:135px; }
-      .reel-window::after { height:45px; }
-      .reel-sym           { height:45px; font-size:20px; }
-      .reels-wrap         { gap:5px; padding:8px; }
-      .machine            { padding:14px 10px 10px; }
+      .machine { padding:14px 10px 10px; }
       .code-value         { font-size:18px; letter-spacing:2px; }
       .reg-sub            { margin-bottom:20px; }
     }
@@ -712,40 +662,11 @@
       <div class="machine-subtitle">Pull the handle to spin</div>
     </div>
 
-    <!-- reels -->
-    <div class="reels-wrap">
-      <!-- Reel 1 -->
-      <div class="reel-col">
-        <div class="reel-label">◆</div>
-        <div class="reel-window" id="reel-1">
-          <div class="reel-symbols" id="rs-1">
-            <div class="reel-sym side" id="r1-top">🎰</div>
-            <div class="reel-sym mid"  id="r1-mid">❓</div>
-            <div class="reel-sym side" id="r1-bot">🎰</div>
-          </div>
-        </div>
-      </div>
-      <!-- Reel 2 -->
-      <div class="reel-col">
-        <div class="reel-label">◆</div>
-        <div class="reel-window" id="reel-2">
-          <div class="reel-symbols" id="rs-2">
-            <div class="reel-sym side" id="r2-top">🎰</div>
-            <div class="reel-sym mid"  id="r2-mid">❓</div>
-            <div class="reel-sym side" id="r2-bot">🎰</div>
-          </div>
-        </div>
-      </div>
-      <!-- Reel 3 -->
-      <div class="reel-col">
-        <div class="reel-label">◆</div>
-        <div class="reel-window" id="reel-3">
-          <div class="reel-symbols" id="rs-3">
-            <div class="reel-sym side" id="r3-top">🎰</div>
-            <div class="reel-sym mid"  id="r3-mid">❓</div>
-            <div class="reel-sym side" id="r3-bot">🎰</div>
-          </div>
-        </div>
+    <!-- wheel -->
+    <div class="wheel-area">
+      <div class="wheel-wrap">
+        <div class="wheel-pointer"></div>
+        <canvas id="wheel-canvas" width="300" height="300"></canvas>
       </div>
 
       <!-- handle -->
@@ -954,10 +875,9 @@ function initMachine() {
     d.className = 'spin-dot';
   });
 
-  // reset reels to idle
-  setReel(1, '🎰', '❓', '🎰');
-  setReel(2, '🎰', '❓', '🎰');
-  setReel(3, '🎰', '❓', '🎰');
+  // draw wheel at rest
+  wheelAngle = 0;
+  requestAnimationFrame(drawWheel);
 
   document.getElementById('result-banner').className = 'result-banner empty';
   document.getElementById('result-banner').textContent = 'Pull the handle to start!';
@@ -982,56 +902,164 @@ function pullHandle() {
 /* ═══════════════════════════════════════════════════════
    SPIN LOGIC
    ═══════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════
+   WHEEL CONFIG & STATE
+   ═══════════════════════════════════════════════════════ */
+const WHEEL_SEGMENTS = [
+  { key:'A',    label:'30% OFF',   emoji:'🍀', color:'#1a9e6d' },
+  { key:'LOSE', label:'No Prize',  emoji:'❌', color:'#2a2a3a' },
+  { key:'B',    label:'Buy 1 Get 1', emoji:'💎', color:'#1565a0' },
+  { key:'LOSE', label:'No Prize',  emoji:'❌', color:'#3a3a4a' },
+  { key:'C',    label:'50% OFF',   emoji:'⭐', color:'#9a6e00' },
+  { key:'LOSE', label:'No Prize',  emoji:'❌', color:'#2a2a3a' },
+  { key:'A',    label:'30% OFF',   emoji:'🍀', color:'#138a5a' },
+  { key:'B',    label:'Buy 1 Get 1', emoji:'💎', color:'#0d4f80' },
+];
+
+let wheelAngle = 0; // current wheel rotation in radians
+
+/* ── drawing ── */
+function drawWheel() {
+  const canvas = document.getElementById('wheel-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width;
+  const cx = W / 2, cy = W / 2;
+  const outerR = cx - 6;
+  const innerR = 26;
+  const n = WHEEL_SEGMENTS.length;
+  const arc = (2 * Math.PI) / n;
+
+  ctx.clearRect(0, 0, W, W);
+
+  WHEEL_SEGMENTS.forEach((seg, i) => {
+    const startA = wheelAngle + i * arc - Math.PI / 2;
+    const endA   = startA + arc;
+
+    // segment fill
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, outerR, startA, endA);
+    ctx.closePath();
+    ctx.fillStyle = seg.color;
+    ctx.fill();
+
+    // divider lines
+    ctx.strokeStyle = 'rgba(255,215,0,0.35)';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    // content: rotate to segment center, draw outward
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(startA + arc / 2);
+
+    // emoji (outer)
+    ctx.font = '22px serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(seg.emoji, outerR * 0.72, 0);
+
+    // label (inner)
+    ctx.font = 'bold 9px sans-serif';
+    ctx.fillStyle = 'rgba(255,255,255,0.85)';
+    ctx.fillText(seg.label, outerR * 0.38, 0);
+
+    ctx.restore();
+  });
+
+  // gold outer ring
+  ctx.beginPath();
+  ctx.arc(cx, cy, outerR, 0, 2 * Math.PI);
+  ctx.strokeStyle = '#FFD700';
+  ctx.lineWidth = 5;
+  ctx.stroke();
+
+  // center cap
+  const capGrad = ctx.createRadialGradient(cx - 4, cy - 4, 2, cx, cy, innerR);
+  capGrad.addColorStop(0, '#4a2a8a');
+  capGrad.addColorStop(1, '#1a0a2e');
+  ctx.beginPath();
+  ctx.arc(cx, cy, innerR, 0, 2 * Math.PI);
+  ctx.fillStyle = capGrad;
+  ctx.fill();
+  ctx.strokeStyle = '#FFD700';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  // center icon
+  ctx.font = '18px serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('🎰', cx, cy);
+}
+
+/* ── spin ── */
 function doSpin() {
   if (state.spinning) return;
   state.spinning = true;
-
-  const handle = document.getElementById('handle');
   setHandleEnabled(false);
 
   const outcome = state.spinOutcomes[state.spinIndex];
+
+  // Pick which wheel segment to land on
+  const candidates = WHEEL_SEGMENTS
+    .map((s, i) => ({ ...s, i }))
+    .filter(s => s.key === outcome);
+  const target = candidates[Math.floor(Math.random() * candidates.length)];
+
+  spinWheelTo(target.i, () => onSpinDone(outcome));
+}
+
+function spinWheelTo(segIndex, onDone) {
+  const n = WHEEL_SEGMENTS.length;
+  const arc = (2 * Math.PI) / n;
+
+  // Target rotation: segment segIndex center should be at top (-π/2 in screen space).
+  // Wheel drawn with rotate(wheelAngle): segment i center is at screen angle
+  //   wheelAngle + (i + 0.5) * arc - π/2
+  // We want that = -π/2 + 2πk  →  wheelAngle = -(i + 0.5) * arc + 2πk
+  const targetMod = ((-(segIndex + 0.5) * arc) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI);
+  const currentMod = ((wheelAngle % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+  let delta = targetMod - currentMod;
+  if (delta <= 0.05) delta += 2 * Math.PI;
+  delta += (5 + Math.floor(Math.random() * 3)) * 2 * Math.PI; // 5-7 extra full spins
+
+  const startAngle = wheelAngle;
+  const endAngle   = wheelAngle + delta;
+  const duration   = 4200;
+  const startTime  = Date.now();
+
+  function easeOutQuart(t) { return 1 - Math.pow(1 - t, 4); }
+
+  function frame() {
+    const t = Math.min((Date.now() - startTime) / duration, 1);
+    wheelAngle = startAngle + (endAngle - startAngle) * easeOutQuart(t);
+    drawWheel();
+    if (t < 1) { requestAnimationFrame(frame); }
+    else { wheelAngle = endAngle; drawWheel(); onDone(); }
+  }
+  requestAnimationFrame(frame);
+}
+
+function onSpinDone(outcome) {
+  const idx = state.spinIndex;
   const isWin = outcome !== 'LOSE';
   const prize = CONFIG.prizes[outcome];
 
-  // Determine center symbols for each reel
-  let midSyms;
+  // Win glow on canvas
   if (isWin) {
-    midSyms = [prize.emoji, prize.emoji, prize.emoji];
-  } else {
-    midSyms = getLosingSymbols();
+    const canvas = document.getElementById('wheel-canvas');
+    canvas.classList.add('win-glow');
+    setTimeout(() => canvas.classList.remove('win-glow'), 2200);
   }
 
-  // Stagger stop times
-  const DURATIONS = [2400, 3000, 3600];
-
-  let stopped = 0;
-  [0, 1, 2].forEach(i => {
-    animateReel(i + 1, midSyms[i], DURATIONS[i], () => {
-      stopped++;
-      if (stopped === 3) onAllStopped(outcome, isWin, midSyms);
-    });
-  });
-}
-
-function onAllStopped(outcome, isWin, midSyms) {
-  const idx = state.spinIndex;
-
-  // Reel glow on win
-  if (isWin) {
-    [1,2,3].forEach(n => {
-      document.getElementById(`reel-${n}`).classList.add('win-glow');
-      setTimeout(() => document.getElementById(`reel-${n}`).classList.remove('win-glow'), 2200);
-    });
-  }
-
-  // Update dot
+  // Update spin dot
   const dot = document.getElementById(`dot-${idx}`);
-  dot.classList.add('used');
-  dot.classList.add(isWin ? 'win' : 'lose');
+  dot.classList.add('used', isWin ? 'win' : 'lose');
 
   // Result banner
   const banner = document.getElementById('result-banner');
-  const prize = CONFIG.prizes[outcome];
   if (isWin) {
     banner.className = 'result-banner win';
     banner.textContent = `🎉 Spin ${idx + 1}: ${prize.name}!`;
@@ -1044,74 +1072,14 @@ function onAllStopped(outcome, isWin, midSyms) {
   state.spinning = false;
 
   if (state.spinIndex < 3) {
-    // More spins left
-    document.getElementById('spin-status').textContent = `${3 - state.spinIndex} spin${3 - state.spinIndex > 1 ? 's' : ''} remaining`;
+    document.getElementById('spin-status').textContent =
+      `${3 - state.spinIndex} spin${3 - state.spinIndex > 1 ? 's' : ''} remaining`;
     setHandleEnabled(true);
   } else {
-    // All spins done
     document.getElementById('spin-status').textContent = 'All spins used!';
     setHandleEnabled(false);
     document.getElementById('see-prizes-btn').classList.add('show');
   }
-}
-
-/* ═══════════════════════════════════════════════════════
-   REEL ANIMATION
-   ═══════════════════════════════════════════════════════ */
-function animateReel(reelNum, targetMid, duration, onDone) {
-  const topEl = document.getElementById(`r${reelNum}-top`);
-  const midEl = document.getElementById(`r${reelNum}-mid`);
-  const botEl = document.getElementById(`r${reelNum}-bot`);
-
-  const start = Date.now();
-  let lastFlip = 0;
-
-  function getInterval(elapsed) {
-    const pct = elapsed / duration;
-    if (pct < 0.5) return 65;
-    if (pct < 0.7) return 110;
-    if (pct < 0.85) return 175;
-    if (pct < 0.95) return 280;
-    return 430;
-  }
-
-  function rndSym() {
-    const s = CONFIG.spinSymbols;
-    return s[Math.floor(Math.random() * s.length)];
-  }
-
-  function frame() {
-    const elapsed = Date.now() - start;
-    if (elapsed >= duration) {
-      topEl.textContent = rndSym();
-      midEl.textContent = targetMid;
-      botEl.textContent = rndSym();
-      onDone();
-      return;
-    }
-    const iv = getInterval(elapsed);
-    if (elapsed - lastFlip >= iv) {
-      topEl.textContent = rndSym();
-      midEl.textContent = rndSym();
-      botEl.textContent = rndSym();
-      lastFlip = elapsed;
-    }
-    requestAnimationFrame(frame);
-  }
-  requestAnimationFrame(frame);
-}
-
-function setReel(n, top, mid, bot) {
-  document.getElementById(`r${n}-top`).textContent = top;
-  document.getElementById(`r${n}-mid`).textContent = mid;
-  document.getElementById(`r${n}-bot`).textContent = bot;
-}
-
-function getLosingSymbols() {
-  const pool = CONFIG.spinSymbols;
-  const idx = [0,1,2,3,4,5,6,7];
-  shuffle(idx);
-  return [pool[idx[0]], pool[idx[1]], pool[idx[2]]];
 }
 
 /* ═══════════════════════════════════════════════════════

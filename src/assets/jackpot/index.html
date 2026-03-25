@@ -1,0 +1,1279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lucky Jackpot – Spin & Win!</title>
+  <style>
+    /* ══════════════════════════════════════════════
+       BRANDING CONFIG – change these to customise
+       ══════════════════════════════════════════════ */
+    :root {
+      --primary:        #FFD700;
+      --secondary:      #ff6b35;
+      --bg-top:         #0f0c29;
+      --bg-bot:         #24243e;
+      --machine-dark:   #13082b;
+      --machine-mid:    #2d1b69;
+      --prize-a:        #38ef7d;
+      --prize-b:        #6dd5ed;
+      --prize-c:        #ffd200;
+      --lose:           #555;
+      --font:           'Segoe UI', system-ui, -apple-system, sans-serif;
+      /* Swap out emojis/names in the JS CONFIG block below */
+    }
+
+    /* ── reset ── */
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      min-height:100vh;
+      background: radial-gradient(ellipse at 20% 20%, #1a0545 0%, #0a0015 70%);
+      font-family: var(--font);
+      color:#fff;
+      overflow-x:hidden;
+    }
+
+    /* ── screen management ── */
+    .screen { display:none; min-height:100vh; }
+    .screen.active { display:flex; }
+
+    /* ══════════════════════════════════════════════
+       REGISTRATION SCREEN
+       ══════════════════════════════════════════════ */
+    #s-register {
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+    }
+    .reg-logo {
+      font-size:clamp(28px,6vw,48px);
+      font-weight:900;
+      letter-spacing:5px;
+      text-transform:uppercase;
+      background: linear-gradient(90deg,#FFD700,#ff6b35,#FFD700);
+      background-size:200% auto;
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+      background-clip:text;
+      animation:shine 2.5s linear infinite;
+      margin-bottom:6px;
+    }
+    .reg-sub {
+      color:rgba(255,215,0,.5);
+      font-size:13px;
+      letter-spacing:3px;
+      text-transform:uppercase;
+      margin-bottom:32px;
+    }
+    .card {
+      background:rgba(255,255,255,.04);
+      backdrop-filter:blur(20px);
+      border:1px solid rgba(255,215,0,.25);
+      border-radius:24px;
+      padding:36px 32px;
+      width:100%;
+      max-width:420px;
+      box-shadow:0 0 60px rgba(255,215,0,.08),0 24px 64px rgba(0,0,0,.5);
+    }
+    .field { margin-bottom:18px; }
+    .field label {
+      display:block;
+      font-size:12px;
+      letter-spacing:1.5px;
+      text-transform:uppercase;
+      color:rgba(255,215,0,.7);
+      margin-bottom:7px;
+    }
+    .field input {
+      width:100%;
+      background:rgba(255,255,255,.06);
+      border:1.5px solid rgba(255,215,0,.2);
+      border-radius:10px;
+      padding:13px 16px;
+      font-size:15px;
+      color:#fff;
+      outline:none;
+      transition:border-color .2s,box-shadow .2s;
+    }
+    .field input::placeholder { color:rgba(255,255,255,.25); }
+    .field input:focus {
+      border-color:var(--primary);
+      box-shadow:0 0 0 3px rgba(255,215,0,.12);
+    }
+    .field .hint {
+      font-size:11px;
+      color:rgba(255,255,255,.3);
+      margin-top:5px;
+    }
+    .btn {
+      width:100%;
+      padding:15px;
+      border:none;
+      border-radius:12px;
+      font-size:16px;
+      font-weight:700;
+      letter-spacing:2px;
+      text-transform:uppercase;
+      cursor:pointer;
+      transition:transform .15s,box-shadow .15s,opacity .15s;
+      position:relative;
+      overflow:hidden;
+    }
+    .btn:active { transform:scale(.97); }
+    .btn-gold {
+      background:linear-gradient(135deg,#FFD700,#ff8c00);
+      color:#1a0a2e;
+      box-shadow:0 4px 24px rgba(255,215,0,.35);
+    }
+    .btn-gold:hover { box-shadow:0 6px 32px rgba(255,215,0,.55); }
+    .btn-ghost {
+      background:transparent;
+      border:1.5px solid rgba(255,215,0,.3);
+      color:var(--primary);
+      margin-top:12px;
+    }
+    .btn-ghost:hover { background:rgba(255,215,0,.06); }
+    .error-msg {
+      color:#ff6b6b;
+      font-size:12px;
+      margin-top:12px;
+      text-align:center;
+      min-height:18px;
+    }
+
+    /* ══════════════════════════════════════════════
+       MACHINE SCREEN
+       ══════════════════════════════════════════════ */
+    #s-machine {
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+      gap:20px;
+    }
+    .player-tag {
+      font-size:13px;
+      color:rgba(255,215,0,.6);
+      letter-spacing:1px;
+    }
+    .player-tag span { color:#fff; font-weight:600; }
+
+    /* machine body */
+    .machine {
+      position:relative;
+      background:linear-gradient(160deg,#2d1b69 0%,#1a0a2e 60%,#0d0620 100%);
+      border:3px solid var(--primary);
+      border-radius:32px 32px 44px 44px;
+      padding:28px 24px 24px;
+      width:100%;
+      max-width:500px;
+      box-shadow:
+        0 0 0 2px rgba(255,215,0,.15),
+        0 0 60px rgba(255,215,0,.25),
+        inset 0 0 80px rgba(0,0,0,.5);
+    }
+
+    /* top display bar */
+    .machine-top {
+      text-align:center;
+      padding:10px 16px;
+      background:rgba(0,0,0,.5);
+      border:1.5px solid rgba(255,107,53,.4);
+      border-radius:10px;
+      margin-bottom:20px;
+    }
+    .machine-title {
+      font-size:clamp(20px,4vw,30px);
+      font-weight:900;
+      letter-spacing:5px;
+      text-transform:uppercase;
+      background:linear-gradient(90deg,#FFD700,#ff6b35,#FFD700);
+      background-size:200% auto;
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+      background-clip:text;
+      animation:shine 2.5s linear infinite;
+    }
+    .machine-subtitle {
+      font-size:11px;
+      letter-spacing:3px;
+      color:rgba(255,215,0,.4);
+      text-transform:uppercase;
+      margin-top:2px;
+    }
+
+    /* reels area */
+    .reels-wrap {
+      display:flex;
+      gap:10px;
+      padding:16px;
+      background:rgba(0,0,0,.55);
+      border-radius:16px;
+      border:2px solid rgba(255,215,0,.15);
+      margin-bottom:16px;
+      position:relative;
+    }
+    .reel-col { flex:1; position:relative; }
+    .reel-label {
+      text-align:center;
+      font-size:10px;
+      letter-spacing:2px;
+      color:rgba(255,215,0,.35);
+      margin-bottom:6px;
+      text-transform:uppercase;
+    }
+    .reel-window {
+      height:216px;
+      overflow:hidden;
+      border-radius:10px;
+      background:#060606;
+      border:2px solid rgba(255,215,0,.2);
+      box-shadow:inset 0 0 24px rgba(0,0,0,.8);
+      position:relative;
+    }
+    /* top/bottom fade overlay */
+    .reel-window::before {
+      content:'';
+      position:absolute;
+      inset:0;
+      background:linear-gradient(
+        to bottom,
+        rgba(6,6,6,.85) 0%,
+        transparent 28%,
+        transparent 72%,
+        rgba(6,6,6,.85) 100%
+      );
+      z-index:3;
+      pointer-events:none;
+    }
+    /* center row highlight */
+    .reel-window::after {
+      content:'';
+      position:absolute;
+      top:50%;
+      left:0; right:0;
+      height:72px;
+      transform:translateY(-50%);
+      background:rgba(255,215,0,.04);
+      border-top:1px solid rgba(255,215,0,.18);
+      border-bottom:1px solid rgba(255,215,0,.18);
+      pointer-events:none;
+      z-index:2;
+    }
+    .reel-symbols { display:flex; flex-direction:column; }
+    .reel-sym {
+      height:72px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:34px;
+      user-select:none;
+      flex-shrink:0;
+    }
+    .reel-sym.mid { filter:drop-shadow(0 0 8px rgba(255,215,0,.6)); }
+    .reel-sym.side { opacity:.35; filter:grayscale(.6); }
+
+    /* glow overlay on win */
+    .reel-window.win-glow {
+      box-shadow:
+        inset 0 0 24px rgba(0,0,0,.8),
+        0 0 20px rgba(255,215,0,.7);
+      border-color:var(--primary);
+      animation:pulseGlow .7s 3;
+    }
+
+    /* ── handle ── */
+    .handle-zone {
+      position:absolute;
+      right:-52px;
+      top:50%;
+      transform:translateY(-50%);
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      cursor:pointer;
+      user-select:none;
+    }
+    /* ball + arm pivot together from the base */
+    .handle-pivot {
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      transform-origin:bottom center;
+      transition:transform .35s cubic-bezier(.25,.46,.45,.94);
+    }
+    .handle-ball {
+      width:38px; height:38px;
+      background:radial-gradient(circle at 35% 35%,#ff8c42,#cc3300);
+      border-radius:50%;
+      border:2.5px solid rgba(255,160,80,.5);
+      box-shadow:0 0 14px rgba(255,107,53,.7);
+      transition:box-shadow .35s;
+      flex-shrink:0;
+    }
+    .handle-arm {
+      width:10px; height:110px;
+      background:linear-gradient(to right,#666,#ddd 50%,#666);
+      border-radius:5px;
+      margin-top:-2px;
+      flex-shrink:0;
+    }
+    .handle-base {
+      width:28px; height:18px;
+      background:linear-gradient(to bottom,#999,#444);
+      border-radius:4px 4px 8px 8px;
+    }
+    .handle-zone.pulling .handle-pivot {
+      transform:rotate(30deg);
+    }
+    .handle-zone.pulling .handle-ball {
+      box-shadow:0 0 24px rgba(255,107,53,1);
+    }
+    .handle-zone.disabled { cursor:not-allowed; opacity:.4; pointer-events:none; }
+
+    /* ── spin info bar ── */
+    .spin-info {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:10px 16px;
+      background:rgba(0,0,0,.4);
+      border-radius:10px;
+      font-size:13px;
+    }
+    .spin-dots { display:flex; gap:7px; }
+    .spin-dot {
+      width:14px; height:14px;
+      border-radius:50%;
+      border:2px solid rgba(255,215,0,.4);
+      background:transparent;
+      transition:background .3s,box-shadow .3s;
+    }
+    .spin-dot.used { background:var(--primary); box-shadow:0 0 8px var(--primary); }
+    .spin-dot.win  { background:var(--prize-a); box-shadow:0 0 8px var(--prize-a); }
+    .spin-dot.lose { background:#444; }
+    .spin-status { color:rgba(255,255,255,.5); font-size:12px; letter-spacing:1px; }
+
+    /* ── result banner ── */
+    .result-banner {
+      text-align:center;
+      padding:10px;
+      border-radius:10px;
+      font-size:14px;
+      font-weight:700;
+      letter-spacing:2px;
+      text-transform:uppercase;
+      margin-top:8px;
+      min-height:42px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      transition:all .3s;
+    }
+    .result-banner.win  { background:rgba(56,239,125,.12); color:var(--prize-a); border:1px solid rgba(56,239,125,.3); }
+    .result-banner.lose { background:rgba(80,80,80,.15); color:#888; border:1px solid rgba(80,80,80,.3); }
+    .result-banner.empty { border:1px dashed rgba(255,215,0,.1); color:rgba(255,215,0,.25); }
+
+    /* ── see prizes button ── */
+    .see-prizes-btn {
+      display:none;
+      width:100%;
+      padding:14px;
+      border:none;
+      border-radius:12px;
+      background:linear-gradient(135deg,#FFD700,#ff8c00);
+      color:#1a0a2e;
+      font-size:15px;
+      font-weight:800;
+      letter-spacing:2px;
+      text-transform:uppercase;
+      cursor:pointer;
+      animation:pulse 1.4s infinite;
+      box-shadow:0 4px 28px rgba(255,215,0,.4);
+      margin-top:4px;
+    }
+    .see-prizes-btn.show { display:block; }
+
+    /* ══════════════════════════════════════════════
+       PRIZE SELECTION SCREEN
+       ══════════════════════════════════════════════ */
+    #s-select {
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+      gap:16px;
+    }
+    .select-title {
+      font-size:clamp(18px,4vw,26px);
+      font-weight:900;
+      letter-spacing:4px;
+      text-transform:uppercase;
+      background:linear-gradient(90deg,#FFD700,#ff6b35);
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+      background-clip:text;
+      text-align:center;
+    }
+    .select-sub { font-size:13px; color:rgba(255,255,255,.4); text-align:center; }
+    .prizes-grid {
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+      width:100%;
+      max-width:420px;
+    }
+    .prize-card {
+      border-radius:16px;
+      padding:18px 20px;
+      display:flex;
+      align-items:center;
+      gap:16px;
+      cursor:pointer;
+      transition:transform .2s,box-shadow .2s,opacity .2s;
+      border:2px solid transparent;
+      position:relative;
+      overflow:hidden;
+    }
+    .prize-card:hover:not(.lose-card) { transform:scale(1.02); }
+    .prize-card.lose-card {
+      opacity:.35;
+      cursor:not-allowed;
+      filter:grayscale(.8);
+    }
+    .prize-card.selected {
+      border-color:var(--primary);
+      box-shadow:0 0 0 3px rgba(255,215,0,.3),0 8px 32px rgba(0,0,0,.4);
+      transform:scale(1.03);
+    }
+    .prize-card-a { background:linear-gradient(135deg,rgba(17,153,142,.3),rgba(56,239,125,.15)); border-color:rgba(56,239,125,.2); }
+    .prize-card-b { background:linear-gradient(135deg,rgba(33,147,176,.3),rgba(109,213,237,.15)); border-color:rgba(109,213,237,.2); }
+    .prize-card-c { background:linear-gradient(135deg,rgba(247,151,30,.25),rgba(255,210,0,.12)); border-color:rgba(255,210,0,.2); }
+    .prize-card-lose { background:rgba(60,60,60,.2); border-color:rgba(80,80,80,.2); }
+    .prize-emoji { font-size:36px; flex-shrink:0; }
+    .prize-info { flex:1; }
+    .prize-name { font-size:15px; font-weight:700; margin-bottom:3px; }
+    .prize-desc { font-size:12px; color:rgba(255,255,255,.5); }
+    .spin-tag {
+      position:absolute;
+      top:8px; right:10px;
+      font-size:10px;
+      letter-spacing:1px;
+      color:rgba(255,255,255,.3);
+      text-transform:uppercase;
+    }
+    .win-badge {
+      background:rgba(255,215,0,.15);
+      border:1px solid rgba(255,215,0,.3);
+      border-radius:20px;
+      padding:3px 10px;
+      font-size:10px;
+      letter-spacing:1px;
+      color:var(--primary);
+      text-transform:uppercase;
+    }
+    .lose-badge {
+      background:rgba(80,80,80,.15);
+      border:1px solid rgba(80,80,80,.3);
+      border-radius:20px;
+      padding:3px 10px;
+      font-size:10px;
+      letter-spacing:1px;
+      color:#666;
+      text-transform:uppercase;
+    }
+    .claim-btn { max-width:420px; }
+
+    /* ══════════════════════════════════════════════
+       CONFIRMATION SCREEN
+       ══════════════════════════════════════════════ */
+    #s-confirm {
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+      gap:16px;
+    }
+    .confetti-burst {
+      position:fixed; inset:0;
+      pointer-events:none;
+      z-index:999;
+      overflow:hidden;
+    }
+    .confetti-piece {
+      position:absolute;
+      width:8px; height:14px;
+      border-radius:2px;
+      animation:fall linear forwards;
+    }
+    .confirm-icon { font-size:72px; animation:popIn .5s cubic-bezier(.34,1.56,.64,1); }
+    .confirm-title {
+      font-size:clamp(20px,4vw,28px);
+      font-weight:900;
+      letter-spacing:4px;
+      text-transform:uppercase;
+      background:linear-gradient(90deg,#FFD700,#ff6b35);
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+      background-clip:text;
+      text-align:center;
+    }
+    .confirm-prize-name { font-size:16px; color:rgba(255,255,255,.7); text-align:center; }
+    .code-box {
+      background:rgba(0,0,0,.5);
+      border:2px solid var(--primary);
+      border-radius:16px;
+      padding:20px 28px;
+      text-align:center;
+      width:100%;
+      max-width:380px;
+      box-shadow:0 0 30px rgba(255,215,0,.15);
+    }
+    .code-label {
+      font-size:11px;
+      letter-spacing:2px;
+      text-transform:uppercase;
+      color:rgba(255,215,0,.5);
+      margin-bottom:8px;
+    }
+    .code-value {
+      font-size:28px;
+      font-weight:900;
+      letter-spacing:5px;
+      color:var(--primary);
+      text-shadow:0 0 20px rgba(255,215,0,.5);
+    }
+    .code-copy {
+      margin-top:12px;
+      padding:8px 20px;
+      background:rgba(255,215,0,.1);
+      border:1px solid rgba(255,215,0,.3);
+      border-radius:8px;
+      color:var(--primary);
+      font-size:12px;
+      letter-spacing:1px;
+      text-transform:uppercase;
+      cursor:pointer;
+      transition:background .2s;
+    }
+    .code-copy:hover { background:rgba(255,215,0,.2); }
+    .sent-note {
+      font-size:13px;
+      color:rgba(255,255,255,.4);
+      text-align:center;
+      max-width:340px;
+      line-height:1.6;
+    }
+    .sent-note strong { color:rgba(255,255,255,.7); }
+
+    /* ══════════════════════════════════════════════
+       ANIMATIONS
+       ══════════════════════════════════════════════ */
+    @keyframes shine {
+      0%   { background-position:0% center; }
+      100% { background-position:200% center; }
+    }
+    @keyframes pulse {
+      0%,100% { box-shadow:0 4px 28px rgba(255,215,0,.4); }
+      50%      { box-shadow:0 4px 40px rgba(255,215,0,.75); }
+    }
+    @keyframes pulseGlow {
+      0%,100% { box-shadow:inset 0 0 24px rgba(0,0,0,.8),0 0 20px rgba(255,215,0,.7); }
+      50%      { box-shadow:inset 0 0 24px rgba(0,0,0,.8),0 0 50px rgba(255,215,0,1); }
+    }
+    @keyframes popIn {
+      0%   { transform:scale(0); opacity:0; }
+      100% { transform:scale(1); opacity:1; }
+    }
+    @keyframes fall {
+      0%   { transform:translateY(-20px) rotate(0deg); opacity:1; }
+      100% { transform:translateY(110vh) rotate(720deg); opacity:0; }
+    }
+    @keyframes spinBounce {
+      0%,100% { transform:translateY(0); }
+      50%      { transform:translateY(-4px); }
+    }
+
+    /* ══════════════════════════════════════════════
+       RESPONSIVE
+       ══════════════════════════════════════════════ */
+
+    /* Desktop: add right padding so handle doesn't overflow */
+    #s-machine { padding: 24px 80px 24px 24px; }
+
+    /* Pull button – mobile only, hidden by default */
+    .pull-btn {
+      display:none;
+      width:100%;
+      padding:16px;
+      border:none;
+      border-radius:14px;
+      background:linear-gradient(135deg,#ff8c42,#cc3300);
+      color:#fff;
+      font-size:18px;
+      font-weight:800;
+      letter-spacing:3px;
+      text-transform:uppercase;
+      cursor:pointer;
+      box-shadow:0 4px 24px rgba(255,107,53,.5);
+      transition:transform .15s,box-shadow .15s;
+      margin-top:4px;
+    }
+    .pull-btn:active { transform:scale(.97); }
+    .pull-btn.disabled { opacity:.4; pointer-events:none; cursor:not-allowed; }
+
+    @media (max-width: 560px) {
+      /* Swap side handle for tap button */
+      .handle-zone { display:none !important; }
+      .pull-btn { display:block; }
+
+      /* Restore normal padding (no handle offset needed) */
+      #s-machine { padding:16px; gap:12px; }
+      #s-register { padding:16px; }
+      #s-select   { padding:16px; gap:12px; }
+      #s-confirm  { padding:16px; gap:12px; }
+
+      /* Scale down reels */
+      .reel-window        { height:159px; }
+      .reel-window::after { height:53px; }
+      .reel-sym           { height:53px; font-size:26px; }
+
+      /* Tighten machine */
+      .machine       { padding:18px 14px 14px; }
+      .reels-wrap    { gap:7px; padding:10px; margin-bottom:12px; }
+      .machine-top   { margin-bottom:14px; padding:8px 12px; }
+      .machine-title { font-size:18px; letter-spacing:3px; }
+
+      /* Registration card */
+      .card { padding:24px 18px; border-radius:18px; }
+
+      /* Confirmation */
+      .confirm-icon { font-size:52px; }
+      .code-value   { font-size:22px; letter-spacing:3px; }
+      .code-box     { padding:16px 18px; }
+
+      /* Result banner */
+      .result-banner { font-size:12px; letter-spacing:1px; padding:8px; }
+
+      /* Prize selection cards */
+      .prize-card  { padding:14px; gap:12px; }
+      .prize-emoji { font-size:28px; }
+      .prize-name  { font-size:14px; }
+
+      /* Spin info */
+      .spin-status { font-size:11px; }
+    }
+
+    @media (max-width: 380px) {
+      .reel-window        { height:135px; }
+      .reel-window::after { height:45px; }
+      .reel-sym           { height:45px; font-size:20px; }
+      .reels-wrap         { gap:5px; padding:8px; }
+      .machine            { padding:14px 10px 10px; }
+      .code-value         { font-size:18px; letter-spacing:2px; }
+      .reg-sub            { margin-bottom:20px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ████████████████ REGISTRATION ████████████████ -->
+<div id="s-register" class="screen active">
+  <div class="reg-logo">Lucky Jackpot</div>
+  <div class="reg-sub">✦ Spin to Win ✦</div>
+  <div class="card">
+    <div class="field">
+      <label>Full Name *</label>
+      <input id="inp-name" type="text" placeholder="Enter your name" maxlength="80" />
+    </div>
+    <div class="field">
+      <label>Phone Number *</label>
+      <input id="inp-phone" type="tel" placeholder="+60 12-345 6789" maxlength="20" />
+      <div class="hint">Required – promo code will be sent here</div>
+    </div>
+    <div class="field">
+      <label>Email Address <span style="color:rgba(255,255,255,.3);font-size:10px;">(Optional)</span></label>
+      <input id="inp-email" type="email" placeholder="you@example.com" maxlength="120" />
+    </div>
+    <div class="error-msg" id="reg-error"></div>
+    <button class="btn btn-gold" onclick="submitRegistration()">Let's Spin! 🎰</button>
+  </div>
+</div>
+
+<!-- ████████████████ MACHINE ████████████████ -->
+<div id="s-machine" class="screen">
+  <div class="player-tag">Welcome, <span id="player-name-tag">Player</span>!</div>
+
+  <div class="machine">
+    <!-- top display -->
+    <div class="machine-top">
+      <div class="machine-title" id="machine-title">Lucky Jackpot</div>
+      <div class="machine-subtitle">Pull the handle to spin</div>
+    </div>
+
+    <!-- reels -->
+    <div class="reels-wrap">
+      <!-- Reel 1 -->
+      <div class="reel-col">
+        <div class="reel-label">◆</div>
+        <div class="reel-window" id="reel-1">
+          <div class="reel-symbols" id="rs-1">
+            <div class="reel-sym side" id="r1-top">🎰</div>
+            <div class="reel-sym mid"  id="r1-mid">❓</div>
+            <div class="reel-sym side" id="r1-bot">🎰</div>
+          </div>
+        </div>
+      </div>
+      <!-- Reel 2 -->
+      <div class="reel-col">
+        <div class="reel-label">◆</div>
+        <div class="reel-window" id="reel-2">
+          <div class="reel-symbols" id="rs-2">
+            <div class="reel-sym side" id="r2-top">🎰</div>
+            <div class="reel-sym mid"  id="r2-mid">❓</div>
+            <div class="reel-sym side" id="r2-bot">🎰</div>
+          </div>
+        </div>
+      </div>
+      <!-- Reel 3 -->
+      <div class="reel-col">
+        <div class="reel-label">◆</div>
+        <div class="reel-window" id="reel-3">
+          <div class="reel-symbols" id="rs-3">
+            <div class="reel-sym side" id="r3-top">🎰</div>
+            <div class="reel-sym mid"  id="r3-mid">❓</div>
+            <div class="reel-sym side" id="r3-bot">🎰</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- handle -->
+      <div class="handle-zone" id="handle" onclick="pullHandle()">
+        <div class="handle-pivot">
+          <div class="handle-ball"></div>
+          <div class="handle-arm"></div>
+        </div>
+        <div class="handle-base"></div>
+      </div>
+    </div>
+
+    <!-- spin counter -->
+    <div class="spin-info">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="font-size:11px;color:rgba(255,215,0,.5);letter-spacing:1px;text-transform:uppercase;">Spins</span>
+        <div class="spin-dots">
+          <div class="spin-dot" id="dot-0"></div>
+          <div class="spin-dot" id="dot-1"></div>
+          <div class="spin-dot" id="dot-2"></div>
+        </div>
+      </div>
+      <div class="spin-status" id="spin-status">Tap handle to spin</div>
+    </div>
+
+    <!-- mobile pull button (hidden on desktop) -->
+    <button class="pull-btn" id="pull-btn" onclick="pullHandle()">🎰 Pull!</button>
+
+    <!-- result banner -->
+    <div class="result-banner empty" id="result-banner">Pull the handle to start!</div>
+
+    <!-- see prizes -->
+    <button class="see-prizes-btn" id="see-prizes-btn" onclick="goToSelect()">
+      Choose Your Prize 🎁
+    </button>
+  </div>
+</div>
+
+<!-- ████████████████ PRIZE SELECTION ████████████████ -->
+<div id="s-select" class="screen">
+  <div class="select-title">Choose Your Prize</div>
+  <div class="select-sub">Select one winning result from your 3 spins</div>
+  <div class="prizes-grid" id="prizes-grid"></div>
+  <button class="btn btn-gold claim-btn" id="claim-btn" onclick="claimPrize()" style="max-width:420px;width:100%;display:none;">
+    Claim This Prize! 🎉
+  </button>
+  <button class="btn btn-ghost claim-btn" onclick="showScreen('s-machine')" style="max-width:420px;width:100%;">
+    ← Back to Machine
+  </button>
+</div>
+
+<!-- ████████████████ CONFIRMATION ████████████████ -->
+<div id="s-confirm" class="screen">
+  <div class="confetti-burst" id="confetti"></div>
+  <div class="confirm-icon" id="confirm-icon">🎉</div>
+  <div class="confirm-title">Congratulations!</div>
+  <div class="confirm-prize-name" id="confirm-prize-name">You won a prize!</div>
+  <div class="code-box">
+    <div class="code-label">Your Promo Code</div>
+    <div class="code-value" id="promo-code">----</div>
+    <button class="code-copy" onclick="copyCode()">📋 Copy Code</button>
+  </div>
+  <div class="sent-note" id="sent-note"></div>
+  <button class="btn btn-ghost" onclick="startOver()" style="max-width:380px;width:100%;">
+    Done ✓
+  </button>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════
+   GAME CONFIG – customise prizes, symbols, branding here
+   ═══════════════════════════════════════════════════════ */
+const CONFIG = {
+  title: 'Lucky Jackpot',
+  prizes: {
+    A: {
+      name:   '🍀 Lucky Clover',
+      desc:   '30% Off Your Next Purchase',
+      emoji:  '🍀',
+      prefix: 'CLVR',
+      cardClass: 'prize-card-a',
+    },
+    B: {
+      name:   '💎 Diamond Deal',
+      desc:   'Buy 1 Get 1 Free',
+      emoji:  '💎',
+      prefix: 'DIMD',
+      cardClass: 'prize-card-b',
+    },
+    C: {
+      name:   '⭐ Star Prize',
+      desc:   '50% Off Storewide',
+      emoji:  '⭐',
+      prefix: 'STAR',
+      cardClass: 'prize-card-c',
+    },
+    LOSE: {
+      name:   'Better Luck Next Spin',
+      desc:   'No prize this time',
+      emoji:  '❌',
+      prefix: null,
+      cardClass: 'prize-card-lose',
+    },
+  },
+  /* Prize combos rotate per unique entry count stored in localStorage */
+  combos: [
+    ['A', 'B', 'LOSE'],   // Entry 1
+    ['B', 'C', 'LOSE'],   // Entry 2
+    ['A', 'C', 'LOSE'],   // Entry 3
+    // repeats cyclically...
+  ],
+  /* Random symbols shown while reels are spinning */
+  spinSymbols: ['🍒', '🔔', '🎯', '💰', '🃏', '🌟', '🎲', '🏆'],
+};
+
+/* ═══════════════════════════════════════════════════════
+   STATE
+   ═══════════════════════════════════════════════════════ */
+let state = {
+  player: null,          // { name, phone, email }
+  spinOutcomes: [],      // ['A','B','LOSE'] shuffled
+  spinIndex: 0,          // 0-2
+  spinning: false,
+  selectedPrize: null,   // prize key chosen by player
+};
+
+/* ═══════════════════════════════════════════════════════
+   LOCAL STORAGE HELPERS
+   ═══════════════════════════════════════════════════════ */
+const DB_KEY = 'jackpot_entries';
+
+function getEntries() {
+  try { return JSON.parse(localStorage.getItem(DB_KEY)) || []; }
+  catch { return []; }
+}
+function saveEntry(phone, email, code) {
+  const entries = getEntries();
+  const total = entries.length;
+  entries.push({ phone: norm(phone), email: norm(email), code, ts: Date.now() });
+  localStorage.setItem(DB_KEY, JSON.stringify(entries));
+  return total; // entry index BEFORE this save = combo index
+}
+function isUsed(phone, email) {
+  const entries = getEntries();
+  const p = norm(phone), e = norm(email);
+  return entries.some(en =>
+    en.phone === p || (e && en.email === e)
+  );
+}
+function norm(s) { return (s || '').trim().toLowerCase(); }
+function entryCount() { return getEntries().length; }
+
+/* ═══════════════════════════════════════════════════════
+   SCREEN TRANSITIONS
+   ═══════════════════════════════════════════════════════ */
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+/* ═══════════════════════════════════════════════════════
+   REGISTRATION
+   ═══════════════════════════════════════════════════════ */
+function submitRegistration() {
+  const name  = document.getElementById('inp-name').value.trim();
+  const phone = document.getElementById('inp-phone').value.trim();
+  const email = document.getElementById('inp-email').value.trim();
+  const err   = document.getElementById('reg-error');
+
+  if (!name)  { err.textContent = 'Please enter your name.'; return; }
+  if (!phone) { err.textContent = 'Phone number is required.'; return; }
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    err.textContent = 'Please enter a valid email address.'; return;
+  }
+  if (isUsed(phone, email)) {
+    err.textContent = 'This phone number or email has already been used. One entry per person.'; return;
+  }
+  err.textContent = '';
+
+  state.player = { name, phone, email };
+  initMachine();
+  showScreen('s-machine');
+}
+
+/* ═══════════════════════════════════════════════════════
+   MACHINE INIT
+   ═══════════════════════════════════════════════════════ */
+function initMachine() {
+  const comboIndex = entryCount() % CONFIG.combos.length;
+  const combo = [...CONFIG.combos[comboIndex]];
+  state.spinOutcomes = shuffle(combo);
+  state.spinIndex = 0;
+  state.selectedPrize = null;
+
+  document.getElementById('player-name-tag').textContent = state.player.name.split(' ')[0];
+  document.getElementById('machine-title').textContent = CONFIG.title;
+
+  // reset dots
+  [0,1,2].forEach(i => {
+    const d = document.getElementById(`dot-${i}`);
+    d.className = 'spin-dot';
+  });
+
+  // reset reels to idle
+  setReel(1, '🎰', '❓', '🎰');
+  setReel(2, '🎰', '❓', '🎰');
+  setReel(3, '🎰', '❓', '🎰');
+
+  document.getElementById('result-banner').className = 'result-banner empty';
+  document.getElementById('result-banner').textContent = 'Pull the handle to start!';
+  document.getElementById('see-prizes-btn').classList.remove('show');
+  setHandleEnabled(true);
+  document.getElementById('spin-status').textContent = 'Tap handle to spin';
+}
+
+/* ═══════════════════════════════════════════════════════
+   HANDLE PULL
+   ═══════════════════════════════════════════════════════ */
+function pullHandle() {
+  if (state.spinning || state.spinIndex >= 3) return;
+
+  const handle = document.getElementById('handle');
+  handle.classList.add('pulling');
+  setTimeout(() => handle.classList.remove('pulling'), 700);
+
+  setTimeout(() => doSpin(), 350);
+}
+
+/* ═══════════════════════════════════════════════════════
+   SPIN LOGIC
+   ═══════════════════════════════════════════════════════ */
+function doSpin() {
+  if (state.spinning) return;
+  state.spinning = true;
+
+  const handle = document.getElementById('handle');
+  setHandleEnabled(false);
+
+  const outcome = state.spinOutcomes[state.spinIndex];
+  const isWin = outcome !== 'LOSE';
+  const prize = CONFIG.prizes[outcome];
+
+  // Determine center symbols for each reel
+  let midSyms;
+  if (isWin) {
+    midSyms = [prize.emoji, prize.emoji, prize.emoji];
+  } else {
+    midSyms = getLosingSymbols();
+  }
+
+  // Stagger stop times
+  const DURATIONS = [2400, 3000, 3600];
+
+  let stopped = 0;
+  [0, 1, 2].forEach(i => {
+    animateReel(i + 1, midSyms[i], DURATIONS[i], () => {
+      stopped++;
+      if (stopped === 3) onAllStopped(outcome, isWin, midSyms);
+    });
+  });
+}
+
+function onAllStopped(outcome, isWin, midSyms) {
+  const idx = state.spinIndex;
+
+  // Reel glow on win
+  if (isWin) {
+    [1,2,3].forEach(n => {
+      document.getElementById(`reel-${n}`).classList.add('win-glow');
+      setTimeout(() => document.getElementById(`reel-${n}`).classList.remove('win-glow'), 2200);
+    });
+  }
+
+  // Update dot
+  const dot = document.getElementById(`dot-${idx}`);
+  dot.classList.add('used');
+  dot.classList.add(isWin ? 'win' : 'lose');
+
+  // Result banner
+  const banner = document.getElementById('result-banner');
+  const prize = CONFIG.prizes[outcome];
+  if (isWin) {
+    banner.className = 'result-banner win';
+    banner.textContent = `🎉 Spin ${idx + 1}: ${prize.name}!`;
+  } else {
+    banner.className = 'result-banner lose';
+    banner.textContent = `Spin ${idx + 1}: No luck this time...`;
+  }
+
+  state.spinIndex++;
+  state.spinning = false;
+
+  if (state.spinIndex < 3) {
+    // More spins left
+    document.getElementById('spin-status').textContent = `${3 - state.spinIndex} spin${3 - state.spinIndex > 1 ? 's' : ''} remaining`;
+    setHandleEnabled(true);
+  } else {
+    // All spins done
+    document.getElementById('spin-status').textContent = 'All spins used!';
+    setHandleEnabled(false);
+    document.getElementById('see-prizes-btn').classList.add('show');
+  }
+}
+
+/* ═══════════════════════════════════════════════════════
+   REEL ANIMATION
+   ═══════════════════════════════════════════════════════ */
+function animateReel(reelNum, targetMid, duration, onDone) {
+  const topEl = document.getElementById(`r${reelNum}-top`);
+  const midEl = document.getElementById(`r${reelNum}-mid`);
+  const botEl = document.getElementById(`r${reelNum}-bot`);
+
+  const start = Date.now();
+  let lastFlip = 0;
+
+  function getInterval(elapsed) {
+    const pct = elapsed / duration;
+    if (pct < 0.5) return 65;
+    if (pct < 0.7) return 110;
+    if (pct < 0.85) return 175;
+    if (pct < 0.95) return 280;
+    return 430;
+  }
+
+  function rndSym() {
+    const s = CONFIG.spinSymbols;
+    return s[Math.floor(Math.random() * s.length)];
+  }
+
+  function frame() {
+    const elapsed = Date.now() - start;
+    if (elapsed >= duration) {
+      topEl.textContent = rndSym();
+      midEl.textContent = targetMid;
+      botEl.textContent = rndSym();
+      onDone();
+      return;
+    }
+    const iv = getInterval(elapsed);
+    if (elapsed - lastFlip >= iv) {
+      topEl.textContent = rndSym();
+      midEl.textContent = rndSym();
+      botEl.textContent = rndSym();
+      lastFlip = elapsed;
+    }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+}
+
+function setReel(n, top, mid, bot) {
+  document.getElementById(`r${n}-top`).textContent = top;
+  document.getElementById(`r${n}-mid`).textContent = mid;
+  document.getElementById(`r${n}-bot`).textContent = bot;
+}
+
+function getLosingSymbols() {
+  const pool = CONFIG.spinSymbols;
+  const idx = [0,1,2,3,4,5,6,7];
+  shuffle(idx);
+  return [pool[idx[0]], pool[idx[1]], pool[idx[2]]];
+}
+
+/* ═══════════════════════════════════════════════════════
+   PRIZE SELECTION SCREEN
+   ═══════════════════════════════════════════════════════ */
+function goToSelect() {
+  renderPrizeCards();
+  showScreen('s-select');
+}
+
+function renderPrizeCards() {
+  const grid = document.getElementById('prizes-grid');
+  grid.innerHTML = '';
+  document.getElementById('claim-btn').style.display = 'none';
+  state.selectedPrize = null;
+
+  state.spinOutcomes.forEach((key, i) => {
+    const p = CONFIG.prizes[key];
+    const isLose = key === 'LOSE';
+    const card = document.createElement('div');
+    card.className = `prize-card ${p.cardClass}${isLose ? ' lose-card' : ''}`;
+    card.id = `pcard-${i}`;
+    card.innerHTML = `
+      <div class="prize-emoji">${p.emoji}</div>
+      <div class="prize-info">
+        <div class="prize-name">${p.name}</div>
+        <div class="prize-desc">${p.desc}</div>
+      </div>
+      <div>
+        ${isLose
+          ? '<div class="lose-badge">No Prize</div>'
+          : '<div class="win-badge">Win!</div>'
+        }
+      </div>
+      <div class="spin-tag">Spin ${i + 1}</div>
+    `;
+    if (!isLose) {
+      card.onclick = () => selectPrizeCard(i, key);
+    }
+    grid.appendChild(card);
+  });
+}
+
+function selectPrizeCard(idx, key) {
+  document.querySelectorAll('.prize-card').forEach(c => c.classList.remove('selected'));
+  document.getElementById(`pcard-${idx}`).classList.add('selected');
+  state.selectedPrize = key;
+  document.getElementById('claim-btn').style.display = 'block';
+}
+
+/* ═══════════════════════════════════════════════════════
+   CLAIM PRIZE
+   ═══════════════════════════════════════════════════════ */
+function claimPrize() {
+  if (!state.selectedPrize || state.selectedPrize === 'LOSE') return;
+  const prize = CONFIG.prizes[state.selectedPrize];
+  const code = generateCode(prize.prefix);
+
+  // Save entry to localStorage
+  saveEntry(state.player.phone, state.player.email, code);
+
+  showConfirmation(prize, code);
+}
+
+function showConfirmation(prize, code) {
+  document.getElementById('confirm-icon').textContent = prize.emoji;
+  document.getElementById('confirm-prize-name').textContent = `${prize.name} – ${prize.desc}`;
+  document.getElementById('promo-code').textContent = code;
+
+  const contacts = [];
+  if (state.player.phone) contacts.push(`<strong>${state.player.phone}</strong>`);
+  if (state.player.email) contacts.push(`<strong>${state.player.email}</strong>`);
+  document.getElementById('sent-note').innerHTML =
+    `Your promo code has been noted for ${contacts.join(' and ')}.<br/>
+     Show this screen to our staff or use the code at checkout.`;
+
+  showScreen('s-confirm');
+  spawnConfetti();
+}
+
+/* ═══════════════════════════════════════════════════════
+   CONFETTI
+   ═══════════════════════════════════════════════════════ */
+function spawnConfetti() {
+  const container = document.getElementById('confetti');
+  container.innerHTML = '';
+  const colors = ['#FFD700','#ff6b35','#38ef7d','#6dd5ed','#ffd200','#ff6b6b','#c471ed'];
+  for (let i = 0; i < 80; i++) {
+    const el = document.createElement('div');
+    el.className = 'confetti-piece';
+    el.style.cssText = `
+      left:${Math.random()*100}%;
+      background:${colors[Math.floor(Math.random()*colors.length)]};
+      width:${6+Math.random()*6}px;
+      height:${10+Math.random()*8}px;
+      animation-duration:${1.2+Math.random()*1.8}s;
+      animation-delay:${Math.random()*0.8}s;
+      transform:rotate(${Math.random()*360}deg);
+    `;
+    container.appendChild(el);
+  }
+  setTimeout(() => { container.innerHTML = ''; }, 3500);
+}
+
+/* ═══════════════════════════════════════════════════════
+   COPY CODE
+   ═══════════════════════════════════════════════════════ */
+function copyCode() {
+  const code = document.getElementById('promo-code').textContent;
+  navigator.clipboard.writeText(code).then(() => {
+    const btn = document.querySelector('.code-copy');
+    btn.textContent = '✓ Copied!';
+    setTimeout(() => btn.textContent = '📋 Copy Code', 2000);
+  }).catch(() => {
+    // fallback for older browsers
+    const ta = document.createElement('textarea');
+    ta.value = code; ta.style.position='fixed'; ta.style.opacity='0';
+    document.body.appendChild(ta); ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+  });
+}
+
+/* ═══════════════════════════════════════════════════════
+   UTILS
+   ═══════════════════════════════════════════════════════ */
+function setHandleEnabled(enabled) {
+  const action = enabled ? 'remove' : 'add';
+  document.getElementById('handle').classList[action]('disabled');
+  const pb = document.getElementById('pull-btn');
+  if (pb) pb.classList[action]('disabled');
+}
+
+function generateCode(prefix) {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let code = '';
+  for (let i = 0; i < 6; i++) {
+    code += chars[Math.floor(Math.random() * chars.length)];
+  }
+  return `${prefix}-${code}`;
+}
+
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function startOver() {
+  // Clear form
+  ['inp-name','inp-phone','inp-email'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('reg-error').textContent = '';
+  state = { player: null, spinOutcomes: [], spinIndex: 0, spinning: false, selectedPrize: null };
+  showScreen('s-register');
+}
+
+/* enter key on register form */
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && document.getElementById('s-register').classList.contains('active')) {
+    submitRegistration();
+  }
+});
+</script>
+</body>
+</html>
